@@ -1,6 +1,6 @@
  name: Build and deploy JAR app to Azure Web App - copa-mundial-arena
 
- on:
+  on:
     push:
       branches:
         - main
@@ -8,9 +8,10 @@
         - "GameDay/ballers-club/**"
         - ".github/workflows/main_copa-mundial-arena.yml"
     workflow_dispatch:
-permissions:
-contents: read
-    
+
+  permissions:
+    contents: read
+
   jobs:
     build:
       runs-on: ubuntu-latest
