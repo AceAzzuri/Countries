@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 220" role="img" aria-labelledby="title desc">
+  <title id="title">Copa Mundial Arena horizontal logo</title>
+  <desc id="desc">Arena football icon with ARENA wordmark and Copa Mundial Arena subtitle.</desc>
+  <path d="M65 48 A72 72 0 0 1 94 36" fill="none" stroke="#BFE8FF" stroke-width="15" stroke-linecap="round"/>
+  <path d="M112 36 A72 72 0 0 1 166 90" fill="none" stroke="#8FD3FF" stroke-width="15" stroke-linecap="round"/>
+  <path d="M166 130 A72 72 0 0 1 112 184" fill="none" stroke="#8FD3FF" stroke-width="15" stroke-linecap="round"/>
+  <path d="M94 184 A72 72 0 0 1 40 130" fill="none" stroke="#BFE8FF" stroke-width="15" stroke-linecap="round"/>
+  <path d="M40 90 A72 72 0 0 1 65 48" fill="none" stroke="#8FD3FF" stroke-width="15" stroke-linecap="round"/>
+  <path d="M53 110 A50 50 0 1 1 153 110 A50 50 0 1 1 53 110" fill="none" stroke="#8FD3FF" stroke-width="6"/>
+  <path d="M103 73 L128 88 L124 118 L103 134 L82 118 L78 88 Z" fill="none" stroke="#BFE8FF" stroke-width="6" stroke-linejoin="round"/>
+  <path d="M103 73 L103 99" fill="none" stroke="#BFE8FF" stroke-width="6" stroke-linecap="round"/>
+  <path d="M103 99 L124 118" fill="none" stroke="#8FD3FF" stroke-width="6" stroke-linecap="round"/>
+  <path d="M103 99 L82 118" fill="none" stroke="#8FD3FF" stroke-width="6" stroke-linecap="round"/>
+  <path d="M78 88 L61 102 L58 122" fill="none" stroke="#8FD3FF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M128 88 L145 102 L148 122" fill="none" stroke="#8FD3FF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M82 118 L72 142" fill="none" stroke="#8FD3FF" stroke-width="6" stroke-linecap="round"/>
+  <path d="M124 118 L134 142" fill="none" stroke="#8FD3FF" stroke-width="6" stroke-linecap="round"/>
+  <path d="M72 142 A50 50 0 0 0 134 142" fill="none" stroke="#8FD3FF" stroke-width="6" stroke-linecap="round"/>
+  <path d="M232 65 L276 65 L312 158 L282 158 L276 141 L235 141 L224 158 L194 158 Z M247 116 L269 116 L260 88 Z" fill="#FFFFFF" fill-rule="evenodd"/>
+  <path d="M331 65 L389 65 Q415 65 421 87 Q426 107 407 119 L431 158 L399 158 L380 125 L355 125 L349 158 L320 158 Z M360 91 L356 104 L385 104 Q397 104 396 96 Q395 91 383 91 Z" fill="#FFFFFF" fill-rule="evenodd"/>
+  <path d="M456 65 L533 65 L528 91 L480 91 L477 100 L520 100 L515 124 L472 124 L470 132 L520 132 L515 158 L438 158 Z" fill="#FFFFFF"/>
+  <path d="M558 65 L588 65 L625 113 L635 65 L664 65 L646 158 L619 158 L580 108 L570 158 L541 158 Z" fill="#FFFFFF"/>
+  <path d="M693 65 L737 65 L773 158 L743 158 L737 141 L696 141 L685 158 L655 158 Z M708 116 L730 116 L721 88 Z" fill="#FFFFFF" fill-rule="evenodd"/>
+  <path d="M235 184 H249 V187 H238 V191 H248 V194 H238 V201 H235 Z" fill="#8FD3FF"/>
+  <path d="M258 184 H272 Q279 184 279 191 V194 Q279 201 272 201 H258 Z M262 187 V198 H271 Q275 198 275 194 V191 Q275 187 271 187 Z" fill="#8FD3FF" fill-rule="evenodd"/>
+  <path d="M289 184 H303 Q309 184 309 189 Q309 193 305 194 L310 201 H306 L301 195 H293 V201 H289 Z M293 187 V192 H302 Q305 192 305 190 Q305 187 302 187 Z" fill="#8FD3FF" fill-rule="evenodd"/>
+  <path d="M319 184 H323 V201 H319 Z" fill="#8FD3FF"/>
+  <path d="M334 184 H338 L349 195 V184 H353 V201 H349 L338 190 V201 H334 Z" fill="#8FD3FF"/>
+  <path d="M363 184 H381 V187 H374 V201 H370 V187 H363 Z" fill="#8FD3FF"/>
+  <path d="M391 184 H408 V187 H395 V191 H407 V194 H395 V198 H409 V201 H391 Z" fill="#8FD3FF"/>
+  <path d="M421 184 H425 V198 H438 V201 H421 Z" fill="#8FD3FF"/>
+  <path d="M448 184 H452 V198 H465 V201 H448 Z" fill="#8FD3FF"/>
+  <path d="M476 184 H493 V187 H480 V191 H492 V194 H480 V198 H494 V201 H476 Z" fill="#8FD3FF"/>
+</svg>

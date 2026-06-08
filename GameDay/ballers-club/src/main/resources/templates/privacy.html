@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="da">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#120A1F">
+    <title>Privacy | Copa Mundial Arena</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/images/arena/brand/favicon-32.png" sizes="32x32" type="image/png">
+    <link rel="icon" href="/images/arena/brand/favicon-16.png" sizes="16x16" type="image/png">
+    <link rel="apple-touch-icon" href="/images/arena/brand/arena-logo.png">
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/ballers-club.css?v=20260605-feedback-layout1">
+</head>
+<body class="bc-body bc-worldcup-page">
+<header class="bc-appbar">
+    <a class="bc-brand" href="/arena">
+        <img src="/images/arena/brand/arena-logo.png" alt="Arena">
+        <span>ARENA</span>
+    </a>
+    <nav>
+        <a href="/arena">Copa Mundial Arena</a>
+        <a href="/polls">Bonus</a>
+        <a href="/leaderboard">Leaderboard</a>
+        <a class="active" href="/info">Info</a>
+        <a th:if="${isAdmin}" href="/admin/results">Admin</a>
+    </nav>
+</header>
+
+<main class="bc-shell">
+    <section class="bc-pagehead">
+        <p class="bc-kicker">Privacy</p>
+        <h1>Data og beskeder</h1>
+        <p class="bc-brandline"><span>by</span> <small>[something.dk]</small></p>
+        <p>Vi holder MVP'en simpel: ingen betting, ingen salg af data og ingen resultat-spam.</p>
+    </section>
+
+    <section class="bc-info-grid bc-info-list">
+        <article>
+            <h2>Det vi gemmer</h2>
+            <p>Brugernavn, email, profilvalg, predictions, point, poll-stemmer, private ligaer og dine reminder-/beskedvalg.</p>
+        </article>
+        <article>
+            <h2>Hvorfor vi gemmer det</h2>
+            <p>For at vise dine predictions, leaderboard, private ligaer, bonusvalg og for at kunne kontakte dig om præmier eller vigtige updates, hvis du har sagt ja.</p>
+        </article>
+        <article>
+            <h2>Beskeder</h2>
+            <p>Med samtykke sender vi kun lav volumen: én vigtig reminder og slutplacering/præmie-besked.</p>
+        </article>
+        <article>
+            <h2>Sletning</h2>
+            <p>Du kan altid bede om at få slettet din Arena-profil og email.</p>
+        </article>
+        <article>
+            <h2>Ball Knowledge - Not betting</h2>
+            <p>Ingen odds, ingen indskud, ingen casino-mekanik. Copa Mundial Arena er et prediction spil.</p>
+        </article>
+    </section>
+
+    <section class="bc-feedback-strip bc-feedback-bottom" aria-label="Feedback">
+        <form method="post" action="/arena/feedback">
+            <input type="hidden" name="returnTo" value="/privacy">
+            <label for="privacy-feedback">Feedback</label>
+            <textarea id="privacy-feedback" name="message" rows="1" maxlength="600"
+                      placeholder="Skriv kort hvad vi skal rette eller forbedre"></textarea>
+            <button class="bc-primary compact" type="submit">Send</button>
+        </form>
+        <div class="bc-flash success" th:if="${success}" th:text="${success}"></div>
+        <div class="bc-flash error" th:if="${error}" th:text="${error}"></div>
+    </section>
+</main>
+<script src="/js/interactions.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+{
+  "name": "Copa Mundial Arena",
+  "short_name": "Arena",
+  "description": "Copa Mundial Arena prediction spil.",
+  "start_url": "/arena",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#120A1F",
+  "theme_color": "#120A1F",
+  "icons": [
+    {
+      "src": "/images/arena/brand/favicon-16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/arena/brand/favicon-32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/arena/brand/arena-logo.png",
+      "sizes": "545x431",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="da">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#120A1F">
+    <title>Copa Mundial Arena</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/images/arena/brand/favicon-32.png" sizes="32x32" type="image/png">
+    <link rel="icon" href="/images/arena/brand/favicon-16.png" sizes="16x16" type="image/png">
+    <link rel="apple-touch-icon" href="/images/arena/brand/arena-logo.png">
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/ballers-club.css?v=20260605-feedback-layout1">
+</head>
+<body class="bc-body bc-worldcup-page">
+<header class="bc-appbar">
+    <a class="bc-brand" href="/arena">
+        <img src="/images/arena/brand/arena-logo.png" alt="Arena">
+        <span>ARENA</span>
+    </a>
+    <nav>
+        <a class="active" href="/arena">Copa Mundial Arena</a>
+        <a href="/polls">Bonus</a>
+        <a href="/leaderboard">Leaderboard</a>
+        <a href="/info">Info</a>
+        <a th:if="${isAdmin}" href="/admin/results">Admin</a>
+    </nav>
+</header>
+
+<main class="bc-shell">
+    <section class="bc-pagehead bc-arena-head bc-arena-hero-grid">
+        <div class="bc-arena-hero-copy">
+            <img class="bc-arena-head-image bc-arena-logo-lockup" src="/images/arena/brand/arena-logo.png" alt="ARENA - Copa Mundial Arena">
+            <h1 class="bc-arena-title">
+                <span>COPA MUNDIAL</span>
+                <strong>ARENA</strong>
+            </h1>
+            <p class="bc-brandline"><span>by</span> <small>[something.dk]</small></p>
+            <p>Test din ball knowledge under VM. Gæt resultater, saml point og kæmp om præmier.</p>
+            <img class="bc-arena-hero-icons" src="/images/iconer/Group.svg?v=arena-colour1" alt="" aria-hidden="true">
+            <div class="bc-page-actions">
+                <a th:if="${currentUser == null}" class="bc-primary compact" href="/login">Log ind for at spille</a>
+            </div>
+            <form th:if="${currentUser != null}" method="post" action="/logout">
+                <span class="bc-user" th:text="${currentUser.username}">user</span>
+                <button class="bc-link-button" type="submit">Log ud</button>
+            </form>
+        </div>
+        <aside class="bc-point-system-card" aria-label="Pointsystem">
+            <p class="bc-kicker">Pointsystem</p>
+            <ul class="bc-point-rules">
+                <li>
+                    <span class="bc-rule-icon target" aria-hidden="true"></span>
+                    <div><strong>3 point</strong><span>Præcis score</span></div>
+                </li>
+                <li>
+                    <span class="bc-rule-icon check" aria-hidden="true"></span>
+                    <div><strong>1 point</strong><span>Korrekt udfald</span></div>
+                </li>
+                <li>
+                    <span class="bc-rule-icon miss" aria-hidden="true"></span>
+                    <div><strong>0 point</strong><span>Forkert gæt</span></div>
+                </li>
+                <li>
+                    <span class="bc-rule-icon lock" aria-hidden="true"></span>
+                    <div><strong>Kickoff</strong><span>Predictions låser</span></div>
+                </li>
+            </ul>
+        </aside>
+    </section>
+
+    <section class="bc-arena-overview" aria-label="Arena overblik">
+        <aside class="bc-preview-panel bc-leaderboard-preview">
+            <div class="bc-panel-head">
+                <p class="bc-kicker">Leaderboard</p>
+                <a href="/leaderboard">Se alle</a>
+            </div>
+            <div class="bc-mini-leaderboard" th:if="${!topPointRows.isEmpty()}">
+                <article th:each="row, rowStat : ${topPointRows}" th:if="${rowStat.index < 4}">
+                    <strong th:text="${row.rank()}">1</strong>
+                    <span th:text="${row.username()}">TheSpecialOne</span>
+                    <em th:text="${row.totalPoints()}">2430</em>
+                </article>
+            </div>
+            <p class="bc-muted" th:if="${topPointRows.isEmpty()}">Leaderboard åbner, når de første point er landet.</p>
+        </aside>
+    </section>
+
+    <section id="kampe" class="bc-match-sections">
+        <details class="bc-match-section" th:each="section : ${matchSections}" th:open="${section.open()}">
+            <summary>
+                <span>
+                    <strong th:text="${section.title()}">Group matches 1</strong>
+                    <small th:text="${section.subtitle()}">Opening fixtures</small>
+                </span>
+                <em th:text="${section.matches().size()} + ' kampe'">24 kampe</em>
+            </summary>
+
+            <div class="bc-match-list">
+                <article class="bc-match" th:each="match : ${section.matches()}">
+                    <div class="bc-match-meta">
+                        <span th:text="${match.roundLabel}">Group Stage</span>
+                        <strong th:text="${match.statusLabel}">Open</strong>
+                    </div>
+                    <div class="bc-teams">
+                        <div>
+                            <button class="bc-country-button" type="button"
+                                    data-country-details
+                                    th:attr="data-country-name=${match.homeTeam},
+                                             data-country-meta=${match.roundLabel + ' • ' + match.kickoffLabel},
+                                             data-country-note=${countryNotes[#strings.toLowerCase(match.homeTeam)] != null ? countryNotes[#strings.toLowerCase(match.homeTeam)] : 'FIFA teamdata kommer snart for ' + match.homeTeam + '.'},
+                                             data-country-players=${countryPlayers[#strings.toLowerCase(match.homeTeam)]}">
+                                <span class="bc-badge bc-flag" th:text="${match.homeFlag}">🇲🇽</span>
+                            </button>
+                            <strong th:text="${match.homeTeam}">Mexico</strong>
+                        </div>
+                        <span class="bc-versus">vs</span>
+                        <div>
+                            <button class="bc-country-button" type="button"
+                                    data-country-details
+                                    th:attr="data-country-name=${match.awayTeam},
+                                             data-country-meta=${match.roundLabel + ' • ' + match.kickoffLabel},
+                                             data-country-note=${countryNotes[#strings.toLowerCase(match.awayTeam)] != null ? countryNotes[#strings.toLowerCase(match.awayTeam)] : 'FIFA teamdata kommer snart for ' + match.awayTeam + '.'},
+                                             data-country-players=${countryPlayers[#strings.toLowerCase(match.awayTeam)]}">
+                                <span class="bc-badge bc-flag" th:text="${match.awayFlag}">🇿🇦</span>
+                            </button>
+                            <strong th:text="${match.awayTeam}">South Africa</strong>
+                        </div>
+                    </div>
+
+                    <div class="bc-match-actions">
+                        <button class="bc-details-button" type="button"
+                                data-match-details
+                                th:attr="data-match-title=${match.homeTeam + ' vs ' + match.awayTeam},
+                                         data-match-meta=${match.roundLabel + ' • ' + match.kickoffLabel + (match.venue != null ? ' • ' + match.venue : '')},
+                                         data-match-status=${match.statusLabel}">
+                            Kampinfo
+                        </button>
+                    </div>
+
+                    <form class="bc-score-form" method="post" action="/arena/predictions" th:if="${currentUser != null and match.predictionOpen}">
+                        <input type="hidden" name="matchId" th:value="${match.id}">
+                        <input inputmode="numeric" pattern="[0-9]*" name="homeGoals" aria-label="Home goals"
+                               th:value="${predictions[match.id] != null ? predictions[match.id].homeGoals : ''}">
+                        <span>:</span>
+                        <input inputmode="numeric" pattern="[0-9]*" name="awayGoals" aria-label="Away goals"
+                               th:value="${predictions[match.id] != null ? predictions[match.id].awayGoals : ''}">
+                        <button type="submit">Gem</button>
+                    </form>
+
+                    <section class="bc-prediction-stats"
+                             th:if="${currentUser != null and predictions[match.id] != null and predictionStats[match.id] != null}">
+                        <div class="bc-stats-head">
+                            <span>1-X-2</span>
+                            <strong th:text="${predictionStats[match.id].totalVotes()} + ' picks'">0 picks</strong>
+                        </div>
+                        <div class="bc-stat-line">
+                            <div>
+                                <span th:text="${match.homeTeam}">Mexico</span>
+                                <strong th:text="${predictionStats[match.id].homeWinPercentage()} + '%'">0%</strong>
+                            </div>
+                            <progress max="100" th:value="${predictionStats[match.id].homeWinPercentage()}"></progress>
+                        </div>
+                        <div class="bc-stat-line">
+                            <div>
+                                <span>X</span>
+                                <strong th:text="${predictionStats[match.id].drawPercentage()} + '%'">0%</strong>
+                            </div>
+                            <progress max="100" th:value="${predictionStats[match.id].drawPercentage()}"></progress>
+                        </div>
+                        <div class="bc-stat-line">
+                            <div>
+                                <span th:text="${match.awayTeam}">South Africa</span>
+                                <strong th:text="${predictionStats[match.id].awayWinPercentage()} + '%'">0%</strong>
+                            </div>
+                            <progress max="100" th:value="${predictionStats[match.id].awayWinPercentage()}"></progress>
+                        </div>
+                    </section>
+
+                    <div class="bc-locked" th:if="${currentUser == null}">
+                        Login kræves
+                    </div>
+                    <div class="bc-locked" th:if="${currentUser != null and !match.groupMatch}">
+                        Knockout predictions åbner, når holdene er kendt
+                    </div>
+                    <div class="bc-locked" th:if="${currentUser != null and match.groupMatch and !match.predictionOpen}">
+                        Prediction låst
+                    </div>
+                </article>
+            </div>
+        </details>
+    </section>
+
+    <section class="bc-arena-route" aria-label="Arena rute">
+        <article>
+            <span>01</span>
+            <h2>Bonus</h2>
+            <p>Lav dine bonusvalg først. Bonus med point og bonus uden point er adskilt.</p>
+            <a class="bc-primary compact" href="/polls">Gå til Bonus</a>
+        </article>
+        <article>
+            <span>02</span>
+            <h2>Leaderboard</h2>
+            <p>Se point, præcise scores, træfprocent, lodder og private ligaer.</p>
+            <a class="bc-primary compact" href="/leaderboard">Gå til Leaderboard</a>
+        </article>
+    </section>
+
+    <section class="bc-feed" th:if="${!predictionFeed.isEmpty()}">
+        <div class="bc-section-head">
+            <p class="bc-kicker">Community feed</p>
+            <h2>Rigtige kald fra tabellen</h2>
+        </div>
+        <article th:each="item : ${predictionFeed}">
+            <strong th:text="${item.headline()}">Azzuri called the score</strong>
+            <span th:text="${item.detail()}">Mexico vs South Africa</span>
+        </article>
+    </section>
+
+    <section class="bc-feedback-strip bc-feedback-bottom" aria-label="Feedback">
+        <form method="post" action="/arena/feedback">
+            <input type="hidden" name="returnTo" value="/arena">
+            <label for="arena-feedback">Feedback</label>
+            <textarea id="arena-feedback" name="message" rows="1" maxlength="600"
+                      placeholder="Skriv kort hvad vi skal rette eller forbedre"></textarea>
+            <button class="bc-primary compact" type="submit">Send</button>
+        </form>
+        <div class="bc-flash success" th:if="${success}" th:text="${success}"></div>
+        <div class="bc-flash error" th:if="${error}" th:text="${error}"></div>
+    </section>
+
+</main>
+<dialog class="bc-match-modal" data-match-modal>
+    <form method="dialog">
+        <button type="button" aria-label="Luk kampinfo" data-match-modal-close>Luk</button>
+    </form>
+    <h2 data-match-modal-title>Kampdetaljer</h2>
+    <p data-match-modal-meta></p>
+    <strong data-match-modal-status></strong>
+</dialog>
+<dialog class="bc-match-modal" data-country-modal>
+    <form method="dialog">
+        <button type="button" aria-label="Luk landinfo" data-country-modal-close>Luk</button>
+    </form>
+    <p class="bc-kicker">Trup</p>
+    <h2 data-country-modal-title>Land</h2>
+    <p data-country-modal-meta></p>
+    <strong data-country-modal-note></strong>
+    <div class="bc-player-list" data-country-modal-players></div>
+</dialog>
+<script src="/js/interactions.js" defer></script>
+</body>
+</html>

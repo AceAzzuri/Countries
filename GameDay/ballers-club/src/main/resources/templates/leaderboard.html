@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="da">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#120A1F">
+    <title>Leaderboard</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/images/arena/brand/favicon-32.png" sizes="32x32" type="image/png">
+    <link rel="icon" href="/images/arena/brand/favicon-16.png" sizes="16x16" type="image/png">
+    <link rel="apple-touch-icon" href="/images/arena/brand/arena-logo.png">
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/ballers-club.css?v=20260605-feedback-layout1">
+</head>
+<body class="bc-body bc-worldcup-page">
+<header class="bc-appbar">
+    <a class="bc-brand" href="/arena">
+        <img src="/images/arena/brand/arena-logo.png" alt="Arena">
+        <span>ARENA</span>
+    </a>
+    <nav>
+        <a href="/arena">Copa Mundial Arena</a>
+        <a href="/polls">Bonus</a>
+        <a class="active" href="/leaderboard">Leaderboard</a>
+        <a href="/info">Info</a>
+        <a th:if="${isAdmin}" href="/admin/results">Admin</a>
+    </nav>
+</header>
+
+<main class="bc-shell">
+    <section class="bc-pagehead bc-compact-head">
+        <p class="bc-kicker">Copa Mundial Arena</p>
+        <h1>Leaderboard</h1>
+        <p>Point, præcise scores og træfprocent afgør kampen om præmier og placeringer.</p>
+        <div class="bc-page-actions">
+            <a th:if="${currentUser == null}" class="bc-primary compact" href="/login">Log ind for private ligaer</a>
+        </div>
+    </section>
+
+    <div class="bc-flash success" th:if="${success}" th:text="${success}"></div>
+    <div class="bc-flash error" th:if="${error}" th:text="${error}"></div>
+
+    <section class="bc-prize-rules">
+        <div>
+            <p class="bc-kicker">Lodder og præmier</p>
+            <h2>Top 3 giver lodder</h2>
+            <p>Træfprocent, præcise scores og samlede point tæller hver for sig.</p>
+        </div>
+        <ul>
+            <li>Træfprocent</li>
+            <li>Præcise scores</li>
+            <li>Samlede point</li>
+        </ul>
+    </section>
+
+    <section class="bc-ticket-strip">
+        <article>
+            <span>Lodkategori 1</span>
+            <h2>Top træfprocent</h2>
+            <div th:each="row : ${topHitRows}">
+                <strong th:text="${row.username()}">Azzuri</strong>
+                <em th:text="${row.hitPercentage()} + '%'">0%</em>
+            </div>
+            <p th:if="${topHitRows.isEmpty()}">Afventer resultater.</p>
+        </article>
+        <article>
+            <span>Lodkategori 2</span>
+            <h2>Top ramte plet</h2>
+            <div th:each="row : ${topExactRows}">
+                <strong th:text="${row.username()}">Azzuri</strong>
+                <em th:text="${row.exactScores()} + ' præcise'">0 præcise</em>
+            </div>
+            <p th:if="${topExactRows.isEmpty()}">Afventer præcise hits.</p>
+        </article>
+        <article>
+            <span>Lodkategori 3</span>
+            <h2>Top point</h2>
+            <div th:each="row : ${topPointRows}">
+                <strong th:text="${row.username()}">Azzuri</strong>
+                <em th:text="${row.totalPoints()} + ' pts'">0 pts</em>
+            </div>
+            <p th:if="${topPointRows.isEmpty()}">Afventer point.</p>
+        </article>
+    </section>
+
+    <section class="bc-table" th:if="${!rows.isEmpty()}">
+        <button class="bc-row bc-row-button" type="button" th:each="row : ${rows}"
+                th:attr="data-user-profile=${'profile-' + row.rank()}">
+            <strong th:text="${row.rank()}">1</strong>
+            <div>
+                <h2 th:text="${row.username()}">username</h2>
+                <p>
+                    <span th:text="${row.gamesPlayed()} + ' kampe'">0 kampe</span>
+                    <span th:text="${row.exactScores()} + ' præcise'">0 præcise</span>
+                    <span th:text="${row.correctResults()} + ' udfald'">0 udfald</span>
+                </p>
+            </div>
+            <span th:text="${row.totalPoints()} + ' pts'">0 pts</span>
+        </button>
+    </section>
+
+    <section class="bc-empty" th:if="${rows.isEmpty()}">
+        <h2>Ingen predictions endnu</h2>
+        <p>Leaderboard vågner, når de første predictions bliver gemt.</p>
+        <a class="bc-primary compact" href="/arena">Gå til Arena</a>
+    </section>
+
+    <section class="bc-feed" th:if="${!predictionFeed.isEmpty()}">
+        <div class="bc-section-head">
+            <p class="bc-kicker">Community feed</p>
+            <h2>Seneste rigtige kald</h2>
+        </div>
+        <article th:each="item : ${predictionFeed}">
+            <strong th:text="${item.headline()}">Azzuri called the score</strong>
+            <span th:text="${item.detail()}">Mexico vs South Africa</span>
+        </article>
+    </section>
+
+    <section class="bc-pool-panel">
+        <div>
+            <p class="bc-kicker">Private ligaer</p>
+            <h2>Spil mod dine egne</h2>
+            <p>Opret en liga og del koden. Pointene er de samme, men private ligaer tæller ikke ekstra til lodder.</p>
+        </div>
+        <form method="post" action="/pools" th:if="${currentUser != null}">
+            <input name="name" maxlength="60" placeholder="Liga-navn" required>
+            <button class="bc-primary compact" type="submit">Opret liga</button>
+        </form>
+        <form method="post" action="/pools/join" th:if="${currentUser != null}">
+            <input name="code" maxlength="12" placeholder="Kode" required>
+            <button class="bc-link-button" type="submit">Join med kode</button>
+        </form>
+    </section>
+
+    <section class="bc-pool-list" th:if="${!poolLeaderboards.isEmpty()}">
+        <article class="bc-pool-card" th:each="poolView : ${poolLeaderboards}">
+            <div class="bc-section-head">
+                <div>
+                    <p class="bc-kicker">Privat liga</p>
+                    <h2 th:text="${poolView.pool().name}">Crew League</h2>
+                </div>
+                <div class="bc-pool-code">
+                    <span>Kode</span>
+                    <strong th:text="${poolView.pool().code}">ABC123</strong>
+                </div>
+            </div>
+            <p th:text="${poolView.memberCount()} + ' medlemmer'">1 medlemmer</p>
+            <div class="bc-mini-table" th:if="${!poolView.rows().isEmpty()}">
+                <div th:each="row : ${poolView.rows()}">
+                    <strong th:text="${row.rank()}">1</strong>
+                    <span th:text="${row.username()}">Azzuri</span>
+                    <em th:text="${row.totalPoints()} + ' pts'">0 pts</em>
+                </div>
+            </div>
+            <p class="bc-muted" th:if="${poolView.rows().isEmpty()}">Ingen predictions i ligaen endnu.</p>
+        </article>
+    </section>
+
+    <section class="bc-feedback-strip bc-feedback-bottom" aria-label="Feedback">
+        <form method="post" action="/arena/feedback">
+            <input type="hidden" name="returnTo" value="/leaderboard">
+            <label for="leaderboard-feedback">Feedback</label>
+            <textarea id="leaderboard-feedback" name="message" rows="1" maxlength="600"
+                      placeholder="Skriv kort hvad vi skal rette eller forbedre"></textarea>
+            <button class="bc-primary compact" type="submit">Send</button>
+        </form>
+    </section>
+</main>
+
+<dialog class="bc-user-modal" th:each="profile : ${profiles}" th:id="${'profile-' + profile.row().rank()}">
+    <form method="dialog">
+        <button type="button" aria-label="Luk spillerstats" data-user-modal-close>Luk</button>
+    </form>
+    <p class="bc-kicker">Spillerkort</p>
+    <h2 th:text="${profile.row().username()}">Azzuri</h2>
+    <section class="bc-user-stats">
+        <article>
+            <span>Rank</span>
+            <strong th:text="${profile.row().rank()}">1</strong>
+        </article>
+        <article>
+            <span>Point</span>
+            <strong th:text="${profile.row().totalPoints()}">0</strong>
+        </article>
+        <article>
+            <span>Predictions</span>
+            <strong th:text="${profile.totalPredictions()}">0</strong>
+        </article>
+        <article>
+            <span>Præcise</span>
+            <strong th:text="${profile.row().exactScores()}">0</strong>
+        </article>
+    </section>
+    <section class="bc-user-picks">
+        <h3>Predictions</h3>
+        <article th:each="prediction : ${profile.predictions()}">
+            <div>
+                <strong th:text="${prediction.matchLabel()}">Mexico vs South Africa</strong>
+                <span th:text="${prediction.kickoffLabel()}">11 Jun 2026 21:00</span>
+            </div>
+            <div>
+                <span th:text="${'Pick ' + prediction.predictionLabel()}">Pick 2-1</span>
+                <span th:text="${'Resultat ' + prediction.resultLabel()}">Resultat afventer</span>
+                <strong th:text="${prediction.points()} + ' pts'">0 pts</strong>
+            </div>
+        </article>
+    </section>
+</dialog>
+<script src="/js/interactions.js" defer></script>
+</body>
+</html>

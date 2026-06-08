@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="da">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#120A1F">
+    <title>Settings | Copa Mundial Arena</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/images/arena/brand/favicon-32.png" sizes="32x32" type="image/png">
+    <link rel="icon" href="/images/arena/brand/favicon-16.png" sizes="16x16" type="image/png">
+    <link rel="apple-touch-icon" href="/images/arena/brand/arena-logo.png">
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/ballers-club.css?v=20260605-feedback-layout1">
+</head>
+<body class="bc-body bc-worldcup-page">
+<header class="bc-appbar">
+    <a class="bc-brand" href="/arena">
+        <img src="/images/arena/brand/arena-logo.png" alt="Arena">
+        <span>ARENA</span>
+    </a>
+    <nav>
+        <a href="/arena">Copa Mundial Arena</a>
+        <a href="/polls">Bonus</a>
+        <a href="/leaderboard">Leaderboard</a>
+        <a class="active" href="/info">Info</a>
+        <a th:if="${isAdmin}" href="/admin/results">Admin</a>
+    </nav>
+</header>
+
+<main class="bc-shell">
+    <section class="bc-pagehead">
+        <p class="bc-kicker" th:text="${currentUser.username}">username</p>
+        <h1>Reminders</h1>
+        <p class="bc-brandline"><span>by</span> <small>[something.dk]</small></p>
+        <p>Gem hvad du vil have besked om. Email/push kan kobles på senere.</p>
+    </section>
+
+    <div class="bc-flash success" th:if="${success}" th:text="${success}"></div>
+
+    <form class="bc-settings" method="post" action="/settings/reminders">
+        <label>
+            <span>
+                <strong>Kampdags-reminder</strong>
+                <small>Få en reminder den dag en prediction låser.</small>
+            </span>
+            <input type="checkbox" name="matchdayReminder" th:checked="${preference.matchdayReminder}">
+        </label>
+        <label>
+            <span>
+                <strong>1 time før kickoff</strong>
+                <small>Sidste reminder før scoren låser.</small>
+            </span>
+            <input type="checkbox" name="oneHourReminder" th:checked="${preference.oneHourReminder}">
+        </label>
+        <label>
+            <span>
+                <strong>Arena-beskeder</strong>
+                <small>Tillad en vigtig reminder og slutplacering/præmie-besked.</small>
+            </span>
+            <input type="checkbox" name="communicationConsent" th:checked="${currentUser.communicationConsent}">
+        </label>
+        <button class="bc-primary" type="submit">Gem indstillinger</button>
+    </form>
+</main>
+<script src="/js/interactions.js" defer></script>
+</body>
+</html>

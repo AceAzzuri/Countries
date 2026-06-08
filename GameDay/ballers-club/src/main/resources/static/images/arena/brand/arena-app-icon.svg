@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Copa Mundial Arena app icon</title>
+  <desc id="desc">Arena football app icon on a midnight background.</desc>
+  <path d="M64 0 H448 A64 64 0 0 1 512 64 V448 A64 64 0 0 1 448 512 H64 A64 64 0 0 1 0 448 V64 A64 64 0 0 1 64 0 Z" fill="#120A1F"/>
+  <path d="M154 88 A192 192 0 0 1 232 56" fill="none" stroke="#BFE8FF" stroke-width="40" stroke-linecap="round"/>
+  <path d="M280 56 A192 192 0 0 1 358 88 A192 192 0 0 1 424 200" fill="none" stroke="#8FD3FF" stroke-width="40" stroke-linecap="round"/>
+  <path d="M424 312 A192 192 0 0 1 358 424 A192 192 0 0 1 280 456" fill="none" stroke="#8FD3FF" stroke-width="40" stroke-linecap="round"/>
+  <path d="M232 456 A192 192 0 0 1 154 424 A192 192 0 0 1 88 312" fill="none" stroke="#BFE8FF" stroke-width="40" stroke-linecap="round"/>
+  <path d="M88 200 A192 192 0 0 1 154 88" fill="none" stroke="#8FD3FF" stroke-width="40" stroke-linecap="round"/>
+  <path d="M122 256 A134 134 0 1 1 390 256 A134 134 0 1 1 122 256" fill="none" stroke="#8FD3FF" stroke-width="16"/>
+  <path d="M256 158 L322 198 L310 278 L256 320 L202 278 L190 198 Z" fill="none" stroke="#BFE8FF" stroke-width="16" stroke-linejoin="round"/>
+  <path d="M256 158 L256 226" fill="none" stroke="#BFE8FF" stroke-width="16" stroke-linecap="round"/>
+  <path d="M256 226 L310 278" fill="none" stroke="#8FD3FF" stroke-width="16" stroke-linecap="round"/>
+  <path d="M256 226 L202 278" fill="none" stroke="#8FD3FF" stroke-width="16" stroke-linecap="round"/>
+  <path d="M190 198 L144 234 L136 288" fill="none" stroke="#8FD3FF" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M322 198 L368 234 L376 288" fill="none" stroke="#8FD3FF" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M202 278 L176 342" fill="none" stroke="#8FD3FF" stroke-width="16" stroke-linecap="round"/>
+  <path d="M310 278 L336 342" fill="none" stroke="#8FD3FF" stroke-width="16" stroke-linecap="round"/>
+  <path d="M176 342 A134 134 0 0 0 336 342" fill="none" stroke="#8FD3FF" stroke-width="16" stroke-linecap="round"/>
+</svg>

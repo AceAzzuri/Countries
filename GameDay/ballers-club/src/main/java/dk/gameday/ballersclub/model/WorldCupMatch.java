@@ -1,0 +1,152 @@
+package dk.gameday.ballersclub.model;
+
+import dk.gameday.ballersclub.util.CountryFlagUtil;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+import java.util.regex.Pattern;
+
+@Entity
+@Table(name = "matches")
+public class WorldCupMatch {
+
+    private static final DateTimeFormatter KICKOFF_FORMAT =
+            DateTimeFormatter.ofPattern("d. MMM yyyy HH:mm", Locale.ENGLISH);
+    private static final Pattern SPLIT_PATTERN = Pattern.compile("[\\s\\-/]+");
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String roundLabel;
+
+    @Column(nullable = false)
+    private String homeTeam;
+
+    @Column(nullable = false)
+    private String awayTeam;
+
+    @Column(nullable = false)
+    private LocalDateTime kickoffAt;
+
+    private String venue;
+    private Integer homeScore;
+    private Integer awayScore;
+
+    protected WorldCupMatch() {
+    }
+
+    public WorldCupMatch(String roundLabel, String homeTeam, String awayTeam, LocalDateTime kickoffAt, String venue) {
+        this.roundLabel = roundLabel;
+        this.homeTeam = homeTeam;
+        this.awayTeam = awayTeam;
+        this.kickoffAt = kickoffAt;
+        this.venue = venue;
+    }
+
+    public boolean isPredictionOpen() {
+        return isGroupMatch() && !hasResult() && LocalDateTime.now().isBefore(kickoffAt);
+    }
+
+    public boolean isGroupMatch() {
+        return roundLabel != null && roundLabel.startsWith("Group ");
+    }
+
+    public boolean hasResult() {
+        return homeScore != null && awayScore != null;
+    }
+
+    public String getKickoffLabel() {
+        return kickoffAt.format(KICKOFF_FORMAT);
+    }
+
+    public String getStatusLabel() {
+        if (hasResult()) {
+            return "Færdig";
+        }
+        if (!isGroupMatch()) {
+            return "Knockout";
+        }
+        return isPredictionOpen() ? "Åben" : "Låst";
+    }
+
+    public void updateResult(Integer homeScore, Integer awayScore) {
+        this.homeScore = homeScore;
+        this.awayScore = awayScore;
+    }
+
+    public void clearResult() {
+        this.homeScore = null;
+        this.awayScore = null;
+    }
+
+    public String getHomeBadge() {
+        return buildBadge(homeTeam);
+    }
+
+    public String getAwayBadge() {
+        return buildBadge(awayTeam);
+    }
+
+    public String getHomeFlag() {
+        return CountryFlagUtil.flagOrFallback(homeTeam, getHomeBadge());
+    }
+
+    public String getAwayFlag() {
+        return CountryFlagUtil.flagOrFallback(awayTeam, getAwayBadge());
+    }
+
+    private static String buildBadge(String teamName) {
+        String[] parts = SPLIT_PATTERN.split(teamName.trim());
+        StringBuilder badge = new StringBuilder();
+        for (String part : parts) {
+            if (!part.isBlank() && Character.isLetter(part.charAt(0))) {
+                badge.append(Character.toUpperCase(part.charAt(0)));
+            }
+            if (badge.length() == 2) {
+                break;
+            }
+        }
+        return badge.isEmpty() ? teamName.substring(0, Math.min(2, teamName.length())).toUpperCase(Locale.ROOT) : badge.toString();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getRoundLabel() {
+        return roundLabel;
+    }
+
+    public String getHomeTeam() {
+        return homeTeam;
+    }
+
+    public String getAwayTeam() {
+        return awayTeam;
+    }
+
+    public LocalDateTime getKickoffAt() {
+        return kickoffAt;
+    }
+
+    public String getVenue() {
+        return venue;
+    }
+
+    public Integer getHomeScore() {
+        return homeScore;
+    }
+
+    public Integer getAwayScore() {
+        return awayScore;
+    }
+}

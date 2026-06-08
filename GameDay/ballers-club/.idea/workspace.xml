@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="449c97cb-e494-4259-8c88-60e998be9cbc" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/../src/main/java/com/example/gameday/model/LeaderboardRow.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/art/ChatGPT Image May 15, 2026, 09_43_33 AM.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/art/ChatGPT Image May 15, 2026, 09_57_37 AM.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/art/Messi.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/art/adriano.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/art/balo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/art/chemara.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/art/deckyli.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/art/johan.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/art/lamin.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/art/man.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/art/man1.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/art/moali.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/art/rayo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/art/ricekyli.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/art/senegal.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/bagoglogo/Dommer.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/bagoglogo/anførerbind.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/bagoglogo/anførerrød.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/bagoglogo/community.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/bagoglogo/domemrlille.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/bagoglogo/fairplay.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/bagoglogo/gadenkbh.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/bagoglogo/gadenkbh2.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/bagoglogo/gadenkbh3.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/bagoglogo/gd.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/bagoglogo/spiller.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/bagoglogo/spillerlille.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/ballersclubapp/bc.app.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/ballersclubapp/bc.app.wc2.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/ballersdistriktapp/bd.app.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/maps/Vest+Val.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/maps/amager.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/maps/brønshøj.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/maps/frb+val+van.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/maps/frb.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/maps/gadennyny.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/maps/nør+øst.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/maps/vestegnen.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/non gambling.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/pitches/Sundby Idrætspark1_0.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/pitches/Valby.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/pitches/bb1.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/pitches/bb2.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/pitches/bb3.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/pitches/fb5.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/pitches/nan1.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/pitches/nan2.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/pitches/valby1.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/test/ChatGPT Image May 19, 2026, 02_11_05 PM.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/test/ChatGPT Image May 24, 2026, 12_54_46 PM.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/test/ChatGPT Image May 24, 2026, 12_55_30 PM.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/test/fairplayregler.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/main/resources/static/images/test/qr.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AZURE_DEPLOY.md" beforeDir="false" afterPath="$PROJECT_DIR$/AZURE_DEPLOY.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application-prod.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application-prod.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/static/css/ballers-club.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/css/ballers-club.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/static/images/iconer/Group.svg" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/images/iconer/Group.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/templates/admin-results.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/templates/admin-results.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/templates/error.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/templates/error.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/templates/error/404.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/templates/error/404.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/templates/info.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/templates/info.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/templates/leaderboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/templates/leaderboard.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/templates/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/templates/login.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/templates/polls.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/templates/polls.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/templates/privacy.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/templates/privacy.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/templates/settings.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/templates/settings.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/templates/worldcup.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/templates/worldcup.html" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;AceAzzuri&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/AceAzzuri/Countries.git&quot;,
+    &quot;accountId&quot;: &quot;d6de5269-afb9-453d-89f1-6088a353cb58&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 8
+}</component>
+  <component name="ProjectId" id="3EB9GoiNLUuqvbrqDsk3kziYtR3" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;Spring Boot.BallersClubApplication.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/test/Desktop/Countries/GameDay/ballers-club/src/main/resources/static/images/ballersclub&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/main/resources/static/images/ballersclub" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/main/resources/static/images/bagoglogo" />
+      <recent name="$PROJECT_DIR$/src/main/resources/static/images/testbillede" />
+      <recent name="$PROJECT_DIR$/src/main/resources/static/images/arena" />
+      <recent name="$PROJECT_DIR$/src/main/resources/static/images/ballersclub" />
+      <recent name="$PROJECT_DIR$/src/main/resources/static/images/iconer" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="BallersClubApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="ballers-club" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="dk.gameday.ballersclub.BallersClubApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.23892.409" />
+        <option value="bundled-js-predefined-d6986cc7102b-e03c56caf84a-JavaScript-IU-252.23892.409" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="449c97cb-e494-4259-8c88-60e998be9cbc" name="Changes" comment="" />
+      <created>1779641003376</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1779641003376</updated>
+      <workItem from="1779641004872" duration="3550000" />
+      <workItem from="1779660891464" duration="22272000" />
+      <workItem from="1780043655963" duration="6825000" />
+      <workItem from="1780079572950" duration="6681000" />
+      <workItem from="1780391260889" duration="10175000" />
+      <workItem from="1780653386057" duration="15461000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">Arena icon</title>
+  <desc id="desc">A minimalist football inside a four segment circular arena ring.</desc>
+  <path d="M77 44 A96 96 0 0 1 116 28" fill="none" stroke="#BFE8FF" stroke-width="20" stroke-linecap="round"/>
+  <path d="M140 28 A96 96 0 0 1 179 44 A96 96 0 0 1 212 100" fill="none" stroke="#8FD3FF" stroke-width="20" stroke-linecap="round"/>
+  <path d="M212 156 A96 96 0 0 1 179 212 A96 96 0 0 1 140 228" fill="none" stroke="#8FD3FF" stroke-width="20" stroke-linecap="round"/>
+  <path d="M116 228 A96 96 0 0 1 77 212 A96 96 0 0 1 44 156" fill="none" stroke="#BFE8FF" stroke-width="20" stroke-linecap="round"/>
+  <path d="M44 100 A96 96 0 0 1 77 44" fill="none" stroke="#8FD3FF" stroke-width="20" stroke-linecap="round"/>
+  <path d="M61 128 A67 67 0 1 1 195 128 A67 67 0 1 1 61 128" fill="none" stroke="#8FD3FF" stroke-width="8"/>
+  <path d="M128 79 L161 99 L155 139 L128 160 L101 139 L95 99 Z" fill="none" stroke="#BFE8FF" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M128 79 L128 113" fill="none" stroke="#BFE8FF" stroke-width="8" stroke-linecap="round"/>
+  <path d="M128 113 L155 139" fill="none" stroke="#8FD3FF" stroke-width="8" stroke-linecap="round"/>
+  <path d="M128 113 L101 139" fill="none" stroke="#8FD3FF" stroke-width="8" stroke-linecap="round"/>
+  <path d="M95 99 L72 117 L68 144" fill="none" stroke="#8FD3FF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M161 99 L184 117 L188 144" fill="none" stroke="#8FD3FF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M101 139 L88 171" fill="none" stroke="#8FD3FF" stroke-width="8" stroke-linecap="round"/>
+  <path d="M155 139 L168 171" fill="none" stroke="#8FD3FF" stroke-width="8" stroke-linecap="round"/>
+  <path d="M88 171 A67 67 0 0 0 168 171" fill="none" stroke="#8FD3FF" stroke-width="8" stroke-linecap="round"/>
+</svg>
