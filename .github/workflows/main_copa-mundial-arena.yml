@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy JAR app to Azure Web App - copa-mundial-arena
+ name: Build and deploy JAR app to Azure Web App - copa-mundial-arena
 
   on:
     push:
@@ -29,8 +29,8 @@ name: Build and deploy JAR app to Azure Web App - copa-mundial-arena
         - name: Set up Java version
           uses: actions/setup-java@v5
           with:
+            distribution: microsoft
             java-version: "17"
-            distribution: "microsoft"
             cache: maven
 
         - name: Build with Maven
@@ -67,6 +67,6 @@ name: Build and deploy JAR app to Azure Web App - copa-mundial-arena
         - name: Deploy to Azure Web App
           uses: azure/webapps-deploy@v3
           with:
-            app-name: "copa-mundial-arena"
-            slot-name: "Production"
+            app-name: copa-mundial-arena
+            slot-name: Production
             package: "*.jar"
