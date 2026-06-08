@@ -1,10 +1,10 @@
 name: Build and deploy JAR app to Azure Web App - copa-mundial-arena
 
 on:
-    push:
+  push:
       branches:
         - main
-    workflow_dispatch:
+  workflow_dispatch:
 
   permissions:
     contents: read
