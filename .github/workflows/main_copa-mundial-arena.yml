@@ -22,8 +22,7 @@ jobs:
         with:
           distribution: microsoft
           java-version: "17"
-          cache: maven
-          cache-dependency-path: GameDay/ballers-club/pom.xml
+        
 
 
       - name: Build with Maven
