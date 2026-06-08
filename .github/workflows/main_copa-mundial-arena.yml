@@ -2,65 +2,51 @@ name: Build and deploy JAR app to Azure Web App - copa-mundial-arena
 
 on:
   push:
-      branches:
-        - main
+    branches:
+      - main
   workflow_dispatch:
 
-  permissions:
-    contents: read
-    id-token: write
-    
-  jobs:
-    build:
-      runs-on: ubuntu-latest
+permissions:
+  contents: read
+  id-token: write
 
-      steps:
-        - uses: actions/checkout@v6
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-        - name: Set up Java version
-          uses: actions/setup-java@v5
-          with:
-            distribution: microsoft
-            java-version: "17"
-            cache: maven
+    steps:
+      - uses: actions/checkout@v4
 
-        - name: Build with Maven
-          working-directory: GameDay/ballers-club
-          run: mvn -B clean test package
+      - name: Set up Java version
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
 
-        - name: Upload artifact for deployment job
-          uses: actions/upload-artifact@v4
-          with:
-            name: java-app
-            path: GameDay/ballers-club/target/*.jar
+      - name: Build with Maven
+        working-directory: GameDay/ballers-club
+        run: mvn -B clean test package
 
-    deploy:
-      runs-on: ubuntu-latest
-      needs: build
-      permissions:
-        contents: read
-        id-token: write
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v4
+        with:
+          name: java-app
+          path: GameDay/ballers-club/target/*.jar
 
-      steps:
-        - name: Download artifact from build job
-          uses: actions/download-artifact@v4
-          with:
-            name: java-app
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
 
-        - name: Login to Azure
-          uses: azure/login@v2
-          with:
-            client-id:
-  ${{ secrets.AZUREAPPSERVICE_CLIENTID_0E754D012FE34E1DACA2250C722BA34E }}
-            tenant-id:
-  ${{ secrets.AZUREAPPSERVICE_TENANTID_EAAAFBE14F95445C92FB2DD359C88968 }}
-            subscription-id:
-  ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_9E5D18304F344199A50B041D62B5491
-  A }}
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: java-app
 
-        - name: Deploy to Azure Web App
-          uses: azure/webapps-deploy@v3
-          with:
-            app-name: copa-mundial-arena
-            slot-name: Production
-            package: "*.jar"
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: copa-mundial-arena
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: "*.jar"
