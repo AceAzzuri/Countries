@@ -26,8 +26,7 @@ jobs:
 
 
       - name: Build with Maven
-        working-directory: GameDay/ballers-club
-        run: mvn -B clean test package
+        run: mvn -B -f GameDay/ballers-club/pom.xml clean test package
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
