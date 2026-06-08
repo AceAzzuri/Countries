@@ -1,33 +1,35 @@
 name: Build and deploy JAR app to Azure Web App - copa-mundial-arena
 
 on:
-push:
-branches:
-- main
-paths:
-- "GameDay/ballers-club/**"
-- ".github/workflows/main_copa-mundial-arena.yml"
-workflow_dispatch:
+    push:
+      branches:
+        - main
+    workflow_dispatch:
+    
+  permissions:
+    contents: read
 
-permissions:
-contents: read
 jobs:
-build:
-runs-on: ubuntu-latest
-steps:
-- uses: actions/checkout@v6
-- name: Set up Java version
-uses: actions/setup-java@v5
-with:
-distribution: microsoft
-java-version: "17"
-cache: maven
-- name: Build with Maven
-working-directory: GameDay/ballers-club
-run: mvn -B clean test package
-- name: Deploy to Azure Web App
-uses: azure/webapps-deploy@v3
-with:
-app-name: copa-mundial-arena
-publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-package: GameDay/ballers-club/target/*.jar
+    build-and-deploy:
+      runs-on: ubuntu-latest
+
+      steps:
+        - uses: actions/checkout@v6
+
+        - name: Set up Java version
+          uses: actions/setup-java@v5
+          with:
+            distribution: microsoft
+            java-version: "17"
+            cache: maven
+
+        - name: Build with Maven
+          working-directory: GameDay/ballers-club
+          run: mvn -B clean test package
+
+        - name: Deploy to Azure Web App
+          uses: azure/webapps-deploy@v3
+          with:
+            app-name: copa-mundial-arena
+            publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+            package: GameDay/ballers-club/target/*.jar
