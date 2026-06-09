@@ -129,10 +129,45 @@
         });
     }
 
+    function setupScrollMemory() {
+        const forms = document.querySelectorAll("form[data-preserve-scroll]");
+        if (!forms.length) {
+            return;
+        }
+
+        const storageKey = "bc-scroll:" + window.location.pathname;
+
+        function restoreScroll() {
+            const stored = window.sessionStorage.getItem(storageKey);
+            if (!stored) {
+                return;
+            }
+
+            window.sessionStorage.removeItem(storageKey);
+            const scrollY = Number(stored);
+            if (!Number.isFinite(scrollY) || scrollY < 0) {
+                return;
+            }
+
+            window.requestAnimationFrame(function () {
+                window.scrollTo({ top: scrollY, behavior: "auto" });
+            });
+        }
+
+        forms.forEach(function (form) {
+            form.addEventListener("submit", function () {
+                window.sessionStorage.setItem(storageKey, String(window.scrollY || window.pageYOffset || 0));
+            });
+        });
+
+        restoreScroll();
+    }
+
     document.addEventListener("DOMContentLoaded", function () {
         setupPressFeedback();
         setupMatchModal();
         setupUserModals();
         setupCountryModal();
+        setupScrollMemory();
     });
 }());

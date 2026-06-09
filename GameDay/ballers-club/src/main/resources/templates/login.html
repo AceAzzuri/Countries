@@ -20,13 +20,28 @@
     </a>
     <section>
         <p class="bc-kicker">Copa Mundial Arena</p>
-        <h1>Fortsæt</h1>
-        <p class="bc-brandline"><span>by</span> <small>[something.dk]</small></p>
-        <p>Brug email og brugernavn til at oprette eller åbne din Arena-profil.</p>
+        <h1>Log ind eller opret profil</h1>
+        <p class="bc-brandline"><span>af</span> <small>AZ Sport & Tech</small></p>
+        <p th:if="${currentUser == null}">
+            Log ind med email. Husk store og små bogstaver i brugernavn.
+        </p>
+        <p th:if="${currentUser == null}">
+            Vi bruger samme formular til både login og oprettelse af profil.
+        </p>
+        <div class="bc-login-status" th:if="${currentUser != null}">
+            <strong>Du er logget ind</strong>
+            <p><span th:text="${currentUser.username}">username</span><small th:if="${currentUser.email != null}" th:text="${currentUser.email}">email</small></p>
+            <div class="bc-page-actions">
+                <a class="bc-primary compact" href="/arena">Gå til Arena</a>
+                <form method="post" action="/logout">
+                    <button class="bc-link-button" type="submit">Log ud</button>
+                </form>
+            </div>
+        </div>
         <div class="bc-flash error" th:if="${error}" th:text="${error}"></div>
-        <form method="post" action="/login" class="bc-login-form">
+        <form method="post" action="/login" class="bc-login-form" th:if="${currentUser == null}">
             <label for="username">Brugernavn</label>
-            <input id="username" name="username" autocomplete="nickname" maxlength="40" placeholder="Indtast brugernavn" required>
+            <input id="username" name="username" autocomplete="nickname" maxlength="40" placeholder="Dit brugernavn" required>
             <label for="email">Email</label>
             <input id="email" name="email" type="email" autocomplete="email" maxlength="120" placeholder="dig@email.dk" required>
             <label class="bc-consent">
@@ -38,12 +53,13 @@
             </label>
             <button class="bc-primary" type="submit">Fortsæt</button>
         </form>
-        <p class="bc-auth-note">
-            Vi bruger email-login i MVP'en. Hvis emailen findes, åbner vi profilen. Hvis den er ny, opretter vi den. Vi gemmer kun dit navn, email,
-            predictions, point, reminder-valg og om du vil kontaktes. Du kan altid bede om at få slettet din konto.
+        <p class="bc-auth-note" th:if="${currentUser == null}">
+            Hvis emailen allerede findes, åbner vi profilen. Hvis den er ny, opretter vi den.
+        </p>
+        <p class="bc-auth-note" th:if="${currentUser == null}">
+            Vi gemmer kun dit navn, email, predictions, point, reminder-valg og om du vil kontaktes. Du kan altid bede om at få slettet din konto.
         </p>
         <p class="bc-auth-note"><a href="/privacy">Læs data og privacy</a></p>
-        <p class="bc-auth-note">Ingen separat opret-knap: samme formular bruges til login og oprettelse.</p>
     </section>
     <section class="bc-feedback-strip bc-feedback-bottom" aria-label="Feedback">
         <form method="post" action="/arena/feedback">

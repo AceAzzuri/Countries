@@ -56,7 +56,7 @@
             <h2 th:text="${pollView.poll.question}">Who will win?</h2>
             <p class="bc-poll-note" th:if="${!#strings.isEmpty(pollView.poll.availabilityNote)}" th:text="${pollView.poll.availabilityNote}">Bonus note</p>
 
-            <form class="bc-poll-options" method="post" action="/polls/vote" th:if="${currentUser != null and pollView.myVote == null}">
+            <form class="bc-poll-options" method="post" action="/polls/vote" data-preserve-scroll th:if="${currentUser != null and pollView.myVote == null}">
                 <input type="hidden" name="pollId" th:value="${pollView.poll.id}">
                 <button type="submit" name="optionId" th:each="result : ${pollView.optionResults}" th:value="${result.option.id}">
                     <span th:text="${result.option.label}">Argentina</span>
@@ -98,7 +98,7 @@
             <h2 th:text="${pollView.poll.question}">Who will win?</h2>
             <p class="bc-poll-note" th:if="${!#strings.isEmpty(pollView.poll.availabilityNote)}" th:text="${pollView.poll.availabilityNote}">Bonus note</p>
 
-            <form class="bc-poll-options" method="post" action="/polls/vote" th:if="${currentUser != null and pollView.myVote == null}">
+            <form class="bc-poll-options" method="post" action="/polls/vote" data-preserve-scroll th:if="${currentUser != null and pollView.myVote == null}">
                 <input type="hidden" name="pollId" th:value="${pollView.poll.id}">
                 <button type="submit" name="optionId" th:each="result : ${pollView.optionResults}" th:value="${result.option.id}">
                     <span th:text="${result.option.label}">Argentina</span>

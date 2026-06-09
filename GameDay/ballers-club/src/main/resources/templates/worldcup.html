@@ -35,7 +35,7 @@
                 <span>COPA MUNDIAL</span>
                 <strong>ARENA</strong>
             </h1>
-            <p class="bc-brandline"><span>by</span> <small>[something.dk]</small></p>
+            <p class="bc-brandline"><span>af</span> <small>AZ Sport & Tech</small></p>
             <p>Test din ball knowledge under VM. Gæt resultater, saml point og kæmp om præmier.</p>
             <img class="bc-arena-hero-icons" src="/images/iconer/Group.svg?v=arena-colour1" alt="" aria-hidden="true">
             <div class="bc-page-actions">
@@ -138,7 +138,7 @@
                         </button>
                     </div>
 
-                    <form class="bc-score-form" method="post" action="/arena/predictions" th:if="${currentUser != null and match.predictionOpen}">
+                    <form class="bc-score-form" method="post" action="/arena/predictions" data-preserve-scroll th:if="${currentUser != null and match.predictionOpen}">
                         <input type="hidden" name="matchId" th:value="${match.id}">
                         <input inputmode="numeric" pattern="[0-9]*" name="homeGoals" aria-label="Home goals"
                                th:value="${predictions[match.id] != null ? predictions[match.id].homeGoals : ''}">
@@ -151,8 +151,8 @@
                     <section class="bc-prediction-stats"
                              th:if="${currentUser != null and predictions[match.id] != null and predictionStats[match.id] != null}">
                         <div class="bc-stats-head">
-                            <span>1-X-2</span>
-                            <strong th:text="${predictionStats[match.id].totalVotes()} + ' picks'">0 picks</strong>
+                            <span>Fordeling</span>
+                            <strong>Procenter</strong>
                         </div>
                         <div class="bc-stat-line">
                             <div>
