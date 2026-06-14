@@ -32,7 +32,7 @@ public class LeaderboardService {
         List<Prediction> predictions = predictionRepository.findAllForLeaderboard();
         Map<String, List<Prediction>> predictionsByUser = predictions.stream()
                 .collect(java.util.stream.Collectors.groupingBy(
-                        prediction -> prediction.getUser().getUsername(),
+                        prediction -> leaderboardUsername(prediction.getUser().getUsername()),
                         java.util.LinkedHashMap::new,
                         java.util.stream.Collectors.toList()
                 ));
@@ -63,6 +63,7 @@ public class LeaderboardService {
                 .filter(row -> row.gamesPlayed() > 0)
                 .sorted(Comparator
                         .comparingInt(LeaderboardRow::hitPercentage).reversed()
+                        .thenComparingInt(LeaderboardRow::exactScores).reversed()
                         .thenComparingInt(LeaderboardRow::totalPoints).reversed()
                         .thenComparing(LeaderboardRow::username, String.CASE_INSENSITIVE_ORDER))
                 .limit(3)
@@ -94,7 +95,7 @@ public class LeaderboardService {
         Map<String, Integer> points = new HashMap<>();
 
         for (Prediction prediction : predictions) {
-            String username = prediction.getUser().getUsername();
+            String username = leaderboardUsername(prediction.getUser().getUsername());
             int earned = scoringService.calculatePoints(prediction);
             if (prediction.getMatch().hasResult()) {
                 played.merge(username, 1, Integer::sum);
@@ -144,5 +145,16 @@ public class LeaderboardService {
                 resultLabel,
                 scoringService.calculatePoints(prediction)
         );
+    }
+
+    private String leaderboardUsername(String username) {
+        if (username == null) {
+            return "";
+        }
+        String normalized = username.trim().replaceAll("\\s+", " ");
+        if (normalized.matches("(?i)^BlckSaitama( \\d+)?$")) {
+            return "BlckSaitama";
+        }
+        return normalized;
     }
 }

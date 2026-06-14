@@ -31,6 +31,29 @@ public class UserService {
 
     @Transactional
     public AppUser login(String rawUsername, String rawEmail, boolean communicationConsent) {
+        return signUp(rawUsername, rawEmail, communicationConsent);
+    }
+
+    @Transactional
+    public AppUser loginExisting(String rawUsername, String rawEmail, boolean communicationConsent) {
+        String username = rawUsername == null || rawUsername.isBlank() ? null : normalize(rawUsername);
+        String email = normalizeEmail(rawEmail);
+        Optional<AppUser> existingUser = Optional.empty();
+        if (email != null) {
+            existingUser = userRepository.findByEmailIgnoreCase(email);
+        }
+        if (existingUser.isEmpty() && username != null) {
+            existingUser = userRepository.findByUsernameIgnoreCase(username);
+        }
+        AppUser user = existingUser.orElseThrow(() -> new IllegalArgumentException("Profilen blev ikke fundet. Opret en profil først."));
+        if (communicationConsent) {
+            user.updateCommunicationConsent(true);
+        }
+        return user;
+    }
+
+    @Transactional
+    public AppUser signUp(String rawUsername, String rawEmail, boolean communicationConsent) {
         String username = normalize(rawUsername);
         String email = normalizeEmail(rawEmail);
         if (email != null) {

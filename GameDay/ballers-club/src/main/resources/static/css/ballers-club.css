@@ -1001,6 +1001,12 @@
     padding: 0 12px 12px;
 }
 
+.bc-bulk-save {
+    display: flex;
+    justify-content: flex-end;
+    margin: 0 0 12px;
+}
+
 .bc-match {
     padding: 18px;
     border-color: rgba(255, 255, 255, 0.09);
@@ -1746,6 +1752,38 @@
 .bc-login-form .bc-consent input {
     min-height: 0;
     padding: 0;
+}
+
+.bc-login-status {
+    display: grid;
+    gap: 12px;
+    padding: 16px;
+    border: 1px solid rgba(143, 211, 255, 0.18);
+    border-radius: 8px;
+    background: rgba(5, 7, 13, 0.76);
+    box-shadow: 0 20px 44px rgba(0, 0, 0, 0.26);
+}
+
+.bc-login-status strong {
+    color: #FFFFFF;
+    font-size: 15px;
+}
+
+.bc-login-status p {
+    display: grid;
+    gap: 6px;
+    margin: 0;
+}
+
+.bc-login-status span {
+    color: #8FD3FF;
+    font-weight: 900;
+}
+
+.bc-login-status small {
+    color: rgba(255, 255, 255, 0.66);
+    font-size: 12px;
+    word-break: break-all;
 }
 
 .bc-auth-note {

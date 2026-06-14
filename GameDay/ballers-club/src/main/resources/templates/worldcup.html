@@ -87,6 +87,9 @@
     </section>
 
     <section id="kampe" class="bc-match-sections">
+        <div class="bc-bulk-save" th:if="${currentUser != null}">
+            <button class="bc-primary compact" type="button" data-save-all-predictions>Gem alle udfyldte kampe</button>
+        </div>
         <details class="bc-match-section" th:each="section : ${matchSections}" th:open="${section.open()}">
             <summary>
                 <span>

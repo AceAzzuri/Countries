@@ -82,6 +82,33 @@ public class PredictionService {
         return 1;
     }
 
+    @Transactional
+    public int savePredictions(AppUser user, List<Long> matchIds, List<String> homeGoals, List<String> awayGoals) {
+        if (matchIds == null || homeGoals == null || awayGoals == null
+                || matchIds.size() != homeGoals.size() || matchIds.size() != awayGoals.size()) {
+            throw new IllegalArgumentException("Kunne ikke læse kampene. Prøv at gemme igen.");
+        }
+
+        int saved = 0;
+        for (int i = 0; i < matchIds.size(); i++) {
+            String home = homeGoals.get(i);
+            String away = awayGoals.get(i);
+            boolean homeBlank = home == null || home.isBlank();
+            boolean awayBlank = away == null || away.isBlank();
+            if (homeBlank && awayBlank) {
+                continue;
+            }
+            if (homeBlank || awayBlank) {
+                throw new IllegalArgumentException("Indtast begge scores for hver kamp, du vil gemme.");
+            }
+            saved += savePrediction(user, matchIds.get(i), home, away);
+        }
+        if (saved == 0) {
+            throw new IllegalArgumentException("Der var ingen udfyldte kampe at gemme.");
+        }
+        return saved;
+    }
+
     private int parseGoals(String value) {
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException("Indtast begge scores.");

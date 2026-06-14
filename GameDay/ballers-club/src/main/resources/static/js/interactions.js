@@ -163,11 +163,45 @@
         restoreScroll();
     }
 
+    function setupSaveAllPredictions() {
+        const button = document.querySelector("[data-save-all-predictions]");
+        if (!button) {
+            return;
+        }
+
+        button.addEventListener("click", function () {
+            const predictionForms = Array.from(document.querySelectorAll(".bc-score-form"));
+            const form = document.createElement("form");
+            form.method = "post";
+            form.action = "/arena/predictions/all";
+            form.dataset.preserveScroll = "";
+
+            predictionForms.forEach(function (predictionForm) {
+                ["matchId", "homeGoals", "awayGoals"].forEach(function (name) {
+                    const source = predictionForm.querySelector("[name='" + name + "']");
+                    if (!source) {
+                        return;
+                    }
+                    const input = document.createElement("input");
+                    input.type = "hidden";
+                    input.name = name === "matchId" ? "matchIds" : name;
+                    input.value = source.value;
+                    form.appendChild(input);
+                });
+            });
+
+            window.sessionStorage.setItem("bc-scroll:" + window.location.pathname, String(window.scrollY || window.pageYOffset || 0));
+            document.body.appendChild(form);
+            form.submit();
+        });
+    }
+
     document.addEventListener("DOMContentLoaded", function () {
         setupPressFeedback();
         setupMatchModal();
         setupUserModals();
         setupCountryModal();
         setupScrollMemory();
+        setupSaveAllPredictions();
     });
 }());

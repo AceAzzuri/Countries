@@ -116,6 +116,29 @@ public class BallersClubController {
         return "redirect:/arena";
     }
 
+    @PostMapping("/arena/predictions/all")
+    public String saveAllPredictions(
+            @RequestParam List<Long> matchIds,
+            @RequestParam List<String> homeGoals,
+            @RequestParam List<String> awayGoals,
+            HttpSession session,
+            RedirectAttributes redirectAttributes
+    ) {
+        AppUser user = currentUserService.getCurrentUser(session).orElse(null);
+        if (user == null) {
+            redirectAttributes.addFlashAttribute("error", "Log ind før du gemmer predictions.");
+            return "redirect:/login";
+        }
+
+        try {
+            int saved = predictionService.savePredictions(user, matchIds, homeGoals, awayGoals);
+            redirectAttributes.addFlashAttribute("success", saved + " predictions gemt.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/arena";
+    }
+
     @PostMapping("/arena/feedback")
     public String saveFeedback(
             @RequestParam String message,
@@ -235,6 +258,12 @@ public class BallersClubController {
         return "login";
     }
 
+    @GetMapping("/signup")
+    public String signUp(Model model, HttpSession session) {
+        addCurrentUser(model, session);
+        return "signup";
+    }
+
     @PostMapping("/login")
     public String doLogin(
             @RequestParam String username,
@@ -244,12 +273,30 @@ public class BallersClubController {
             RedirectAttributes redirectAttributes
     ) {
         try {
-            AppUser user = userService.login(username, email, communicationConsent != null);
+            AppUser user = userService.loginExisting(username, email, communicationConsent != null);
             session.setAttribute(CurrentUserService.USER_ID_SESSION_KEY, user.getId());
             return "redirect:/arena";
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/login";
+        }
+    }
+
+    @PostMapping("/signup")
+    public String doSignUp(
+            @RequestParam String username,
+            @RequestParam String email,
+            @RequestParam(required = false) String communicationConsent,
+            HttpSession session,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            AppUser user = userService.signUp(username, email, communicationConsent != null);
+            session.setAttribute(CurrentUserService.USER_ID_SESSION_KEY, user.getId());
+            return "redirect:/arena";
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/signup";
         }
     }
 
