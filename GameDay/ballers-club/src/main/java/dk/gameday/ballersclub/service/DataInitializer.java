@@ -1,7 +1,6 @@
 package dk.gameday.ballersclub.service;
 
 import dk.gameday.ballersclub.model.WorldCupMatch;
-import dk.gameday.ballersclub.repository.PredictionRepository;
 import dk.gameday.ballersclub.repository.WorldCupMatchRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -14,26 +13,19 @@ import java.util.List;
 @Component
 public class DataInitializer implements CommandLineRunner {
 
-    private static final int OFFICIAL_WORLD_CUP_2026_MATCH_COUNT = 104;
     private static final ZoneId DISPLAY_ZONE = ZoneId.of("Europe/Copenhagen");
 
     private final WorldCupMatchRepository matchRepository;
-    private final PredictionRepository predictionRepository;
 
-    public DataInitializer(WorldCupMatchRepository matchRepository, PredictionRepository predictionRepository) {
+    public DataInitializer(WorldCupMatchRepository matchRepository) {
         this.matchRepository = matchRepository;
-        this.predictionRepository = predictionRepository;
     }
 
     @Override
     public void run(String... args) {
         long matchCount = matchRepository.count();
-        if (matchCount == OFFICIAL_WORLD_CUP_2026_MATCH_COUNT) {
-            return;
-        }
         if (matchCount > 0) {
-            predictionRepository.deleteAll();
-            matchRepository.deleteAll();
+            return;
         }
 
         matchRepository.saveAll(List.of(
