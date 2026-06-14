@@ -13,7 +13,8 @@ Standalone Spring Boot MVP for the first launch product:
 For quick local preview without PostgreSQL:
 
 ```bash
-../mvnw spring-boot:run
+cd GameDay/ballers-club
+./mvnw spring-boot:run
 ```
 
 Start PostgreSQL for a production-like local setup:
@@ -25,19 +26,20 @@ docker compose up -d
 Run the app from the repository root:
 
 ```bash
-../mvnw spring-boot:run -Dspring-boot.run.profiles=prod
+GameDay/ballers-club/mvnw -f GameDay/ballers-club/pom.xml spring-boot:run -Dspring-boot.run.profiles=prod
 ```
 
-Or from the parent workspace root:
+Or run the packaged JAR after building:
 
 ```bash
-./mvnw -f ballers-club/pom.xml spring-boot:run
+GameDay/ballers-club/mvnw -f GameDay/ballers-club/pom.xml clean package
+java -jar GameDay/ballers-club/target/ballers-club-0.0.1-SNAPSHOT.jar
 ```
 
 The app defaults to:
 
 - URL: `http://localhost:8088`
-- Database: `jdbc:h2:file:./data/ballers-club-local;AUTO_SERVER=TRUE`
+- Database: `jdbc:h2:file:${BALLERS_CLUB_DATA_DIR:${user.home}/.ballers-club/data}/ballers-club-local`
 - H2 console: `http://localhost:8088/h2-console`
 
 Use the `prod` profile for PostgreSQL:

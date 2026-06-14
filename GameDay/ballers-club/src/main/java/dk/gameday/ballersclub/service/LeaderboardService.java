@@ -59,23 +59,32 @@ public class LeaderboardService {
     }
 
     public List<LeaderboardRow> getTopHitPercentage() {
-        return getLeaderboard().stream()
-                .filter(row -> row.gamesPlayed() > 0)
+        return topHitPercentage(getLeaderboard());
+    }
+
+    public List<LeaderboardRow> getTopExactScores() {
+        return topExactScores(getLeaderboard());
+    }
+
+    List<LeaderboardRow> topHitPercentage(List<LeaderboardRow> rows) {
+        return rows.stream()
+                .filter(row -> row.gamesPlayed() >= 8)
                 .sorted(Comparator
                         .comparingInt(LeaderboardRow::hitPercentage).reversed()
-                        .thenComparingInt(LeaderboardRow::exactScores).reversed()
-                        .thenComparingInt(LeaderboardRow::totalPoints).reversed()
+                        .thenComparing(Comparator.comparingInt(LeaderboardRow::exactScores).reversed())
+                        .thenComparing(Comparator.comparingInt(LeaderboardRow::totalPoints).reversed())
                         .thenComparing(LeaderboardRow::username, String.CASE_INSENSITIVE_ORDER))
                 .limit(3)
                 .toList();
     }
 
-    public List<LeaderboardRow> getTopExactScores() {
-        return getLeaderboard().stream()
+    List<LeaderboardRow> topExactScores(List<LeaderboardRow> rows) {
+        return rows.stream()
+                .filter(row -> row.gamesPlayed() >= 8)
                 .filter(row -> row.exactScores() > 0)
                 .sorted(Comparator
                         .comparingInt(LeaderboardRow::exactScores).reversed()
-                        .thenComparingInt(LeaderboardRow::totalPoints).reversed()
+                        .thenComparing(Comparator.comparingInt(LeaderboardRow::totalPoints).reversed())
                         .thenComparing(LeaderboardRow::username, String.CASE_INSENSITIVE_ORDER))
                 .limit(3)
                 .toList();
@@ -122,8 +131,8 @@ public class LeaderboardService {
 
         rows.sort(Comparator
                 .comparingInt(LeaderboardRow::totalPoints).reversed()
-                .thenComparingInt(LeaderboardRow::exactScores).reversed()
-                .thenComparingInt(LeaderboardRow::correctResults).reversed()
+                .thenComparing(Comparator.comparingInt(LeaderboardRow::exactScores).reversed())
+                .thenComparing(Comparator.comparingInt(LeaderboardRow::correctResults).reversed())
                 .thenComparing(LeaderboardRow::username, String.CASE_INSENSITIVE_ORDER));
 
         List<LeaderboardRow> ranked = new ArrayList<>();

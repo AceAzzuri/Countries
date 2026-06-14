@@ -28,11 +28,16 @@ jobs:
       - name: Build with Maven
         run: mvn -B -f GameDay/ballers-club/pom.xml clean test package
 
+      - name: Prepare deployment artifact
+        run: |
+          mkdir -p deployment
+          cp GameDay/ballers-club/target/ballers-club-0.0.1-SNAPSHOT.jar deployment/app.jar
+
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: java-app
-          path: GameDay/ballers-club/target/*.jar
+          path: deployment/app.jar
 
   deploy:
     runs-on: ubuntu-latest
@@ -58,4 +63,5 @@ jobs:
       uses: azure/webapps-deploy@v3
       with:
         app-name: copa-mundial-arena
-        package: "*.jar"
+        package: app.jar
+        startup-command: java -jar /home/site/wwwroot/app.jar
