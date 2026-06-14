@@ -106,7 +106,7 @@ class BallersClubPageTests {
 
         mockMvc.perform(post("/arena/predictions")
                         .session(session)
-                        .param("matchId", "13")
+                        .param("matchId", "16")
                         .param("homeGoals", "2")
                         .param("awayGoals", "1"))
                 .andExpect(status().is3xxRedirection())
@@ -132,7 +132,7 @@ class BallersClubPageTests {
 
         mockMvc.perform(post("/arena/predictions/all")
                         .session(session)
-                        .param("matchIds", "13", "14", "15")
+                        .param("matchIds", "17", "18", "19")
                         .param("homeGoals", "2", "", "1")
                         .param("awayGoals", "1", "", "1"))
                 .andExpect(status().is3xxRedirection())
