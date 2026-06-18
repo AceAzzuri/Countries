@@ -130,7 +130,16 @@ class BallersClubPageTests {
 
     @Test
     void arenaChatCanStoreMessagesAndReactions() throws Exception {
+        MockHttpSession session = (MockHttpSession) mockMvc.perform(post("/signup")
+                        .param("username", "Chat User")
+                        .param("email", "chat-user@example.com"))
+                .andExpect(status().is3xxRedirection())
+                .andReturn()
+                .getRequest()
+                .getSession(false);
+
         mockMvc.perform(post("/arena/chat")
+                        .session(session)
                         .param("message", "Arena er varm"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/arena"));
@@ -145,26 +154,32 @@ class BallersClubPageTests {
         var updated = arenaChatMessageRepository.findById(message.getId()).orElseThrow();
         org.junit.jupiter.api.Assertions.assertEquals(1, updated.getFireReactions());
         org.junit.jupiter.api.Assertions.assertEquals("Arena er varm", updated.getMessage());
+        org.junit.jupiter.api.Assertions.assertEquals("Chat User", updated.getUsername());
     }
 
     @Test
     void arenaPageShowsChatRoomAndLeaderboardTopTenLabel() throws Exception {
-        mockMvc.perform(post("/signup")
+        MockHttpSession session = (MockHttpSession) mockMvc.perform(post("/signup")
                         .param("username", "Mention Alpha")
                         .param("email", "mention-alpha@example.com"))
-                .andExpect(status().is3xxRedirection());
+                .andExpect(status().is3xxRedirection())
+                .andReturn()
+                .getRequest()
+                .getSession(false);
         mockMvc.perform(post("/signup")
                         .param("username", "Mention Beta")
                         .param("email", "mention-beta@example.com"))
                 .andExpect(status().is3xxRedirection());
 
-        mockMvc.perform(get("/arena"))
+        mockMvc.perform(get("/arena").session(session))
                 .andExpect(status().isOk())
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Chatrum")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Arena chat")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("bc-chat-new")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("@alle")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("@Mention Alpha")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("@Mention Beta")))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("data-mention-picker"))))
                 .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("Opdateringer"))));
 
         mockMvc.perform(get("/leaderboard"))

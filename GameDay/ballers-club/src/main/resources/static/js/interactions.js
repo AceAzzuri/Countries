@@ -261,31 +261,71 @@
         });
     }
 
-    function setupMentionPickers() {
-        document.querySelectorAll("[data-mention-picker]").forEach(function (picker) {
-            const target = document.getElementById(picker.dataset.mentionTarget || "");
-            if (!target) {
+    function setupMentionSuggestions() {
+        document.querySelectorAll("[data-mention-textarea]").forEach(function (textarea) {
+            const suggestions = textarea.parentElement.querySelector("[data-mention-suggestions]");
+            if (!suggestions) {
                 return;
             }
 
-            picker.addEventListener("change", function () {
-                const mention = picker.value.trim();
-                if (!mention || mention.charAt(0) !== "@") {
+            const buttons = Array.from(suggestions.querySelectorAll("[data-mention-value]"));
+
+            function currentMentionToken() {
+                const cursor = textarea.selectionStart || 0;
+                const before = textarea.value.slice(0, cursor);
+                const match = before.match(/(^|\s)(@[^\s]*)$/);
+                if (!match) {
+                    return null;
+                }
+                return {
+                    start: cursor - match[2].length,
+                    end: cursor,
+                    value: match[2].toLowerCase()
+                };
+            }
+
+            function updateSuggestions() {
+                const token = currentMentionToken();
+                if (!token) {
+                    suggestions.hidden = true;
                     return;
                 }
 
-                const start = target.selectionStart || target.value.length;
-                const end = target.selectionEnd || start;
-                const before = target.value.slice(0, start);
-                const after = target.value.slice(end);
-                const prefix = before && !/\s$/.test(before) ? " " : "";
-                const suffix = after && !/^\s/.test(after) ? " " : "";
-                const insertion = prefix + mention + suffix;
-                target.value = before + insertion + after;
-                const cursor = before.length + insertion.length;
-                target.focus();
-                target.setSelectionRange(cursor, cursor);
-                picker.value = "";
+                let visibleCount = 0;
+                buttons.forEach(function (button) {
+                    const value = (button.dataset.mentionValue || "").toLowerCase();
+                    const visible = value.startsWith(token.value);
+                    button.hidden = !visible;
+                    if (visible) {
+                        visibleCount++;
+                    }
+                });
+                suggestions.hidden = visibleCount === 0;
+            }
+
+            function insertMention(mention) {
+                const token = currentMentionToken();
+                if (!token) {
+                    return;
+                }
+                const before = textarea.value.slice(0, token.start);
+                const after = textarea.value.slice(token.end);
+                const suffix = after && !/^\s/.test(after) ? " " : " ";
+                textarea.value = before + mention + suffix + after;
+                const cursor = before.length + mention.length + suffix.length;
+                textarea.focus();
+                textarea.setSelectionRange(cursor, cursor);
+                suggestions.hidden = true;
+            }
+
+            textarea.addEventListener("input", updateSuggestions);
+            textarea.addEventListener("keyup", updateSuggestions);
+            textarea.addEventListener("click", updateSuggestions);
+
+            buttons.forEach(function (button) {
+                button.addEventListener("click", function () {
+                    insertMention(button.dataset.mentionValue || button.textContent.trim());
+                });
             });
         });
     }
@@ -299,6 +339,6 @@
         setupScrollMemory();
         setupSaveAllPredictions();
         setupSaveAllResults();
-        setupMentionPickers();
+        setupMentionSuggestions();
     });
 }());

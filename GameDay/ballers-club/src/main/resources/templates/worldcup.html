@@ -10,7 +10,7 @@
     <link rel="icon" href="/images/arena/brand/favicon-16.png" sizes="16x16" type="image/png">
     <link rel="apple-touch-icon" href="/images/arena/brand/arena-logo.png">
     <link rel="stylesheet" href="/css/base.css">
-    <link rel="stylesheet" href="/css/ballers-club.css?v=20260605-feedback-layout1">
+    <link rel="stylesheet" href="/css/ballers-club.css?v=20260618-arena-chat2">
 </head>
 <body class="bc-body bc-worldcup-page">
 <header class="bc-appbar">
@@ -112,25 +112,27 @@
                     <p class="bc-muted">Korte kommentarer, reaktioner og hurtige takes fra arenaen.</p>
                 </div>
                 <div class="bc-chat-layout">
-                    <form class="bc-chat-composer" method="post" action="/arena/chat" data-preserve-scroll>
+                    <form class="bc-chat-composer" method="post" action="/arena/chat" data-preserve-scroll th:if="${currentUser != null}">
                         <label for="arena-chat-message">Skriv i chatten</label>
-                        <div class="bc-mention-picker" th:if="${!mentionUsernames.isEmpty()}">
-                            <label for="arena-chat-mention">Tilføj @</label>
-                            <input id="arena-chat-mention" type="text" list="arena-chat-mentions"
-                                   placeholder="@brugernavn" data-mention-picker data-mention-target="arena-chat-message">
-                            <datalist id="arena-chat-mentions">
-                                <option th:each="username : ${mentionUsernames}" th:value="${'@' + username}">@Azzuri</option>
-                            </datalist>
-                        </div>
                         <textarea id="arena-chat-message" name="message" rows="3" maxlength="240"
-                                  placeholder="Skriv en kommentar, et take eller et kald. Brug @ for at nævne en spiller."></textarea>
+                                  placeholder="Skriv en kommentar, et take eller et kald. Brug @alle eller @brugernavn."
+                                  data-mention-textarea></textarea>
+                        <div class="bc-mention-suggestions" data-mention-suggestions hidden>
+                            <button type="button" data-mention-value="@alle">@alle</button>
+                            <button type="button" th:each="username : ${mentionUsernames}" th:attr="data-mention-value=${'@' + username}" th:text="${'@' + username}">@Azzuri</button>
+                        </div>
                         <button class="bc-primary compact" type="submit">Send</button>
                     </form>
+                    <div class="bc-empty bc-chat-empty" th:if="${currentUser == null}">
+                        <h3>Log ind for at skrive</h3>
+                        <p>Chatbeskeder vises med dit brugernavn.</p>
+                        <a class="bc-primary compact" href="/login">Log ind</a>
+                    </div>
                     <div class="bc-chat-feed" th:if="${!chatMessages.isEmpty()}">
                         <article class="bc-chat-message" th:each="chat : ${chatMessages}">
                             <header>
                                 <div class="bc-chat-author">
-                                    <strong th:text="${!#strings.isEmpty(chat.username) ? chat.username : 'Anonym'}">Anonym</strong>
+                                    <strong th:text="${!#strings.isEmpty(chat.username) ? chat.username : 'Arena bruger'}">Arena bruger</strong>
                                     <span th:text="${#temporals.format(chat.createdAt, 'dd. MMM yyyy HH:mm')}">05. Jun 2026 21:00</span>
                                 </div>
                                 <form class="bc-chat-reactions" method="post" action="/arena/chat/react" data-preserve-scroll>
@@ -149,11 +151,29 @@
                             <p class="bc-chat-text" th:text="${chat.message}">Kampdag bliver tung.</p>
                         </article>
                     </div>
-                    <div class="bc-empty bc-chat-empty" th:if="${chatMessages.isEmpty()}">
+                    <div class="bc-empty bc-chat-empty" th:if="${currentUser != null and chatMessages.isEmpty()}">
                         <h3>Ingen kommentarer endnu</h3>
                         <p>Vær den første til at skrive i chatten.</p>
                     </div>
                 </div>
+            </div>
+        </details>
+        <details class="bc-feed bc-feed-roll" th:if="${!predictionFeed.isEmpty()}">
+            <summary class="bc-feed-summary">
+                <span>
+                    <span class="bc-kicker">Community feed</span>
+                    <strong>Rigtige kald fra tabellen</strong>
+                </span>
+                <span class="bc-feed-summary-action" aria-hidden="true">
+                    <span class="bc-feed-open-label">Rul ned</span>
+                    <span class="bc-feed-close-label">Rul op</span>
+                </span>
+            </summary>
+            <div class="bc-feed-panel">
+                <article th:each="item : ${predictionFeed}">
+                    <strong th:text="${item.headline()}">Azzuri called the score</strong>
+                    <span th:text="${item.detail()}">Mexico vs South Africa</span>
+                </article>
             </div>
         </details>
         <details class="bc-match-section" th:each="section : ${matchSections}" th:open="${section.open()}">
@@ -272,17 +292,6 @@
             <h2>Leaderboard</h2>
             <p>Se point, præcise scores, træfprocent, lodder og private ligaer.</p>
             <a class="bc-primary compact" href="/leaderboard">Gå til Leaderboard</a>
-        </article>
-    </section>
-
-    <section class="bc-feed" th:if="${!predictionFeed.isEmpty()}">
-        <div class="bc-section-head">
-            <p class="bc-kicker">Community feed</p>
-            <h2>Rigtige kald fra tabellen</h2>
-        </div>
-        <article th:each="item : ${predictionFeed}">
-            <strong th:text="${item.headline()}">Azzuri called the score</strong>
-            <span th:text="${item.detail()}">Mexico vs South Africa</span>
         </article>
     </section>
 

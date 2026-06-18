@@ -24,6 +24,9 @@ public class ArenaChatService {
 
     @Transactional
     public void postMessage(String message, AppUser user) {
+        if (user == null) {
+            throw new IllegalArgumentException("Log ind for at skrive i chatten.");
+        }
         String cleaned = message == null ? "" : message.trim();
         if (cleaned.isBlank()) {
             throw new IllegalArgumentException("Skriv en kommentar først.");

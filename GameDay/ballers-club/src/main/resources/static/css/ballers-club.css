@@ -1567,6 +1567,69 @@
     line-height: 1.45;
 }
 
+.bc-feed-roll {
+    padding: 0;
+    overflow: hidden;
+}
+
+.bc-feed-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    min-height: 68px;
+    padding: 14px 16px;
+    cursor: pointer;
+    list-style: none;
+}
+
+.bc-feed-summary::-webkit-details-marker {
+    display: none;
+}
+
+.bc-feed-summary span:first-child {
+    display: grid;
+    gap: 4px;
+}
+
+.bc-feed-summary strong {
+    color: #FFFFFF;
+    font-size: 18px;
+    line-height: 1.1;
+}
+
+.bc-feed-summary-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    min-width: 74px;
+    min-height: 36px;
+    border: 1px solid rgba(199, 255, 0, 0.26);
+    border-radius: 999px;
+    padding: 0 12px;
+    background: rgba(199, 255, 0, 0.08);
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.bc-feed-close-label,
+.bc-feed-roll[open] .bc-feed-open-label {
+    display: none;
+}
+
+.bc-feed-roll[open] .bc-feed-close-label {
+    display: inline;
+}
+
+.bc-feed-panel {
+    display: grid;
+    gap: 10px;
+    padding: 0 16px 16px;
+}
+
 .bc-chat-room {
     display: block;
     margin-top: 16px;
@@ -1695,28 +1758,25 @@
     resize: vertical;
 }
 
-.bc-mention-picker {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    align-items: center;
+.bc-mention-suggestions {
+    display: flex;
+    flex-wrap: wrap;
     gap: 8px;
 }
 
-.bc-chat-composer .bc-mention-picker label {
-    color: #C7FF00;
-    font-size: 12px;
-    letter-spacing: 0;
-    text-transform: none;
+.bc-mention-suggestions[hidden] {
+    display: none;
 }
 
-.bc-mention-picker input {
-    min-height: 38px;
-    border: 1px solid rgba(199, 255, 0, 0.2);
+.bc-mention-suggestions button {
+    min-height: 32px;
+    border: 1px solid rgba(199, 255, 0, 0.24);
     border-radius: 999px;
-    padding: 0 12px;
+    padding: 0 10px;
     background: rgba(199, 255, 0, 0.08);
-    color: #FFFFFF;
-    font-weight: 800;
+    color: #C7FF00;
+    font-size: 12px;
+    font-weight: 900;
 }
 
 .bc-chat-feed {
@@ -2601,8 +2661,9 @@
         font-size: 24px;
     }
 
-    .bc-mention-picker {
-        grid-template-columns: 1fr;
+    .bc-mention-suggestions {
+        max-height: 120px;
+        overflow: auto;
     }
 
     .bc-chat-message header {

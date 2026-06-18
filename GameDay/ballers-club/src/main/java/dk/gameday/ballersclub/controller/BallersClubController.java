@@ -134,6 +134,10 @@ public class BallersClubController {
             RedirectAttributes redirectAttributes
     ) {
         AppUser user = currentUserService.getCurrentUser(session).orElse(null);
+        if (user == null) {
+            redirectAttributes.addFlashAttribute("error", "Log ind for at skrive i chatten.");
+            return "redirect:/login";
+        }
         try {
             arenaChatService.postMessage(message, user);
             redirectAttributes.addFlashAttribute("success", "Chat gemt.");
