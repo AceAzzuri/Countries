@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.regex.Pattern;
@@ -19,6 +20,7 @@ public class WorldCupMatch {
 
     private static final DateTimeFormatter KICKOFF_FORMAT =
             DateTimeFormatter.ofPattern("d. MMM yyyy HH:mm", Locale.ENGLISH);
+    private static final ZoneId DISPLAY_ZONE = ZoneId.of("Europe/Copenhagen");
     private static final Pattern SPLIT_PATTERN = Pattern.compile("[\\s\\-/]+");
 
     @Id
@@ -53,7 +55,7 @@ public class WorldCupMatch {
     }
 
     public boolean isPredictionOpen() {
-        return isGroupMatch() && !hasResult() && LocalDateTime.now().isBefore(kickoffAt);
+        return isGroupMatch() && !hasResult() && LocalDateTime.now(DISPLAY_ZONE).isBefore(kickoffAt);
     }
 
     public boolean isGroupMatch() {

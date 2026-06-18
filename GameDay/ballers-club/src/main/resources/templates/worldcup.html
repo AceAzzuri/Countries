@@ -90,6 +90,72 @@
         <div class="bc-bulk-save" th:if="${currentUser != null}">
             <button class="bc-primary compact" type="button" data-save-all-predictions>Gem alle udfyldte kampe</button>
         </div>
+        <details class="bc-chat-room" aria-label="Chatrum">
+            <summary class="bc-chat-summary">
+                <span class="bc-chat-summary-copy">
+                    <span class="bc-kicker">Chatrum</span>
+                    <strong>Arena chat <span class="bc-chat-new">NY</span></strong>
+                    <small th:if="${chatMessages.isEmpty()}">Rul ned og start samtalen.</small>
+                    <small th:if="${!chatMessages.isEmpty()}" th:text="${#lists.size(chatMessages)} + ' kommentarer i feedet'">3 kommentarer i feedet</small>
+                </span>
+                <span class="bc-chat-summary-action" aria-hidden="true">
+                    <span class="bc-chat-open-label">Rul ned</span>
+                    <span class="bc-chat-close-label">Rul op</span>
+                </span>
+            </summary>
+            <div class="bc-chat-panel">
+                <div class="bc-section-head">
+                    <div>
+                        <p class="bc-kicker">Live feed</p>
+                        <h2>Smid et kald</h2>
+                    </div>
+                    <p class="bc-muted">Korte kommentarer, reaktioner og hurtige takes fra arenaen.</p>
+                </div>
+                <div class="bc-chat-layout">
+                    <form class="bc-chat-composer" method="post" action="/arena/chat" data-preserve-scroll>
+                        <label for="arena-chat-message">Skriv i chatten</label>
+                        <div class="bc-mention-picker" th:if="${!mentionUsernames.isEmpty()}">
+                            <label for="arena-chat-mention">Tilføj @</label>
+                            <input id="arena-chat-mention" type="text" list="arena-chat-mentions"
+                                   placeholder="@brugernavn" data-mention-picker data-mention-target="arena-chat-message">
+                            <datalist id="arena-chat-mentions">
+                                <option th:each="username : ${mentionUsernames}" th:value="${'@' + username}">@Azzuri</option>
+                            </datalist>
+                        </div>
+                        <textarea id="arena-chat-message" name="message" rows="3" maxlength="240"
+                                  placeholder="Skriv en kommentar, et take eller et kald. Brug @ for at nævne en spiller."></textarea>
+                        <button class="bc-primary compact" type="submit">Send</button>
+                    </form>
+                    <div class="bc-chat-feed" th:if="${!chatMessages.isEmpty()}">
+                        <article class="bc-chat-message" th:each="chat : ${chatMessages}">
+                            <header>
+                                <div class="bc-chat-author">
+                                    <strong th:text="${!#strings.isEmpty(chat.username) ? chat.username : 'Anonym'}">Anonym</strong>
+                                    <span th:text="${#temporals.format(chat.createdAt, 'dd. MMM yyyy HH:mm')}">05. Jun 2026 21:00</span>
+                                </div>
+                                <form class="bc-chat-reactions" method="post" action="/arena/chat/react" data-preserve-scroll>
+                                    <input type="hidden" name="messageId" th:value="${chat.id}">
+                                    <button class="bc-chat-reaction" type="submit" name="reaction" value="like" aria-label="Like">
+                                        <span>👍</span><strong th:text="${chat.likes}">0</strong>
+                                    </button>
+                                    <button class="bc-chat-reaction" type="submit" name="reaction" value="fire" aria-label="Fire">
+                                        <span>🔥</span><strong th:text="${chat.fireReactions}">0</strong>
+                                    </button>
+                                    <button class="bc-chat-reaction" type="submit" name="reaction" value="poop" aria-label="Lort">
+                                        <span>💩</span><strong th:text="${chat.poopReactions}">0</strong>
+                                    </button>
+                                </form>
+                            </header>
+                            <p class="bc-chat-text" th:text="${chat.message}">Kampdag bliver tung.</p>
+                        </article>
+                    </div>
+                    <div class="bc-empty bc-chat-empty" th:if="${chatMessages.isEmpty()}">
+                        <h3>Ingen kommentarer endnu</h3>
+                        <p>Vær den første til at skrive i chatten.</p>
+                    </div>
+                </div>
+            </div>
+        </details>
         <details class="bc-match-section" th:each="section : ${matchSections}" th:open="${section.open()}">
             <summary>
                 <span>

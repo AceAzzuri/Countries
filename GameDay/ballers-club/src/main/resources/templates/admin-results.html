@@ -38,6 +38,10 @@
     <div class="bc-flash success" th:if="${success}" th:text="${success}"></div>
     <div class="bc-flash error" th:if="${error}" th:text="${error}"></div>
 
+    <div class="bc-bulk-save">
+        <button class="bc-primary compact" type="button" data-save-all-results>Gem alle udfyldte resultater</button>
+    </div>
+
     <section class="bc-admin-feedback" aria-label="Arena feedback">
         <div class="bc-section-head">
             <p class="bc-kicker">Feedback</p>
@@ -54,6 +58,24 @@
         </article>
     </section>
 
+    <section class="bc-admin-feedback" aria-label="Predictions gemt efter kickoff">
+        <div class="bc-section-head">
+            <p class="bc-kicker">Kontrol</p>
+            <h2>Ændret efter kampstart</h2>
+        </div>
+        <p class="bc-muted" th:if="${latePredictionUpdates.isEmpty()}">Ingen predictions er gemt efter kickoff.</p>
+        <article th:each="update : ${latePredictionUpdates}">
+            <div>
+                <strong th:text="${update.username()}">Bruger</strong>
+                <span th:text="${update.matchLabel()}">Mexico vs South Africa</span>
+            </div>
+            <p th:text="${'Pick ' + update.predictionLabel()}">Pick 2-1</p>
+            <small th:text="${'Kickoff ' + #temporals.format(update.kickoffAt(), 'dd. MMM yyyy HH:mm') + ' / gemt ' + #temporals.format(update.updatedAt(), 'dd. MMM yyyy HH:mm')}">
+                Kickoff 11. Jun 2026 21:00 / gemt 11. Jun 2026 21:10
+            </small>
+        </article>
+    </section>
+
     <section class="bc-admin-results">
         <article class="bc-admin-match" th:each="match : ${matches}">
             <div>
@@ -65,7 +87,7 @@
                 </p>
             </div>
 
-            <form class="bc-result-form" method="post" action="/admin/results">
+            <form class="bc-result-form" method="post" action="/admin/results" data-preserve-scroll>
                 <input type="hidden" name="matchId" th:value="${match.id}">
                 <input inputmode="numeric" pattern="[0-9]*" name="homeScore" aria-label="Hjemmeholdets mål"
                        th:value="${match.homeScore != null ? match.homeScore : ''}">
@@ -75,7 +97,7 @@
                 <button class="bc-primary compact" type="submit">Gem</button>
             </form>
 
-            <form method="post" action="/admin/results/clear" th:if="${match.hasResult()}">
+            <form method="post" action="/admin/results/clear" th:if="${match.hasResult()}" data-preserve-scroll>
                 <input type="hidden" name="matchId" th:value="${match.id}">
                 <button class="bc-link-button" type="submit">Ryd resultat</button>
             </form>

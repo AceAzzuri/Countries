@@ -1,6 +1,8 @@
 package dk.gameday.ballersclub;
 
 import dk.gameday.ballersclub.repository.PoolRepository;
+import dk.gameday.ballersclub.repository.ArenaChatMessageRepository;
+import dk.gameday.ballersclub.repository.WorldCupMatchRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,6 +26,12 @@ class BallersClubPageTests {
 
     @Autowired
     private PoolRepository poolRepository;
+
+    @Autowired
+    private ArenaChatMessageRepository arenaChatMessageRepository;
+
+    @Autowired
+    private WorldCupMatchRepository worldCupMatchRepository;
 
     @Test
     void publicPagesRender() throws Exception {
@@ -106,7 +114,7 @@ class BallersClubPageTests {
 
         mockMvc.perform(post("/arena/predictions")
                         .session(session)
-                        .param("matchId", "16")
+                        .param("matchId", "28")
                         .param("homeGoals", "2")
                         .param("awayGoals", "1"))
                 .andExpect(status().is3xxRedirection())
@@ -121,6 +129,77 @@ class BallersClubPageTests {
     }
 
     @Test
+    void arenaChatCanStoreMessagesAndReactions() throws Exception {
+        mockMvc.perform(post("/arena/chat")
+                        .param("message", "Arena er varm"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/arena"));
+
+        var message = arenaChatMessageRepository.findTop10ByOrderByCreatedAtDesc().get(0);
+        mockMvc.perform(post("/arena/chat/react")
+                        .param("messageId", message.getId().toString())
+                        .param("reaction", "fire"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/arena"));
+
+        var updated = arenaChatMessageRepository.findById(message.getId()).orElseThrow();
+        org.junit.jupiter.api.Assertions.assertEquals(1, updated.getFireReactions());
+        org.junit.jupiter.api.Assertions.assertEquals("Arena er varm", updated.getMessage());
+    }
+
+    @Test
+    void arenaPageShowsChatRoomAndLeaderboardTopTenLabel() throws Exception {
+        mockMvc.perform(post("/signup")
+                        .param("username", "Mention Alpha")
+                        .param("email", "mention-alpha@example.com"))
+                .andExpect(status().is3xxRedirection());
+        mockMvc.perform(post("/signup")
+                        .param("username", "Mention Beta")
+                        .param("email", "mention-beta@example.com"))
+                .andExpect(status().is3xxRedirection());
+
+        mockMvc.perform(get("/arena"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Chatrum")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Arena chat")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("bc-chat-new")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("@Mention Alpha")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("@Mention Beta")))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("Opdateringer"))));
+
+        mockMvc.perform(get("/leaderboard"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Top 10 vises her")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Flest udfald gættet rigtigt")));
+    }
+
+    @Test
+    void adminCanSaveMultipleResultsAtOnce() throws Exception {
+        MockHttpSession adminSession = (MockHttpSession) mockMvc.perform(post("/signup")
+                        .param("username", "Azzuri")
+                        .param("email", "azzuri@example.com"))
+                .andExpect(status().is3xxRedirection())
+                .andReturn()
+                .getRequest()
+                .getSession(false);
+
+        mockMvc.perform(post("/admin/results/all")
+                        .session(adminSession)
+                        .param("matchIds", "13", "14")
+                        .param("homeScores", "2", "1")
+                        .param("awayScores", "1", "0"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/results"));
+
+        var match13 = worldCupMatchRepository.findById(13L).orElseThrow();
+        var match14 = worldCupMatchRepository.findById(14L).orElseThrow();
+        org.junit.jupiter.api.Assertions.assertEquals(2, match13.getHomeScore());
+        org.junit.jupiter.api.Assertions.assertEquals(1, match13.getAwayScore());
+        org.junit.jupiter.api.Assertions.assertEquals(1, match14.getHomeScore());
+        org.junit.jupiter.api.Assertions.assertEquals(0, match14.getAwayScore());
+    }
+
+    @Test
     void allEnteredPredictionsCanBeSavedTogether() throws Exception {
         MockHttpSession session = (MockHttpSession) mockMvc.perform(post("/signup")
                         .param("username", "bulk tester")
@@ -132,7 +211,7 @@ class BallersClubPageTests {
 
         mockMvc.perform(post("/arena/predictions/all")
                         .session(session)
-                        .param("matchIds", "17", "18", "19")
+                        .param("matchIds", "29", "30", "31")
                         .param("homeGoals", "2", "", "1")
                         .param("awayGoals", "1", "", "1"))
                 .andExpect(status().is3xxRedirection())
@@ -157,14 +236,14 @@ class BallersClubPageTests {
 
         mockMvc.perform(post("/arena/predictions")
                         .session(session)
-                        .param("matchId", "13")
+                        .param("matchId", "32")
                         .param("homeGoals", "2")
                         .param("awayGoals", "1"))
                 .andExpect(status().is3xxRedirection());
 
         mockMvc.perform(post("/admin/results")
                         .session(session)
-                        .param("matchId", "13")
+                        .param("matchId", "32")
                         .param("homeScore", "2")
                         .param("awayScore", "1"))
                 .andExpect(status().is3xxRedirection())

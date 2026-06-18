@@ -11,6 +11,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Entity
 @Table(
@@ -18,6 +19,8 @@ import java.time.LocalDateTime;
         uniqueConstraints = @UniqueConstraint(name = "uk_prediction_user_match", columnNames = {"user_id", "match_id"})
 )
 public class Prediction {
+
+    private static final ZoneId DISPLAY_ZONE = ZoneId.of("Europe/Copenhagen");
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,7 +50,7 @@ public class Prediction {
     public void updateScore(int homeGoals, int awayGoals) {
         this.homeGoals = homeGoals;
         this.awayGoals = awayGoals;
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now(DISPLAY_ZONE);
     }
 
     public Long getId() {

@@ -3,6 +3,8 @@ package dk.gameday.ballersclub.controller;
 import dk.gameday.ballersclub.model.AppUser;
 import dk.gameday.ballersclub.model.PollView;
 import dk.gameday.ballersclub.service.AdminAccessService;
+import dk.gameday.ballersclub.service.ArenaChatService;
+import dk.gameday.ballersclub.service.ArenaUpdateService;
 import dk.gameday.ballersclub.service.ArenaFeedbackService;
 import dk.gameday.ballersclub.service.CurrentUserService;
 import dk.gameday.ballersclub.service.DataCollectionService;
@@ -41,6 +43,8 @@ public class BallersClubController {
     private final MatchResultService matchResultService;
     private final AdminAccessService adminAccessService;
     private final ArenaFeedbackService arenaFeedbackService;
+    private final ArenaChatService arenaChatService;
+    private final ArenaUpdateService arenaUpdateService;
     private final PoolService poolService;
 
     public BallersClubController(
@@ -54,6 +58,8 @@ public class BallersClubController {
             MatchResultService matchResultService,
             AdminAccessService adminAccessService,
             ArenaFeedbackService arenaFeedbackService,
+            ArenaChatService arenaChatService,
+            ArenaUpdateService arenaUpdateService,
             PoolService poolService
     ) {
         this.currentUserService = currentUserService;
@@ -66,6 +72,8 @@ public class BallersClubController {
         this.matchResultService = matchResultService;
         this.adminAccessService = adminAccessService;
         this.arenaFeedbackService = arenaFeedbackService;
+        this.arenaChatService = arenaChatService;
+        this.arenaUpdateService = arenaUpdateService;
         this.poolService = poolService;
     }
 
@@ -90,6 +98,9 @@ public class BallersClubController {
         model.addAttribute("countryPlayers", CountryPlayerUtil.playerSuggestions());
         model.addAttribute("countryNotes", CountryPlayerUtil.teamNotes());
         model.addAttribute("topPointRows", leaderboardService.getTopPoints());
+        model.addAttribute("chatMessages", arenaChatService.findLatest());
+        model.addAttribute("mentionUsernames", userService.findMentionUsernames());
+        model.addAttribute("arenaUpdates", arenaUpdateService.getLatestUpdates());
         return "worldcup";
     }
 
@@ -110,6 +121,37 @@ public class BallersClubController {
         try {
             predictionService.savePrediction(user, matchId, homeGoals, awayGoals);
             redirectAttributes.addFlashAttribute("success", "Prediction gemt.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/arena";
+    }
+
+    @PostMapping("/arena/chat")
+    public String saveChatMessage(
+            @RequestParam String message,
+            HttpSession session,
+            RedirectAttributes redirectAttributes
+    ) {
+        AppUser user = currentUserService.getCurrentUser(session).orElse(null);
+        try {
+            arenaChatService.postMessage(message, user);
+            redirectAttributes.addFlashAttribute("success", "Chat gemt.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/arena";
+    }
+
+    @PostMapping("/arena/chat/react")
+    public String reactToChatMessage(
+            @RequestParam Long messageId,
+            @RequestParam String reaction,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            arenaChatService.react(messageId, reaction);
+            redirectAttributes.addFlashAttribute("success", "Reaktion gemt.");
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
@@ -159,11 +201,14 @@ public class BallersClubController {
     @GetMapping("/leaderboard")
     public String leaderboard(Model model, HttpSession session) {
         Optional<AppUser> currentUser = addCurrentUser(model, session);
-        model.addAttribute("rows", leaderboardService.getLeaderboard());
+        model.addAttribute("rows", leaderboardService.getLeaderboard().stream().limit(10).toList());
         model.addAttribute("profiles", leaderboardService.getPredictionProfiles());
         model.addAttribute("topHitRows", leaderboardService.getTopHitPercentage());
         model.addAttribute("topExactRows", leaderboardService.getTopExactScores());
-        model.addAttribute("topPointRows", leaderboardService.getTopPoints());
+        model.addAttribute("topCorrectResultRows", leaderboardService.getTopCorrectResults());
+        model.addAttribute("hitRollDownRows", leaderboardService.getHitRollDownRows());
+        model.addAttribute("exactRollDownRows", leaderboardService.getExactRollDownRows());
+        model.addAttribute("correctResultRollDownRows", leaderboardService.getCorrectResultRollDownRows());
         model.addAttribute("dataSummary", dataCollectionService.getSummary());
         model.addAttribute("predictionFeed", dataCollectionService.getPredictionFeed());
         model.addAttribute("poolLeaderboards", currentUser.map(poolService::findPoolLeaderboards).orElseGet(java.util.List::of));
@@ -341,6 +386,7 @@ public class BallersClubController {
         model.addAttribute("isAdmin", true);
         model.addAttribute("matches", predictionService.findMatches());
         model.addAttribute("feedbackItems", arenaFeedbackService.findLatest());
+        model.addAttribute("latePredictionUpdates", predictionService.findLatePredictionUpdates());
         return "admin-results";
     }
 
@@ -360,6 +406,28 @@ public class BallersClubController {
         try {
             matchResultService.updateResult(matchId, homeScore, awayScore);
             redirectAttributes.addFlashAttribute("success", "Resultat gemt.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/admin/results";
+    }
+
+    @PostMapping("/admin/results/all")
+    public String saveAllResults(
+            @RequestParam List<Long> matchIds,
+            @RequestParam List<String> homeScores,
+            @RequestParam List<String> awayScores,
+            HttpSession session,
+            RedirectAttributes redirectAttributes
+    ) {
+        AppUser user = currentUserService.getCurrentUser(session).orElse(null);
+        if (!adminAccessService.isAdmin(user)) {
+            redirectAttributes.addFlashAttribute("error", "Admin adgang kræves.");
+            return "redirect:/login";
+        }
+        try {
+            int saved = matchResultService.updateResults(matchIds, homeScores, awayScores);
+            redirectAttributes.addFlashAttribute("success", saved + " resultater gemt.");
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }

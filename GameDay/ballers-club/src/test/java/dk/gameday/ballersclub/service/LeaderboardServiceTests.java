@@ -12,10 +12,10 @@ class LeaderboardServiceTests {
     private final LeaderboardService leaderboardService = new LeaderboardService(null, new ScoringService());
 
     @Test
-    void ticketCategoriesRequireAtLeastEightPlayedMatches() {
+    void ticketCategoriesRequireAtLeastTwentyPlayedMatches() {
         List<LeaderboardRow> rows = List.of(
-                row("janvasquez", 7, 7, 0),
-                row("Benni", 8, 3, 3)
+                row("janvasquez", 19, 7, 0),
+                row("Benni", 20, 3, 3)
         );
 
         assertThat(leaderboardService.topHitPercentage(rows))
@@ -29,14 +29,32 @@ class LeaderboardServiceTests {
     @Test
     void exactScoreCategorySortsByMostExactScoresFirst() {
         List<LeaderboardRow> rows = List.of(
-                row("EK", 8, 1, 7),
-                row("Batman FC", 8, 1, 7),
-                row("Benni", 8, 3, 5)
+                row("EK", 20, 1, 7),
+                row("Batman FC", 20, 1, 7),
+                row("Benni", 20, 3, 5)
         );
 
         assertThat(leaderboardService.topExactScores(rows))
                 .extracting(LeaderboardRow::username)
                 .containsExactly("Benni", "Batman FC", "EK");
+    }
+
+    @Test
+    void rollDownKeepsPlayersBelowTicketMinimumVisible() {
+        List<LeaderboardRow> rows = List.of(
+                row("Benni", 20, 3, 3),
+                row("ak81", 19, 4, 2)
+        );
+
+        assertThat(leaderboardService.topExactScores(rows))
+                .extracting(LeaderboardRow::username)
+                .containsExactly("Benni");
+        assertThat(leaderboardService.rollDownRows(
+                        leaderboardService.exactScoreRanking(rows),
+                        leaderboardService.topExactScores(rows)
+                ))
+                .extracting(LeaderboardRow::username)
+                .containsExactly("ak81");
     }
 
     private LeaderboardRow row(String username, int gamesPlayed, int exactScores, int correctResults) {

@@ -1,6 +1,7 @@
 package dk.gameday.ballersclub.service;
 
 import dk.gameday.ballersclub.model.AppUser;
+import dk.gameday.ballersclub.model.LatePredictionUpdate;
 import dk.gameday.ballersclub.model.MatchSection;
 import dk.gameday.ballersclub.model.MatchPredictionStats;
 import dk.gameday.ballersclub.model.Prediction;
@@ -41,8 +42,8 @@ public class PredictionService {
                 .toList();
 
         return List.of(
-                new MatchSection("Gruppekampe 1", "Åbningskampe på tværs af de 12 grupper.", true, groupMatchdayOne),
-                new MatchSection("Gruppekampe 2", "Anden runde i gruppespillet.", false, groupMatchdayTwo),
+                new MatchSection("Gruppekampe 1", "Åbningskampe på tværs af de 12 grupper.", false, groupMatchdayOne),
+                new MatchSection("Gruppekampe 2", "Anden runde i gruppespillet.", true, groupMatchdayTwo),
                 new MatchSection("Gruppekampe 3", "Sidste gruppekampe med højt pres.", false, groupMatchdayThree),
                 new MatchSection("Knockout-vejen", "Fra Round of 32 til finalen.", false, knockouts)
         );
@@ -60,6 +61,19 @@ public class PredictionService {
                 .collect(Collectors.groupingBy(prediction -> prediction.getMatch().getId()))
                 .entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> buildStats(entry.getValue())));
+    }
+
+    @Transactional(readOnly = true)
+    public List<LatePredictionUpdate> findLatePredictionUpdates() {
+        return predictionRepository.findLateUpdates().stream()
+                .map(prediction -> new LatePredictionUpdate(
+                        prediction.getUser().getUsername(),
+                        prediction.getMatch().getHomeTeam() + " vs " + prediction.getMatch().getAwayTeam(),
+                        prediction.getHomeGoals() + "-" + prediction.getAwayGoals(),
+                        prediction.getMatch().getKickoffAt(),
+                        prediction.getUpdatedAt()
+                ))
+                .toList();
     }
 
     @Transactional

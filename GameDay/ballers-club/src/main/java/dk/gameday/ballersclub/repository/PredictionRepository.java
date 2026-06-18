@@ -32,4 +32,15 @@ public interface PredictionRepository extends JpaRepository<Prediction, Long> {
             order by match.kickoffAt asc, user.username asc
             """)
     List<Prediction> findAllWithUserAndMatch();
+
+    @Query("""
+            select prediction
+            from Prediction prediction
+            join fetch prediction.user user
+            join fetch prediction.match match
+            where prediction.updatedAt is not null
+              and prediction.updatedAt > match.kickoffAt
+            order by prediction.updatedAt desc, user.username asc
+            """)
+    List<Prediction> findLateUpdates();
 }

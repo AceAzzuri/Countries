@@ -1,7 +1,7 @@
 (function () {
     function setupPressFeedback() {
         const targets = document.querySelectorAll(
-            ".bc-mark, .bc-brand img, .bc-badge, .bc-primary, .bc-score-form button, .bc-poll-options button, .bc-link-button, .bc-details-button, .bc-row-button"
+            ".bc-mark, .bc-brand img, .bc-badge, .bc-primary, .bc-score-form button, .bc-poll-options button, .bc-link-button, .bc-details-button, .bc-row-button, .bc-chat-reaction, .bc-chat-summary"
         );
 
         targets.forEach(function (target) {
@@ -129,6 +129,30 @@
         });
     }
 
+    function setupRulesModal() {
+        const modal = document.querySelector("[data-rules-modal]");
+        const openButton = document.querySelector("[data-rules-modal-open]");
+        if (!modal || !openButton) {
+            return;
+        }
+
+        openButton.addEventListener("click", function () {
+            modal.showModal();
+        });
+
+        modal.querySelectorAll("[data-rules-modal-close]").forEach(function (button) {
+            button.addEventListener("click", function () {
+                modal.close();
+            });
+        });
+
+        modal.addEventListener("click", function (event) {
+            if (event.target === modal) {
+                modal.close();
+            }
+        });
+    }
+
     function setupScrollMemory() {
         const forms = document.querySelectorAll("form[data-preserve-scroll]");
         if (!forms.length) {
@@ -136,6 +160,10 @@
         }
 
         const storageKey = "bc-scroll:" + window.location.pathname;
+
+        if ("scrollRestoration" in window.history) {
+            window.history.scrollRestoration = "manual";
+        }
 
         function restoreScroll() {
             const stored = window.sessionStorage.getItem(storageKey);
@@ -151,6 +179,9 @@
 
             window.requestAnimationFrame(function () {
                 window.scrollTo({ top: scrollY, behavior: "auto" });
+                window.requestAnimationFrame(function () {
+                    window.scrollTo({ top: scrollY, behavior: "auto" });
+                });
             });
         }
 
@@ -161,6 +192,7 @@
         });
 
         restoreScroll();
+        window.addEventListener("pageshow", restoreScroll);
     }
 
     function setupSaveAllPredictions() {
@@ -196,12 +228,77 @@
         });
     }
 
+    function setupSaveAllResults() {
+        const button = document.querySelector("[data-save-all-results]");
+        if (!button) {
+            return;
+        }
+
+        button.addEventListener("click", function () {
+            const resultForms = Array.from(document.querySelectorAll(".bc-result-form"));
+            const form = document.createElement("form");
+            form.method = "post";
+            form.action = "/admin/results/all";
+            form.dataset.preserveScroll = "";
+
+            resultForms.forEach(function (resultForm) {
+                ["matchId", "homeScore", "awayScore"].forEach(function (name) {
+                    const source = resultForm.querySelector("[name='" + name + "']");
+                    if (!source) {
+                        return;
+                    }
+                    const input = document.createElement("input");
+                    input.type = "hidden";
+                    input.name = name === "matchId" ? "matchIds" : name + "s";
+                    input.value = source.value;
+                    form.appendChild(input);
+                });
+            });
+
+            window.sessionStorage.setItem("bc-scroll:" + window.location.pathname, String(window.scrollY || window.pageYOffset || 0));
+            document.body.appendChild(form);
+            form.submit();
+        });
+    }
+
+    function setupMentionPickers() {
+        document.querySelectorAll("[data-mention-picker]").forEach(function (picker) {
+            const target = document.getElementById(picker.dataset.mentionTarget || "");
+            if (!target) {
+                return;
+            }
+
+            picker.addEventListener("change", function () {
+                const mention = picker.value.trim();
+                if (!mention || mention.charAt(0) !== "@") {
+                    return;
+                }
+
+                const start = target.selectionStart || target.value.length;
+                const end = target.selectionEnd || start;
+                const before = target.value.slice(0, start);
+                const after = target.value.slice(end);
+                const prefix = before && !/\s$/.test(before) ? " " : "";
+                const suffix = after && !/^\s/.test(after) ? " " : "";
+                const insertion = prefix + mention + suffix;
+                target.value = before + insertion + after;
+                const cursor = before.length + insertion.length;
+                target.focus();
+                target.setSelectionRange(cursor, cursor);
+                picker.value = "";
+            });
+        });
+    }
+
     document.addEventListener("DOMContentLoaded", function () {
         setupPressFeedback();
         setupMatchModal();
         setupUserModals();
         setupCountryModal();
+        setupRulesModal();
         setupScrollMemory();
         setupSaveAllPredictions();
+        setupSaveAllResults();
+        setupMentionPickers();
     });
 }());

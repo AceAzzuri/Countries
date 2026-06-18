@@ -50,9 +50,10 @@
             </label>
             <button class="bc-primary" type="submit">Log ind</button>
         </form>
-        <p class="bc-auth-note" th:if="${currentUser == null}">
-            Har du ikke en profil endnu? <a href="/signup">Opret profil</a>
-        </p>
+        <div class="bc-auth-signup-callout" th:if="${currentUser == null}">
+            <span>Ny i Arena?</span>
+            <a class="bc-secondary-action" href="/signup">Opret profil</a>
+        </div>
         <p class="bc-auth-note" th:if="${currentUser == null}">
             Vi gemmer kun dit navn, email, predictions, point, reminder-valg og om du vil kontaktes. Du kan altid bede om at få slettet din konto.
         </p>

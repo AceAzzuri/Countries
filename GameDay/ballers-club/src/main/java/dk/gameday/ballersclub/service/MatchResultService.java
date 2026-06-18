@@ -5,6 +5,8 @@ import dk.gameday.ballersclub.repository.WorldCupMatchRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class MatchResultService {
 
@@ -28,6 +30,34 @@ public class MatchResultService {
         WorldCupMatch match = findMatch(matchId);
         match.clearResult();
         matchRepository.save(match);
+    }
+
+    @Transactional
+    public int updateResults(List<Long> matchIds, List<String> homeScoreValues, List<String> awayScoreValues) {
+        if (matchIds == null || homeScoreValues == null || awayScoreValues == null
+                || matchIds.size() != homeScoreValues.size() || matchIds.size() != awayScoreValues.size()) {
+            throw new IllegalArgumentException("Kunne ikke læse kampene. Prøv at gemme igen.");
+        }
+
+        int saved = 0;
+        for (int i = 0; i < matchIds.size(); i++) {
+            String home = homeScoreValues.get(i);
+            String away = awayScoreValues.get(i);
+            boolean homeBlank = home == null || home.isBlank();
+            boolean awayBlank = away == null || away.isBlank();
+            if (homeBlank && awayBlank) {
+                continue;
+            }
+            if (homeBlank || awayBlank) {
+                throw new IllegalArgumentException("Indtast begge resultater for hver kamp, du vil gemme.");
+            }
+            updateResult(matchIds.get(i), home, away);
+            saved++;
+        }
+        if (saved == 0) {
+            throw new IllegalArgumentException("Der var ingen udfyldte resultater at gemme.");
+        }
+        return saved;
     }
 
     private WorldCupMatch findMatch(Long matchId) {

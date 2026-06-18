@@ -85,6 +85,13 @@ public class UserService {
         return userRepository.findById(id);
     }
 
+    public List<String> findMentionUsernames() {
+        return userRepository.findAllByOrderByUsernameAsc().stream()
+                .map(AppUser::getUsername)
+                .filter(username -> username != null && !username.isBlank())
+                .toList();
+    }
+
     public List<AppUser> findUsersWithCommunicationConsent() {
         return userRepository.findByCommunicationConsentTrueAndEmailIsNotNullOrderByCreatedAtDesc();
     }

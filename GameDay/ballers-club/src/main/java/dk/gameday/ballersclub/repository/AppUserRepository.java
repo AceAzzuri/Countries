@@ -12,5 +12,7 @@ public interface AppUserRepository extends JpaRepository<AppUser, Long> {
 
     Optional<AppUser> findByEmailIgnoreCase(String email);
 
+    List<AppUser> findAllByOrderByUsernameAsc();
+
     List<AppUser> findByCommunicationConsentTrueAndEmailIsNotNullOrderByCreatedAtDesc();
 }

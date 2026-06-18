@@ -16,6 +16,8 @@ import java.util.Map;
 @Service
 public class LeaderboardService {
 
+    static final int TICKET_MINIMUM_PLAYED_MATCHES = 20;
+
     private final PredictionRepository predictionRepository;
     private final ScoringService scoringService;
 
@@ -66,35 +68,112 @@ public class LeaderboardService {
         return topExactScores(getLeaderboard());
     }
 
+    public List<LeaderboardRow> getTopCorrectResults() {
+        return topCorrectResults(getLeaderboard());
+    }
+
     List<LeaderboardRow> topHitPercentage(List<LeaderboardRow> rows) {
-        return rows.stream()
-                .filter(row -> row.gamesPlayed() >= 8)
-                .sorted(Comparator
-                        .comparingInt(LeaderboardRow::hitPercentage).reversed()
-                        .thenComparing(Comparator.comparingInt(LeaderboardRow::exactScores).reversed())
-                        .thenComparing(Comparator.comparingInt(LeaderboardRow::totalPoints).reversed())
-                        .thenComparing(LeaderboardRow::username, String.CASE_INSENSITIVE_ORDER))
+        return hitPercentageRanking(rows).stream()
+                .filter(this::isTicketEligible)
                 .limit(3)
                 .toList();
     }
 
     List<LeaderboardRow> topExactScores(List<LeaderboardRow> rows) {
-        return rows.stream()
-                .filter(row -> row.gamesPlayed() >= 8)
-                .filter(row -> row.exactScores() > 0)
-                .sorted(Comparator
-                        .comparingInt(LeaderboardRow::exactScores).reversed()
-                        .thenComparing(Comparator.comparingInt(LeaderboardRow::totalPoints).reversed())
-                        .thenComparing(LeaderboardRow::username, String.CASE_INSENSITIVE_ORDER))
+        return exactScoreRanking(rows).stream()
+                .filter(this::isTicketEligible)
                 .limit(3)
                 .toList();
     }
 
     public List<LeaderboardRow> getTopPoints() {
-        return getLeaderboard().stream()
+        return pointRanking(getLeaderboard()).stream()
+                .filter(this::isTicketEligible)
                 .filter(row -> row.totalPoints() > 0)
                 .limit(3)
                 .toList();
+    }
+
+    public List<LeaderboardRow> getHitRollDownRows() {
+        return rollDownRows(hitPercentageRanking(getLeaderboard()), getTopHitPercentage());
+    }
+
+    public List<LeaderboardRow> getExactRollDownRows() {
+        return rollDownRows(exactScoreRanking(getLeaderboard()), getTopExactScores());
+    }
+
+    public List<LeaderboardRow> getPointRollDownRows() {
+        return rollDownRows(pointRanking(getLeaderboard()), getTopPoints());
+    }
+
+    public List<LeaderboardRow> getCorrectResultRollDownRows() {
+        return rollDownRows(correctResultRanking(getLeaderboard()), getTopCorrectResults());
+    }
+
+    private List<LeaderboardRow> hitPercentageRanking(List<LeaderboardRow> rows) {
+        return rows.stream()
+                .filter(row -> row.gamesPlayed() > 0)
+                .sorted(Comparator
+                        .comparing(this::isTicketEligible).reversed()
+                        .thenComparing(Comparator.comparingInt(LeaderboardRow::hitPercentage).reversed())
+                        .thenComparing(Comparator.comparingInt(LeaderboardRow::exactScores).reversed())
+                        .thenComparing(Comparator.comparingInt(LeaderboardRow::totalPoints).reversed())
+                        .thenComparing(LeaderboardRow::username, String.CASE_INSENSITIVE_ORDER))
+                .toList();
+    }
+
+    List<LeaderboardRow> exactScoreRanking(List<LeaderboardRow> rows) {
+        return rows.stream()
+                .filter(row -> row.exactScores() > 0)
+                .sorted(Comparator
+                        .comparing(this::isTicketEligible).reversed()
+                        .thenComparing(Comparator.comparingInt(LeaderboardRow::exactScores).reversed())
+                        .thenComparing(Comparator.comparingInt(LeaderboardRow::totalPoints).reversed())
+                        .thenComparing(LeaderboardRow::username, String.CASE_INSENSITIVE_ORDER))
+                .toList();
+    }
+
+    private List<LeaderboardRow> topCorrectResults(List<LeaderboardRow> rows) {
+        return correctResultRanking(rows).stream()
+                .filter(this::isTicketEligible)
+                .limit(3)
+                .toList();
+    }
+
+    private List<LeaderboardRow> correctResultRanking(List<LeaderboardRow> rows) {
+        return rows.stream()
+                .filter(row -> row.correctResults() > 0)
+                .sorted(Comparator
+                        .comparing(this::isTicketEligible).reversed()
+                        .thenComparing(Comparator.comparingInt(LeaderboardRow::correctResults).reversed())
+                        .thenComparing(Comparator.comparingInt(LeaderboardRow::totalPoints).reversed())
+                        .thenComparing(LeaderboardRow::username, String.CASE_INSENSITIVE_ORDER))
+                .toList();
+    }
+
+    private List<LeaderboardRow> pointRanking(List<LeaderboardRow> rows) {
+        return rows.stream()
+                .filter(row -> row.totalPoints() > 0)
+                .sorted(Comparator
+                        .comparing(this::isTicketEligible).reversed()
+                        .thenComparing(Comparator.comparingInt(LeaderboardRow::totalPoints).reversed())
+                        .thenComparing(Comparator.comparingInt(LeaderboardRow::exactScores).reversed())
+                        .thenComparing(Comparator.comparingInt(LeaderboardRow::correctResults).reversed())
+                        .thenComparing(LeaderboardRow::username, String.CASE_INSENSITIVE_ORDER))
+                .toList();
+    }
+
+    List<LeaderboardRow> rollDownRows(List<LeaderboardRow> categoryRows, List<LeaderboardRow> topRows) {
+        List<String> topUsernames = topRows.stream()
+                .map(LeaderboardRow::username)
+                .toList();
+        return categoryRows.stream()
+                .filter(row -> !topUsernames.contains(row.username()))
+                .toList();
+    }
+
+    private boolean isTicketEligible(LeaderboardRow row) {
+        return row.gamesPlayed() >= TICKET_MINIMUM_PLAYED_MATCHES;
     }
 
     List<LeaderboardRow> buildLeaderboard(List<Prediction> predictions) {
