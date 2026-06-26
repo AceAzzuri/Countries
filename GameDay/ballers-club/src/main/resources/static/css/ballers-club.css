@@ -1089,6 +1089,12 @@
     cursor: pointer;
 }
 
+.bc-country-static {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .bc-country-button:hover .bc-badge,
 .bc-country-button:focus-visible .bc-badge {
     border-color: rgba(199, 255, 0, 0.68);
@@ -1399,12 +1405,41 @@
     border-top: 1px solid rgba(199, 255, 0, 0.18);
 }
 
-.bc-roll-down h3 {
-    margin: 0 0 6px;
+.bc-roll-down summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 34px;
+    cursor: pointer;
+    list-style: none;
+}
+
+.bc-roll-down summary::-webkit-details-marker {
+    display: none;
+}
+
+.bc-roll-down summary span {
     color: rgba(255, 255, 255, 0.72);
     font-size: 12px;
     font-weight: 950;
     text-transform: uppercase;
+}
+
+.bc-roll-down summary::after {
+    content: "+";
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border: 1px solid rgba(199, 255, 0, 0.24);
+    border-radius: 999px;
+    color: #C7FF00;
+    font-weight: 950;
+}
+
+.bc-roll-down[open] summary::after {
+    content: "-";
 }
 
 .bc-ticket-strip .bc-roll-down div {
@@ -1415,6 +1450,29 @@
 .bc-roll-down em {
     color: rgba(255, 255, 255, 0.76);
     font-size: 12px;
+}
+
+.bc-leaderboard-head {
+    align-items: end;
+    margin: 18px 0 10px;
+}
+
+.bc-leaderboard-head h2 {
+    margin-bottom: 0;
+}
+
+.bc-leaderboard-roll {
+    margin-top: -6px;
+    margin-bottom: 18px;
+}
+
+.bc-leaderboard-roll-panel {
+    gap: 8px;
+}
+
+.bc-leaderboard-roll-panel .bc-row {
+    width: 100%;
+    margin: 0;
 }
 
 .bc-prize-rules {

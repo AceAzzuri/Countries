@@ -45,6 +45,12 @@ class BallersClubPageTests {
     }
 
     @Test
+    void accidentalMatchPlanningRoutesStayUnavailable() throws Exception {
+        mockMvc.perform(get("/matches")).andExpect(status().isNotFound());
+        mockMvc.perform(get("/matches/1")).andExpect(status().isNotFound());
+    }
+
+    @Test
     void signUpRedirectsToArena() throws Exception {
         mockMvc.perform(post("/signup")
                         .param("username", "culture captain")
@@ -114,7 +120,7 @@ class BallersClubPageTests {
 
         mockMvc.perform(post("/arena/predictions")
                         .session(session)
-                        .param("matchId", "28")
+                        .param("matchId", "61")
                         .param("homeGoals", "2")
                         .param("awayGoals", "1"))
                 .andExpect(status().is3xxRedirection())
@@ -158,7 +164,7 @@ class BallersClubPageTests {
     }
 
     @Test
-    void arenaPageShowsChatRoomAndLeaderboardTopTenLabel() throws Exception {
+    void arenaPageShowsChatRoomWhileFutureFeaturesStayHidden() throws Exception {
         MockHttpSession session = (MockHttpSession) mockMvc.perform(post("/signup")
                         .param("username", "Mention Alpha")
                         .param("email", "mention-alpha@example.com"))
@@ -180,11 +186,19 @@ class BallersClubPageTests {
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("@Mention Alpha")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("@Mention Beta")))
                 .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("data-mention-picker"))))
-                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("Opdateringer"))));
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("Opdateringer"))))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("bc-leaderboard-preview"))))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("href=\"/leaderboard\""))))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("Gå til Leaderboard"))))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("data-country-details"))))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("data-country-modal"))))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("href=\"/matches\""))))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("Opret kamp"))))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("Kampkontrakt"))));
 
         mockMvc.perform(get("/leaderboard"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Top 10 vises her")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Top 10 med mindst 15 spillede kampe vises her")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Flest udfald gættet rigtigt")));
     }
 
@@ -226,7 +240,7 @@ class BallersClubPageTests {
 
         mockMvc.perform(post("/arena/predictions/all")
                         .session(session)
-                        .param("matchIds", "29", "30", "31")
+                        .param("matchIds", "61", "62", "63")
                         .param("homeGoals", "2", "", "1")
                         .param("awayGoals", "1", "", "1"))
                 .andExpect(status().is3xxRedirection())
@@ -251,14 +265,14 @@ class BallersClubPageTests {
 
         mockMvc.perform(post("/arena/predictions")
                         .session(session)
-                        .param("matchId", "32")
+                        .param("matchId", "64")
                         .param("homeGoals", "2")
                         .param("awayGoals", "1"))
                 .andExpect(status().is3xxRedirection());
 
         mockMvc.perform(post("/admin/results")
                         .session(session)
-                        .param("matchId", "32")
+                        .param("matchId", "64")
                         .param("homeScore", "2")
                         .param("awayScore", "1"))
                 .andExpect(status().is3xxRedirection())
@@ -268,7 +282,7 @@ class BallersClubPageTests {
                 .andExpect(status().isOk())
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Azzuri")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("3 pts")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Azzuri ramte")));
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("1 ramte")));
     }
 
     @Test

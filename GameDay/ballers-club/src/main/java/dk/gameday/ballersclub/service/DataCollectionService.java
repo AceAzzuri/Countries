@@ -7,7 +7,10 @@ import dk.gameday.ballersclub.repository.PredictionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -62,36 +65,121 @@ public class DataCollectionService {
 
     @Transactional(readOnly = true)
     public List<PredictionFeedItem> getPredictionFeed() {
-        return predictionRepository.findAllWithUserAndMatch().stream()
+        List<Prediction> resultedPredictions = predictionRepository.findAllWithUserAndMatch().stream()
                 .filter(prediction -> prediction.getMatch().hasResult())
-                .filter(prediction -> scoringService.calculatePoints(prediction) > 0)
                 .sorted(Comparator
                         .comparing((Prediction prediction) -> prediction.getMatch().getKickoffAt()).reversed()
                         .thenComparing(Prediction::getUpdatedAt, Comparator.nullsLast(Comparator.reverseOrder())))
+                .toList();
+
+        List<PredictionFeedItem> items = new ArrayList<>();
+        items.addAll(streakItems(resultedPredictions));
+        items.addAll(matchInsightItems(resultedPredictions));
+        return items.stream()
                 .limit(10)
-                .map(this::toFeedItem)
                 .toList();
     }
 
-    private PredictionFeedItem toFeedItem(Prediction prediction) {
-        int points = scoringService.calculatePoints(prediction);
-        String username = prediction.getUser().getUsername();
-        String homeTeam = prediction.getMatch().getHomeTeam();
-        String awayTeam = prediction.getMatch().getAwayTeam();
-        String actualScore = prediction.getMatch().getHomeScore() + "-" + prediction.getMatch().getAwayScore();
-        String predictedScore = prediction.getHomeGoals() + "-" + prediction.getAwayGoals();
+    private List<PredictionFeedItem> streakItems(List<Prediction> predictions) {
+        Map<String, List<Prediction>> byUser = predictions.stream()
+                .collect(Collectors.groupingBy(
+                        prediction -> prediction.getUser().getUsername(),
+                        HashMap::new,
+                        Collectors.toList()
+                ));
 
-        if (points == 3) {
-            return new PredictionFeedItem(
-                    username + " ramte præcis " + actualScore,
-                    homeTeam + " vs " + awayTeam + " • pick " + predictedScore
-            );
+        List<UserStreak> streaks = new ArrayList<>();
+        for (Map.Entry<String, List<Prediction>> entry : byUser.entrySet()) {
+            List<Prediction> userPredictions = entry.getValue().stream()
+                    .sorted(Comparator.comparing((Prediction prediction) -> prediction.getMatch().getKickoffAt()).reversed())
+                    .toList();
+
+            int streak = 0;
+            Prediction latestHit = null;
+            for (Prediction prediction : userPredictions) {
+                if (scoringService.calculatePoints(prediction) <= 0) {
+                    break;
+                }
+                streak++;
+                if (latestHit == null) {
+                    latestHit = prediction;
+                }
+            }
+            if (streak >= 3 && latestHit != null) {
+                streaks.add(new UserStreak(entry.getKey(), streak, latestHit));
+            }
         }
 
-        return new PredictionFeedItem(
-                username + " læste udfaldet rigtigt",
-                homeTeam + " vs " + awayTeam + " • pick " + predictedScore
-        );
+        return streaks.stream()
+                .sorted(Comparator
+                        .comparingInt(UserStreak::count).reversed()
+                        .thenComparing(UserStreak::username, String.CASE_INSENSITIVE_ORDER))
+                .map(streak -> new PredictionFeedItem(
+                        streak.username() + " har ramt " + streak.count() + " i streg",
+                        "Seneste kald: " + matchLabel(streak.latestHit()) + " - pick " + predictedScore(streak.latestHit())
+                ))
+                .toList();
+    }
+
+    private List<PredictionFeedItem> matchInsightItems(List<Prediction> predictions) {
+        Map<Long, List<Prediction>> byMatch = predictions.stream()
+                .collect(Collectors.groupingBy(
+                        prediction -> prediction.getMatch().getId(),
+                        LinkedHashMap::new,
+                        Collectors.toList()
+                ));
+
+        List<PredictionFeedItem> items = new ArrayList<>();
+        for (List<Prediction> matchPredictions : byMatch.values()) {
+            if (matchPredictions.isEmpty()) {
+                continue;
+            }
+            Prediction sample = matchPredictions.get(0);
+            long exact = matchPredictions.stream()
+                    .filter(prediction -> scoringService.calculatePoints(prediction) == 3)
+                    .count();
+            long outcome = matchPredictions.stream()
+                    .filter(prediction -> scoringService.calculatePoints(prediction) == 1)
+                    .count();
+            long totalHits = exact + outcome;
+
+            if (totalHits == 0) {
+                items.add(new PredictionFeedItem(
+                        "Ingen ramte " + resultLabel(sample),
+                        matchLabel(sample) + " endte " + resultLabel(sample) + " - feltet undervurderede " + winnerLabel(sample)
+                ));
+            } else {
+                items.add(new PredictionFeedItem(
+                        totalHits + " ramte " + matchLabel(sample),
+                        "Resultat " + resultLabel(sample) + " - " + exact + " præcise, " + outcome + " udfald"
+                ));
+            }
+        }
+        return items;
+    }
+
+    private String matchLabel(Prediction prediction) {
+        return prediction.getMatch().getHomeTeam() + " vs " + prediction.getMatch().getAwayTeam();
+    }
+
+    private String resultLabel(Prediction prediction) {
+        return prediction.getMatch().getHomeScore() + "-" + prediction.getMatch().getAwayScore();
+    }
+
+    private String predictedScore(Prediction prediction) {
+        return prediction.getHomeGoals() + "-" + prediction.getAwayGoals();
+    }
+
+    private String winnerLabel(Prediction prediction) {
+        int homeScore = prediction.getMatch().getHomeScore();
+        int awayScore = prediction.getMatch().getAwayScore();
+        if (homeScore > awayScore) {
+            return prediction.getMatch().getHomeTeam();
+        }
+        if (awayScore > homeScore) {
+            return prediction.getMatch().getAwayTeam();
+        }
+        return "det uafgjorte resultat";
     }
 
     private int percentage(int count, int total) {
@@ -99,5 +187,8 @@ public class DataCollectionService {
             return 0;
         }
         return Math.round((count * 100f) / total);
+    }
+
+    private record UserStreak(String username, int count, Prediction latestHit) {
     }
 }

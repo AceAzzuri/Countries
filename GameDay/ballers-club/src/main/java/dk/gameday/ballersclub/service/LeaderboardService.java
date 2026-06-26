@@ -16,7 +16,7 @@ import java.util.Map;
 @Service
 public class LeaderboardService {
 
-    static final int TICKET_MINIMUM_PLAYED_MATCHES = 20;
+    static final int TICKET_MINIMUM_PLAYED_MATCHES = 15;
 
     private final PredictionRepository predictionRepository;
     private final ScoringService scoringService;
@@ -28,6 +28,12 @@ public class LeaderboardService {
 
     public List<LeaderboardRow> getLeaderboard() {
         return buildLeaderboard(predictionRepository.findAllForLeaderboard());
+    }
+
+    public List<LeaderboardRow> getEligibleLeaderboard() {
+        return getLeaderboard().stream()
+                .filter(this::isTicketEligible)
+                .toList();
     }
 
     public List<UserPredictionProfile> getPredictionProfiles() {

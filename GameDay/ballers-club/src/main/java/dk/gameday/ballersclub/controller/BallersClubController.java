@@ -1,6 +1,7 @@
 package dk.gameday.ballersclub.controller;
 
 import dk.gameday.ballersclub.model.AppUser;
+import dk.gameday.ballersclub.model.LeaderboardRow;
 import dk.gameday.ballersclub.model.PollView;
 import dk.gameday.ballersclub.service.AdminAccessService;
 import dk.gameday.ballersclub.service.ArenaChatService;
@@ -205,7 +206,9 @@ public class BallersClubController {
     @GetMapping("/leaderboard")
     public String leaderboard(Model model, HttpSession session) {
         Optional<AppUser> currentUser = addCurrentUser(model, session);
-        model.addAttribute("rows", leaderboardService.getLeaderboard().stream().limit(10).toList());
+        List<LeaderboardRow> leaderboardRows = leaderboardService.getEligibleLeaderboard();
+        model.addAttribute("rows", leaderboardRows.stream().limit(10).toList());
+        model.addAttribute("leaderboardRollDownRows", leaderboardRows.stream().skip(10).toList());
         model.addAttribute("profiles", leaderboardService.getPredictionProfiles());
         model.addAttribute("topHitRows", leaderboardService.getTopHitPercentage());
         model.addAttribute("topExactRows", leaderboardService.getTopExactScores());

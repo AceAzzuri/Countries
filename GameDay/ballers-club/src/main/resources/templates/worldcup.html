@@ -21,7 +21,7 @@
     <nav>
         <a class="active" href="/arena">Copa Mundial Arena</a>
         <a href="/polls">Bonus</a>
-        <a href="/leaderboard">Leaderboard</a>
+        <a th:if="${false}" href="/leaderboard">Leaderboard</a>
         <a href="/info">Info</a>
         <a th:if="${isAdmin}" href="/admin/results">Admin</a>
     </nav>
@@ -69,7 +69,7 @@
         </aside>
     </section>
 
-    <section class="bc-arena-overview" aria-label="Arena overblik">
+    <section class="bc-arena-overview" aria-label="Arena overblik" th:if="${false}">
         <aside class="bc-preview-panel bc-leaderboard-preview">
             <div class="bc-panel-head">
                 <p class="bc-kicker">Leaderboard</p>
@@ -193,26 +193,16 @@
                     </div>
                     <div class="bc-teams">
                         <div>
-                            <button class="bc-country-button" type="button"
-                                    data-country-details
-                                    th:attr="data-country-name=${match.homeTeam},
-                                             data-country-meta=${match.roundLabel + ' • ' + match.kickoffLabel},
-                                             data-country-note=${countryNotes[#strings.toLowerCase(match.homeTeam)] != null ? countryNotes[#strings.toLowerCase(match.homeTeam)] : 'FIFA teamdata kommer snart for ' + match.homeTeam + '.'},
-                                             data-country-players=${countryPlayers[#strings.toLowerCase(match.homeTeam)]}">
+                            <span class="bc-country-static">
                                 <span class="bc-badge bc-flag" th:text="${match.homeFlag}">🇲🇽</span>
-                            </button>
+                            </span>
                             <strong th:text="${match.homeTeam}">Mexico</strong>
                         </div>
                         <span class="bc-versus">vs</span>
                         <div>
-                            <button class="bc-country-button" type="button"
-                                    data-country-details
-                                    th:attr="data-country-name=${match.awayTeam},
-                                             data-country-meta=${match.roundLabel + ' • ' + match.kickoffLabel},
-                                             data-country-note=${countryNotes[#strings.toLowerCase(match.awayTeam)] != null ? countryNotes[#strings.toLowerCase(match.awayTeam)] : 'FIFA teamdata kommer snart for ' + match.awayTeam + '.'},
-                                             data-country-players=${countryPlayers[#strings.toLowerCase(match.awayTeam)]}">
+                            <span class="bc-country-static">
                                 <span class="bc-badge bc-flag" th:text="${match.awayFlag}">🇿🇦</span>
-                            </button>
+                            </span>
                             <strong th:text="${match.awayTeam}">South Africa</strong>
                         </div>
                     </div>
@@ -287,7 +277,7 @@
             <p>Lav dine bonusvalg først. Bonus med point og bonus uden point er adskilt.</p>
             <a class="bc-primary compact" href="/polls">Gå til Bonus</a>
         </article>
-        <article>
+        <article th:if="${false}">
             <span>02</span>
             <h2>Leaderboard</h2>
             <p>Se point, præcise scores, træfprocent, lodder og private ligaer.</p>
@@ -316,7 +306,7 @@
     <p data-match-modal-meta></p>
     <strong data-match-modal-status></strong>
 </dialog>
-<dialog class="bc-match-modal" data-country-modal>
+<dialog class="bc-match-modal" data-country-modal th:if="${false}">
     <form method="dialog">
         <button type="button" aria-label="Luk landinfo" data-country-modal-close>Luk</button>
     </form>

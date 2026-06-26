@@ -12,10 +12,10 @@ class LeaderboardServiceTests {
     private final LeaderboardService leaderboardService = new LeaderboardService(null, new ScoringService());
 
     @Test
-    void ticketCategoriesRequireAtLeastTwentyPlayedMatches() {
+    void ticketCategoriesRequireAtLeastFifteenPlayedMatches() {
         List<LeaderboardRow> rows = List.of(
-                row("janvasquez", 19, 7, 0),
-                row("Benni", 20, 3, 3)
+                row("janvasquez", 14, 7, 0),
+                row("Benni", 15, 3, 3)
         );
 
         assertThat(leaderboardService.topHitPercentage(rows))
@@ -31,7 +31,7 @@ class LeaderboardServiceTests {
         List<LeaderboardRow> rows = List.of(
                 row("EK", 20, 1, 7),
                 row("Batman FC", 20, 1, 7),
-                row("Benni", 20, 3, 5)
+                row("Benni", 15, 3, 5)
         );
 
         assertThat(leaderboardService.topExactScores(rows))
@@ -42,8 +42,8 @@ class LeaderboardServiceTests {
     @Test
     void rollDownKeepsPlayersBelowTicketMinimumVisible() {
         List<LeaderboardRow> rows = List.of(
-                row("Benni", 20, 3, 3),
-                row("ak81", 19, 4, 2)
+                row("Benni", 15, 3, 3),
+                row("ak81", 14, 4, 2)
         );
 
         assertThat(leaderboardService.topExactScores(rows))

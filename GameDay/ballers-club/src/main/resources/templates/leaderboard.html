@@ -21,7 +21,7 @@
     <nav>
         <a href="/arena">Copa Mundial Arena</a>
         <a href="/polls">Bonus</a>
-        <a class="active" href="/leaderboard">Leaderboard</a>
+        <a th:if="${false}" class="active" href="/leaderboard">Leaderboard</a>
         <a href="/info">Info</a>
         <a th:if="${isAdmin}" href="/admin/results">Admin</a>
     </nav>
@@ -31,7 +31,7 @@
     <section class="bc-pagehead bc-compact-head">
         <p class="bc-kicker">Copa Mundial Arena</p>
         <h1>Leaderboard</h1>
-        <p>Top 10 vises her. Lodder udløses ud fra de tre topkategorier nedenfor.</p>
+        <p>Top 10 med mindst 15 spillede kampe vises her. Lodder udløses ud fra de tre topkategorier nedenfor.</p>
         <div class="bc-page-actions">
             <a th:if="${currentUser == null}" class="bc-primary compact" href="/login">Log ind for private ligaer</a>
         </div>
@@ -62,14 +62,17 @@
                 <strong th:text="${row.username()}">Azzuri</strong>
                 <em th:text="${row.hitPercentage()} + '%'">0%</em>
             </div>
-            <p th:if="${topHitRows.isEmpty()}">Afventer 20 spillede kampe.</p>
-            <section class="bc-roll-down" th:if="${!hitRollDownRows.isEmpty()}">
-                <h3>Roll Down</h3>
+            <p th:if="${topHitRows.isEmpty()}">Afventer 15 spillede kampe.</p>
+            <details class="bc-roll-down" th:if="${!hitRollDownRows.isEmpty()}">
+                <summary>
+                    <span>Roll Down</span>
+                    <em th:text="${#lists.size(hitRollDownRows)} + ' spillere'">0 spillere</em>
+                </summary>
                 <div th:each="row : ${hitRollDownRows}">
                     <strong th:text="${row.username()}">Benni</strong>
                     <em th:text="${row.hitPercentage() + '% / ' + row.gamesPlayed() + ' kampe'}">0% / 0 kampe</em>
                 </div>
-            </section>
+            </details>
         </article>
         <article>
             <span>Lodkategori 2</span>
@@ -78,14 +81,17 @@
                 <strong th:text="${row.username()}">Azzuri</strong>
                 <em th:text="${row.exactScores()} + ' præcise'">0 præcise</em>
             </div>
-            <p th:if="${topExactRows.isEmpty()}">Afventer 20 spillede kampe.</p>
-            <section class="bc-roll-down" th:if="${!exactRollDownRows.isEmpty()}">
-                <h3>Roll Down</h3>
+            <p th:if="${topExactRows.isEmpty()}">Afventer 15 spillede kampe.</p>
+            <details class="bc-roll-down" th:if="${!exactRollDownRows.isEmpty()}">
+                <summary>
+                    <span>Roll Down</span>
+                    <em th:text="${#lists.size(exactRollDownRows)} + ' spillere'">0 spillere</em>
+                </summary>
                 <div th:each="row : ${exactRollDownRows}">
                     <strong th:text="${row.username()}">Benni</strong>
                     <em th:text="${row.exactScores() + ' præcise / ' + row.gamesPlayed() + ' kampe'}">0 præcise / 0 kampe</em>
                 </div>
-            </section>
+            </details>
         </article>
         <article>
             <span>Lodkategori 3</span>
@@ -94,17 +100,27 @@
                 <strong th:text="${row.username()}">Azzuri</strong>
                 <em th:text="${row.correctResults()} + ' udfald'">0 udfald</em>
             </div>
-            <p th:if="${topCorrectResultRows.isEmpty()}">Afventer 20 spillede kampe.</p>
-            <section class="bc-roll-down" th:if="${!correctResultRollDownRows.isEmpty()}">
-                <h3>Roll Down</h3>
+            <p th:if="${topCorrectResultRows.isEmpty()}">Afventer 15 spillede kampe.</p>
+            <details class="bc-roll-down" th:if="${!correctResultRollDownRows.isEmpty()}">
+                <summary>
+                    <span>Roll Down</span>
+                    <em th:text="${#lists.size(correctResultRollDownRows)} + ' spillere'">0 spillere</em>
+                </summary>
                 <div th:each="row : ${correctResultRollDownRows}">
                     <strong th:text="${row.username()}">Benni</strong>
                     <em th:text="${row.correctResults() + ' udfald / ' + row.gamesPlayed() + ' kampe'}">0 udfald / 0 kampe</em>
                 </div>
-            </section>
+            </details>
         </article>
     </section>
 
+    <div class="bc-section-head bc-leaderboard-head" th:if="${!rows.isEmpty()}">
+        <div>
+            <p class="bc-kicker">Top 10</p>
+            <h2>Leaderboard</h2>
+        </div>
+        <p class="bc-muted">Kun spillere med 15+ afgjorte kampe tæller med her.</p>
+    </div>
     <section class="bc-table" th:if="${!rows.isEmpty()}">
         <button class="bc-row bc-row-button" type="button" th:each="row : ${rows}"
                 th:attr="data-user-profile=${'profile-' + row.rank()}">
@@ -121,9 +137,37 @@
         </button>
     </section>
 
+    <details class="bc-feed bc-feed-roll bc-leaderboard-roll" th:if="${!leaderboardRollDownRows.isEmpty()}">
+        <summary class="bc-feed-summary">
+            <span>
+                <span class="bc-kicker">Leaderboard</span>
+                <strong>Se resten af feltet</strong>
+            </span>
+            <span class="bc-feed-summary-action" aria-hidden="true">
+                <span class="bc-feed-open-label">Rul ned</span>
+                <span class="bc-feed-close-label">Rul op</span>
+            </span>
+        </summary>
+        <div class="bc-feed-panel bc-leaderboard-roll-panel">
+            <button class="bc-row bc-row-button" type="button" th:each="row : ${leaderboardRollDownRows}"
+                    th:attr="data-user-profile=${'profile-' + row.rank()}">
+                <strong th:text="${row.rank()}">11</strong>
+                <div>
+                    <h2 th:text="${row.username()}">username</h2>
+                    <p>
+                        <span th:text="${row.gamesPlayed()} + ' kampe'">0 kampe</span>
+                        <span th:text="${row.exactScores()} + ' præcise'">0 præcise</span>
+                        <span th:text="${row.correctResults()} + ' udfald'">0 udfald</span>
+                    </p>
+                </div>
+                <span th:text="${row.totalPoints()} + ' pts'">0 pts</span>
+            </button>
+        </div>
+    </details>
+
     <section class="bc-empty" th:if="${rows.isEmpty()}">
-        <h2>Ingen predictions endnu</h2>
-        <p>Leaderboard vågner, når de første predictions bliver gemt.</p>
+        <h2>Ingen kvalificerede spillere endnu</h2>
+        <p>Top 10 åbner, når spillere har mindst 15 afgjorte kampe.</p>
         <a class="bc-primary compact" href="/arena">Gå til Arena</a>
     </section>
 
@@ -196,7 +240,7 @@
     <p class="bc-kicker">Lodregler</p>
     <h2>Lodkategori 1-3</h2>
     <section class="bc-rules-list">
-        <p>Deltagelse i top 3 kræver minimum 20 afgjorte kampe.</p>
+        <p>Deltagelse i top 3 kræver minimum 15 afgjorte kampe.</p>
         <p>Lodkategori 1 rangeres efter højeste træfprocent.</p>
         <p>Lodkategori 2 rangeres efter flest præcise scores.</p>
         <p>Lodkategori 3 rangeres efter flest udfald gættet rigtigt.</p>
