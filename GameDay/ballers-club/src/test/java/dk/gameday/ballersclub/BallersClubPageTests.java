@@ -9,6 +9,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.util.ReflectionTestUtils;
+
+import java.time.LocalDateTime;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -110,6 +113,8 @@ class BallersClubPageTests {
 
     @Test
     void leaderboardRendersAfterPrediction() throws Exception {
+        openPredictionMatch(65L);
+
         MockHttpSession session = (MockHttpSession) mockMvc.perform(post("/signup")
                         .param("username", "table tester")
                         .param("email", "table@example.com"))
@@ -231,6 +236,9 @@ class BallersClubPageTests {
 
     @Test
     void allEnteredPredictionsCanBeSavedTogether() throws Exception {
+        openPredictionMatch(65L);
+        openPredictionMatch(67L);
+
         MockHttpSession session = (MockHttpSession) mockMvc.perform(post("/signup")
                         .param("username", "bulk tester")
                         .param("email", "bulk@example.com"))
@@ -256,6 +264,8 @@ class BallersClubPageTests {
 
     @Test
     void adminCanSaveResultAndTriggerScoringFeed() throws Exception {
+        openPredictionMatch(64L);
+
         MockHttpSession session = (MockHttpSession) mockMvc.perform(post("/signup")
                         .param("username", "Azzuri")
                         .param("email", "azzuri@example.com"))
@@ -284,6 +294,13 @@ class BallersClubPageTests {
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Azzuri")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("3 pts")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("1 ramte")));
+    }
+
+    private void openPredictionMatch(Long matchId) {
+        var match = worldCupMatchRepository.findById(matchId).orElseThrow();
+        match.clearResult();
+        ReflectionTestUtils.setField(match, "kickoffAt", LocalDateTime.now().plusDays(30));
+        worldCupMatchRepository.save(match);
     }
 
     @Test
