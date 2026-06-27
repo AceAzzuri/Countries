@@ -135,12 +135,14 @@ public class DataCollectionService {
                 continue;
             }
             Prediction sample = matchPredictions.get(0);
-            long exact = matchPredictions.stream()
+            List<Prediction> exactPredictions = matchPredictions.stream()
                     .filter(prediction -> scoringService.calculatePoints(prediction) == 3)
-                    .count();
-            long outcome = matchPredictions.stream()
+                    .toList();
+            List<Prediction> outcomePredictions = matchPredictions.stream()
                     .filter(prediction -> scoringService.calculatePoints(prediction) == 1)
-                    .count();
+                    .toList();
+            long exact = exactPredictions.size();
+            long outcome = outcomePredictions.size();
             long totalHits = exact + outcome;
 
             if (totalHits == 0) {
@@ -151,11 +153,22 @@ public class DataCollectionService {
             } else {
                 items.add(new PredictionFeedItem(
                         totalHits + " ramte " + matchLabel(sample),
-                        "Resultat " + resultLabel(sample) + " - " + exact + " præcise, " + outcome + " udfald"
+                        "Resultat " + resultLabel(sample) + " - " + hitSummary("Præcis", exactPredictions)
+                                + " - " + hitSummary("Udfald", outcomePredictions)
                 ));
             }
         }
         return items;
+    }
+
+    private String hitSummary(String label, List<Prediction> predictions) {
+        if (predictions.isEmpty()) {
+            return label + ": ingen";
+        }
+        return label + ": " + predictions.stream()
+                .map(prediction -> prediction.getUser().getUsername())
+                .sorted(String.CASE_INSENSITIVE_ORDER)
+                .collect(Collectors.joining(", "));
     }
 
     private String matchLabel(Prediction prediction) {

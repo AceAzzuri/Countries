@@ -201,7 +201,7 @@
             return;
         }
 
-        const storageKey = "bc-match-sections:" + window.location.pathname;
+        const storageKey = "bc-match-sections:v2:" + window.location.pathname;
 
         function readState() {
             try {

@@ -43,8 +43,8 @@ public class PredictionService {
 
         return List.of(
                 new MatchSection("gruppekampe-1", "Gruppekampe 1", "Åbningskampe på tværs af de 12 grupper.", false, groupMatchdayOne),
-                new MatchSection("gruppekampe-2", "Gruppekampe 2", "Anden runde i gruppespillet.", true, groupMatchdayTwo),
-                new MatchSection("gruppekampe-3", "Gruppekampe 3", "Sidste gruppekampe med højt pres.", false, groupMatchdayThree),
+                new MatchSection("gruppekampe-2", "Gruppekampe 2", "Anden runde i gruppespillet.", false, groupMatchdayTwo),
+                new MatchSection("gruppekampe-3", "Gruppekampe 3", "Sidste gruppekampe med højt pres.", true, groupMatchdayThree),
                 new MatchSection("knockout-vejen", "Knockout-vejen", "Fra Round of 32 til finalen.", false, knockouts)
         );
     }
