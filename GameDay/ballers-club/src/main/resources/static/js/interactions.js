@@ -195,6 +195,50 @@
         window.addEventListener("pageshow", restoreScroll);
     }
 
+    function setupMatchSectionMemory() {
+        const sections = Array.from(document.querySelectorAll("[data-match-section-id]"));
+        if (!sections.length) {
+            return;
+        }
+
+        const storageKey = "bc-match-sections:" + window.location.pathname;
+
+        function readState() {
+            try {
+                return JSON.parse(window.sessionStorage.getItem(storageKey) || "{}");
+            } catch (error) {
+                return {};
+            }
+        }
+
+        function writeState() {
+            const state = {};
+            sections.forEach(function (section) {
+                state[section.dataset.matchSectionId] = section.open;
+            });
+            window.sessionStorage.setItem(storageKey, JSON.stringify(state));
+        }
+
+        const storedState = readState();
+        sections.forEach(function (section) {
+            if (Object.prototype.hasOwnProperty.call(storedState, section.dataset.matchSectionId)) {
+                section.open = Boolean(storedState[section.dataset.matchSectionId]);
+            }
+
+            section.addEventListener("toggle", writeState);
+        });
+
+        if (window.location.hash) {
+            const target = document.getElementById(window.location.hash.slice(1));
+            if (target && target.matches("[data-match-section-id]")) {
+                target.open = true;
+                window.requestAnimationFrame(function () {
+                    target.scrollIntoView({ block: "start", behavior: "auto" });
+                });
+            }
+        }
+    }
+
     function setupSaveAllPredictions() {
         const button = document.querySelector("[data-save-all-predictions]");
         if (!button) {
@@ -336,6 +380,7 @@
         setupUserModals();
         setupCountryModal();
         setupRulesModal();
+        setupMatchSectionMemory();
         setupScrollMemory();
         setupSaveAllPredictions();
         setupSaveAllResults();

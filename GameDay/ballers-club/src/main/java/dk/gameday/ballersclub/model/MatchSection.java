@@ -3,6 +3,7 @@ package dk.gameday.ballersclub.model;
 import java.util.List;
 
 public record MatchSection(
+        String id,
         String title,
         String subtitle,
         boolean open,

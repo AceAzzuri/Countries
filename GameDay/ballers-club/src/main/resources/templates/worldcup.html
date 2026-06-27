@@ -21,7 +21,7 @@
     <nav>
         <a class="active" href="/arena">Copa Mundial Arena</a>
         <a href="/polls">Bonus</a>
-        <a th:if="${false}" href="/leaderboard">Leaderboard</a>
+        <a href="/leaderboard">Leaderboard</a>
         <a href="/info">Info</a>
         <a th:if="${isAdmin}" href="/admin/results">Admin</a>
     </nav>
@@ -69,7 +69,7 @@
         </aside>
     </section>
 
-    <section class="bc-arena-overview" aria-label="Arena overblik" th:if="${false}">
+    <section class="bc-arena-overview" aria-label="Arena overblik">
         <aside class="bc-preview-panel bc-leaderboard-preview">
             <div class="bc-panel-head">
                 <p class="bc-kicker">Leaderboard</p>
@@ -176,7 +176,8 @@
                 </article>
             </div>
         </details>
-        <details class="bc-match-section" th:each="section : ${matchSections}" th:open="${section.open()}">
+        <details class="bc-match-section" th:each="section : ${matchSections}" th:id="${section.id()}"
+                 th:attr="data-match-section-id=${section.id()}" th:open="${section.open()}">
             <summary>
                 <span>
                     <strong th:text="${section.title()}">Group matches 1</strong>
@@ -277,7 +278,7 @@
             <p>Lav dine bonusvalg først. Bonus med point og bonus uden point er adskilt.</p>
             <a class="bc-primary compact" href="/polls">Gå til Bonus</a>
         </article>
-        <article th:if="${false}">
+        <article>
             <span>02</span>
             <h2>Leaderboard</h2>
             <p>Se point, præcise scores, træfprocent, lodder og private ligaer.</p>
