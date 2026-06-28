@@ -232,10 +232,11 @@ public class DataInitializer implements CommandLineRunner {
 
     private Comparator<TeamStanding> standingComparator() {
         return Comparator
-                .comparingInt(TeamStanding::points).reversed()
-                .thenComparingInt(TeamStanding::goalDifference).reversed()
-                .thenComparingInt(TeamStanding::goalsFor).reversed()
-                .thenComparing(TeamStanding::team);
+                .comparingInt(TeamStanding::points)
+                .thenComparingInt(TeamStanding::goalDifference)
+                .thenComparingInt(TeamStanding::goalsFor)
+                .thenComparing(TeamStanding::team, Comparator.reverseOrder())
+                .reversed();
     }
 
     private Optional<String> winnerOfMatch(Long matchId, List<WorldCupMatch> allMatches) {
