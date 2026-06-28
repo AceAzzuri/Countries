@@ -55,7 +55,7 @@ public class WorldCupMatch {
     }
 
     public boolean isPredictionOpen() {
-        return isGroupMatch() && !hasResult() && LocalDateTime.now(DISPLAY_ZONE).isBefore(kickoffAt);
+        return !hasResult() && LocalDateTime.now(DISPLAY_ZONE).isBefore(kickoffAt);
     }
 
     public boolean isGroupMatch() {
@@ -74,10 +74,15 @@ public class WorldCupMatch {
         if (hasResult()) {
             return "Færdig";
         }
-        if (!isGroupMatch()) {
-            return "Knockout";
-        }
         return isPredictionOpen() ? "Åben" : "Låst";
+    }
+
+    public void updateFixture(String roundLabel, String homeTeam, String awayTeam, LocalDateTime kickoffAt, String venue) {
+        this.roundLabel = roundLabel;
+        this.homeTeam = homeTeam;
+        this.awayTeam = awayTeam;
+        this.kickoffAt = kickoffAt;
+        this.venue = venue;
     }
 
     public void updateResult(Integer homeScore, Integer awayScore) {

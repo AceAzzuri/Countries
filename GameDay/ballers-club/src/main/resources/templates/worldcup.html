@@ -260,10 +260,7 @@
                     <div class="bc-locked" th:if="${currentUser == null}">
                         Login kræves
                     </div>
-                    <div class="bc-locked" th:if="${currentUser != null and !match.groupMatch}">
-                        Knockout predictions åbner, når holdene er kendt
-                    </div>
-                    <div class="bc-locked" th:if="${currentUser != null and match.groupMatch and !match.predictionOpen}">
+                    <div class="bc-locked" th:if="${currentUser != null and !match.predictionOpen}">
                         Prediction låst
                     </div>
                 </article>

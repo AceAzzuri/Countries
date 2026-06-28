@@ -198,6 +198,8 @@ class BallersClubPageTests {
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("data-match-section-id=\"gruppekampe-3\"")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("data-match-section-id=\"gruppekampe-3\" open")))
                 .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("data-match-section-id=\"gruppekampe-2\" open"))))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("data-match-section-id=\"knockout-vejen\" open")))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("Knockout predictions åbner"))))
                 .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("data-country-details"))))
                 .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("data-country-modal"))))
                 .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("href=\"/matches\""))))
@@ -262,6 +264,32 @@ class BallersClubPageTests {
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("bulk tester")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Pick 2-1")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Pick 1-1")));
+    }
+
+    @Test
+    void knockoutPredictionCanBeSavedBeforeKickoff() throws Exception {
+        openPredictionMatch(73L);
+
+        MockHttpSession session = (MockHttpSession) mockMvc.perform(post("/signup")
+                        .param("username", "knockout tester")
+                        .param("email", "knockout@example.com"))
+                .andExpect(status().is3xxRedirection())
+                .andReturn()
+                .getRequest()
+                .getSession(false);
+
+        mockMvc.perform(post("/arena/predictions")
+                        .session(session)
+                        .param("matchId", "73")
+                        .param("homeGoals", "2")
+                        .param("awayGoals", "1"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/arena"));
+
+        mockMvc.perform(get("/leaderboard").session(session))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("knockout tester")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Pick 2-1")));
     }
 
     @Test

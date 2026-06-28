@@ -25,10 +25,11 @@ public class DataInitializer implements CommandLineRunner {
     public void run(String... args) {
         long matchCount = matchRepository.count();
         if (matchCount > 0) {
+            syncKnockoutFixtures();
             return;
         }
 
-        matchRepository.saveAll(List.of(
+        List<WorldCupMatch> fixtures = new java.util.ArrayList<>(List.of(
                 match("Group A", "Mexico", "South Africa", "2026-06-11T19:00:00Z", "Mexico City Stadium"),
                 match("Group A", "Korea Republic", "Czechia", "2026-06-12T02:00:00Z", "Guadalajara Stadium"),
                 match("Group B", "Canada", "Bosnia and Herzegovina", "2026-06-12T19:00:00Z", "Toronto Stadium"),
@@ -100,44 +101,71 @@ public class DataInitializer implements CommandLineRunner {
                 match("Group K", "Colombia", "Portugal", "2026-06-27T23:30:00Z", "Miami Stadium"),
                 match("Group K", "Congo DR", "Uzbekistan", "2026-06-27T23:30:00Z", "Atlanta Stadium"),
                 match("Group J", "Algeria", "Austria", "2026-06-28T02:00:00Z", "Kansas City Stadium"),
-                match("Group J", "Jordan", "Argentina", "2026-06-28T02:00:00Z", "Dallas Stadium"),
-                match("Round of 32", "Group A runner-up", "Group B runner-up", "2026-06-28T19:00:00Z", "Los Angeles Stadium"),
-                match("Round of 32", "Group C winner", "Group F runner-up", "2026-06-29T17:00:00Z", "Houston Stadium"),
-                match("Round of 32", "Group E winner", "Best third-place A/B/C/D/F", "2026-06-29T20:30:00Z", "Boston Stadium"),
-                match("Round of 32", "Group F winner", "Group C runner-up", "2026-06-30T01:00:00Z", "Monterrey Stadium"),
-                match("Round of 32", "Group E runner-up", "Group I runner-up", "2026-06-30T17:00:00Z", "Dallas Stadium"),
-                match("Round of 32", "Group I winner", "Best third-place C/D/F/G/H", "2026-06-30T21:00:00Z", "New York/New Jersey Stadium"),
-                match("Round of 32", "Group A winner", "Best third-place C/E/F/H/I", "2026-07-01T01:00:00Z", "Mexico City Stadium"),
-                match("Round of 32", "Group L winner", "Best third-place E/H/I/J/K", "2026-07-01T16:00:00Z", "Atlanta Stadium"),
-                match("Round of 32", "Group G winner", "Best third-place A/E/H/I/J", "2026-07-01T20:00:00Z", "Seattle Stadium"),
-                match("Round of 32", "Group D winner", "Best third-place B/E/F/I/J", "2026-07-02T00:00:00Z", "San Francisco Bay Area Stadium"),
-                match("Round of 32", "Group H winner", "Group J runner-up", "2026-07-02T19:00:00Z", "Los Angeles Stadium"),
-                match("Round of 32", "Group K runner-up", "Group L runner-up", "2026-07-02T23:00:00Z", "Toronto Stadium"),
-                match("Round of 32", "Group B winner", "Best third-place E/F/G/I/J", "2026-07-03T03:00:00Z", "BC Place Vancouver"),
-                match("Round of 32", "Group D runner-up", "Group G runner-up", "2026-07-03T18:00:00Z", "Dallas Stadium"),
-                match("Round of 32", "Group J winner", "Group H runner-up", "2026-07-03T22:00:00Z", "Miami Stadium"),
-                match("Round of 32", "Group K winner", "Best third-place D/E/I/J/L", "2026-07-04T01:30:00Z", "Kansas City Stadium"),
-                match("Round of 16", "Winner Match 73", "Winner Match 75", "2026-07-04T17:00:00Z", "Houston Stadium"),
-                match("Round of 16", "Winner Match 74", "Winner Match 77", "2026-07-04T21:00:00Z", "Philadelphia Stadium"),
-                match("Round of 16", "Winner Match 76", "Winner Match 78", "2026-07-05T20:00:00Z", "New York/New Jersey Stadium"),
-                match("Round of 16", "Winner Match 79", "Winner Match 80", "2026-07-06T00:00:00Z", "Mexico City Stadium"),
-                match("Round of 16", "Winner Match 83", "Winner Match 84", "2026-07-06T19:00:00Z", "Dallas Stadium"),
-                match("Round of 16", "Winner Match 81", "Winner Match 82", "2026-07-07T00:00:00Z", "Seattle Stadium"),
-                match("Round of 16", "Winner Match 86", "Winner Match 88", "2026-07-07T16:00:00Z", "Atlanta Stadium"),
-                match("Round of 16", "Winner Match 85", "Winner Match 87", "2026-07-07T20:00:00Z", "BC Place Vancouver"),
-                match("Quarter-final", "Winner Match 89", "Winner Match 90", "2026-07-09T20:00:00Z", "Boston Stadium"),
-                match("Quarter-final", "Winner Match 93", "Winner Match 94", "2026-07-10T19:00:00Z", "Los Angeles Stadium"),
-                match("Quarter-final", "Winner Match 91", "Winner Match 92", "2026-07-11T21:00:00Z", "Miami Stadium"),
-                match("Quarter-final", "Winner Match 95", "Winner Match 96", "2026-07-12T01:00:00Z", "Kansas City Stadium"),
-                match("Semi-final", "Winner Match 97", "Winner Match 98", "2026-07-14T19:00:00Z", "Dallas Stadium"),
-                match("Semi-final", "Winner Match 99", "Winner Match 100", "2026-07-15T19:00:00Z", "Atlanta Stadium"),
-                match("Play-off for third place", "Runner-up Match 101", "Runner-up Match 102", "2026-07-18T21:00:00Z", "Miami Stadium"),
-                match("Final", "Winner Match 101", "Winner Match 102", "2026-07-19T19:00:00Z", "New York/New Jersey Stadium")
+                match("Group J", "Jordan", "Argentina", "2026-06-28T02:00:00Z", "Dallas Stadium")
         ));
+        fixtures.addAll(knockoutFixtures().stream().map(Fixture::toMatch).toList());
+        matchRepository.saveAll(fixtures);
+    }
+
+    private void syncKnockoutFixtures() {
+        for (Fixture fixture : knockoutFixtures()) {
+            matchRepository.findById(fixture.id()).ifPresent(match -> {
+                LocalDateTime kickoffAt = LocalDateTime.ofInstant(Instant.parse(fixture.kickoffAtUtc()), DISPLAY_ZONE);
+                match.updateFixture(fixture.roundLabel(), fixture.homeTeam(), fixture.awayTeam(), kickoffAt, fixture.venue());
+                matchRepository.save(match);
+            });
+        }
+    }
+
+    private static List<Fixture> knockoutFixtures() {
+        return List.of(
+                fixture(73, "Round of 32", "Group A runner-up", "Group B runner-up", "2026-06-28T19:00:00Z", "Los Angeles Stadium"),
+                fixture(74, "Round of 32", "Group E winner", "Best third-place A/B/C/D/F", "2026-06-29T20:30:00Z", "Boston Stadium"),
+                fixture(75, "Round of 32", "Group F winner", "Group C runner-up", "2026-06-30T01:00:00Z", "Monterrey Stadium"),
+                fixture(76, "Round of 32", "Group C winner", "Group F runner-up", "2026-06-29T17:00:00Z", "Houston Stadium"),
+                fixture(77, "Round of 32", "Group I winner", "Best third-place C/D/F/G/H", "2026-06-30T21:00:00Z", "New York/New Jersey Stadium"),
+                fixture(78, "Round of 32", "Group E runner-up", "Group I runner-up", "2026-06-30T17:00:00Z", "Dallas Stadium"),
+                fixture(79, "Round of 32", "Group A winner", "Best third-place C/E/F/H/I", "2026-07-01T01:00:00Z", "Mexico City Stadium"),
+                fixture(80, "Round of 32", "Group L winner", "Best third-place E/H/I/J/K", "2026-07-01T16:00:00Z", "Atlanta Stadium"),
+                fixture(81, "Round of 32", "Group D winner", "Best third-place B/E/F/I/J", "2026-07-02T00:00:00Z", "San Francisco Bay Area Stadium"),
+                fixture(82, "Round of 32", "Group G winner", "Best third-place A/E/H/I/J", "2026-07-01T20:00:00Z", "Seattle Stadium"),
+                fixture(83, "Round of 32", "Group K runner-up", "Group L runner-up", "2026-07-02T23:00:00Z", "Toronto Stadium"),
+                fixture(84, "Round of 32", "Group H winner", "Group J runner-up", "2026-07-02T19:00:00Z", "Los Angeles Stadium"),
+                fixture(85, "Round of 32", "Group B winner", "Best third-place E/F/G/I/J", "2026-07-03T03:00:00Z", "BC Place Vancouver"),
+                fixture(86, "Round of 32", "Group J winner", "Group H runner-up", "2026-07-03T22:00:00Z", "Miami Stadium"),
+                fixture(87, "Round of 32", "Group K winner", "Best third-place D/E/I/J/L", "2026-07-04T01:30:00Z", "Kansas City Stadium"),
+                fixture(88, "Round of 32", "Group D runner-up", "Group G runner-up", "2026-07-03T18:00:00Z", "Dallas Stadium"),
+                fixture(89, "Round of 16", "Winner Match 73", "Winner Match 75", "2026-07-04T17:00:00Z", "Houston Stadium"),
+                fixture(90, "Round of 16", "Winner Match 74", "Winner Match 77", "2026-07-04T21:00:00Z", "Philadelphia Stadium"),
+                fixture(91, "Round of 16", "Winner Match 76", "Winner Match 78", "2026-07-05T20:00:00Z", "New York/New Jersey Stadium"),
+                fixture(92, "Round of 16", "Winner Match 79", "Winner Match 80", "2026-07-06T00:00:00Z", "Mexico City Stadium"),
+                fixture(93, "Round of 16", "Winner Match 83", "Winner Match 84", "2026-07-06T19:00:00Z", "Dallas Stadium"),
+                fixture(94, "Round of 16", "Winner Match 81", "Winner Match 82", "2026-07-07T00:00:00Z", "Seattle Stadium"),
+                fixture(95, "Round of 16", "Winner Match 86", "Winner Match 88", "2026-07-07T16:00:00Z", "Atlanta Stadium"),
+                fixture(96, "Round of 16", "Winner Match 85", "Winner Match 87", "2026-07-07T20:00:00Z", "BC Place Vancouver"),
+                fixture(97, "Quarter-final", "Winner Match 89", "Winner Match 90", "2026-07-09T20:00:00Z", "Boston Stadium"),
+                fixture(98, "Quarter-final", "Winner Match 93", "Winner Match 94", "2026-07-10T19:00:00Z", "Los Angeles Stadium"),
+                fixture(99, "Quarter-final", "Winner Match 91", "Winner Match 92", "2026-07-11T21:00:00Z", "Miami Stadium"),
+                fixture(100, "Quarter-final", "Winner Match 95", "Winner Match 96", "2026-07-12T01:00:00Z", "Kansas City Stadium"),
+                fixture(101, "Semi-final", "Winner Match 97", "Winner Match 98", "2026-07-14T19:00:00Z", "Dallas Stadium"),
+                fixture(102, "Semi-final", "Winner Match 99", "Winner Match 100", "2026-07-15T19:00:00Z", "Atlanta Stadium"),
+                fixture(103, "Play-off for third place", "Runner-up Match 101", "Runner-up Match 102", "2026-07-18T21:00:00Z", "Miami Stadium"),
+                fixture(104, "Final", "Winner Match 101", "Winner Match 102", "2026-07-19T19:00:00Z", "New York/New Jersey Stadium")
+        );
+    }
+
+    private static Fixture fixture(long id, String roundLabel, String homeTeam, String awayTeam, String kickoffAtUtc, String venue) {
+        return new Fixture(id, roundLabel, homeTeam, awayTeam, kickoffAtUtc, venue);
     }
 
     private static WorldCupMatch match(String roundLabel, String homeTeam, String awayTeam, String kickoffAtUtc, String venue) {
         LocalDateTime kickoffAt = LocalDateTime.ofInstant(Instant.parse(kickoffAtUtc), DISPLAY_ZONE);
         return new WorldCupMatch(roundLabel, homeTeam, awayTeam, kickoffAt, venue);
+    }
+
+    private record Fixture(long id, String roundLabel, String homeTeam, String awayTeam, String kickoffAtUtc, String venue) {
+        private WorldCupMatch toMatch() {
+            return match(roundLabel, homeTeam, awayTeam, kickoffAtUtc, venue);
+        }
     }
 }

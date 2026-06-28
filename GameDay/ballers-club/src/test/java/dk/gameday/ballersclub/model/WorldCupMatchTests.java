@@ -30,4 +30,18 @@ class WorldCupMatchTests {
             TimeZone.setDefault(originalTimeZone);
         }
     }
+
+    @Test
+    void knockoutPredictionIsOpenBeforeKickoff() {
+        WorldCupMatch match = new WorldCupMatch(
+                "Round of 32",
+                "Group A runner-up",
+                "Group B runner-up",
+                LocalDateTime.now(ZoneId.of("Europe/Copenhagen")).plusDays(1),
+                "Los Angeles Stadium"
+        );
+
+        assertThat(match.isPredictionOpen()).isTrue();
+        assertThat(match.getStatusLabel()).isEqualTo("Åben");
+    }
 }
