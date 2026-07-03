@@ -286,7 +286,7 @@ public class BallersClubController {
             model.addAttribute("pointBonusPolls", List.of());
             model.addAttribute("communityBonusPolls", List.of());
             model.addAttribute("upcomingPolls", List.of());
-            model.addAttribute("pollsLoadError", "Bonus kunne ikke indlæses lige nu. Prøv igen om lidt.");
+            model.addAttribute("pollsLoadError", "Bonus kunne ikke indlæses lige nu (" + e.getClass().getSimpleName() + "). Prøv igen om lidt.");
         }
         return "polls";
     }

@@ -7,7 +7,6 @@ import dk.gameday.ballersclub.model.PollOptionResult;
 import dk.gameday.ballersclub.model.PollView;
 import dk.gameday.ballersclub.model.PollVote;
 import dk.gameday.ballersclub.repository.PollVoteRepository;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -115,7 +114,7 @@ public class PollService {
     private List<PollVote> loadPollVotesSafely(Long pollId) {
         try {
             return voteRepository.findByPollIdOrderBySubmittedAtDesc(pollId);
-        } catch (DataAccessException | IllegalStateException e) {
+        } catch (RuntimeException e) {
             return List.of();
         }
     }
@@ -137,7 +136,7 @@ public class PollService {
     private PollVote findVoteByUsernameSafely(Long pollId, String username) {
         try {
             return voteRepository.findByPollIdAndUsernameIgnoreCase(pollId, username).orElse(null);
-        } catch (DataAccessException | IllegalStateException e) {
+        } catch (RuntimeException e) {
             return null;
         }
     }
