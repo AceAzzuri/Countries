@@ -30,9 +30,10 @@
 <main class="bc-shell">
     <section class="bc-pagehead">
         <h1>Bonus</h1>
-        <p>Bonusvalg kan give ekstra spænding i Copa Mundial Arena. Fra kvartfinalen kan point-polls ændres igen.</p>
-        <p class="bc-poll-note"><span class="bc-new-badge">NY</span> <span class="bc-new-copy">Beholder du dit oprindelige VM-vinder-, Golden Boot- eller award-pick og rammer rigtigt, giver det 5 point. Ændrer du dit valg fra kvartfinalen, giver det nye rigtige valg 2 point. Det oprindelige valg giver derefter 0 point, hvis du har skiftet væk fra det.</span></p>
+        <p>Bonusvalg kan give ekstra spænding i Copa Mundial Arena. De gamle award-polls bevares, og du kan skifte frem til semifinale-låsningen.</p>
+        <p class="bc-poll-note"><span class="bc-new-badge">NY</span> <span class="bc-new-copy">Kun <strong>Hvem vinder VM 2026?</strong>, <strong>Golden Boot</strong> og <strong>Golden Glove</strong> bruger den nye regel: beholder du dit oprindelige valg og rammer rigtigt, giver det 5 point. Skifter du valg før semifinalen, giver det nye rigtige valg 2 point, og det gamle valg giver 0 point.</span></p>
         <p class="bc-poll-note bc-poll-note-highlight"><span class="bc-new-badge">NY</span> <span class="bc-new-copy">Fra kvartfinalen tæller kamp-predictions også højere: korrekt udfald giver 3 point, og præcis score giver 5 point.</span></p>
+        <p class="bc-poll-note"><span class="bc-new-badge">NY</span> <span class="bc-new-copy">Turneringens spiller og Turneringens unge spiller er nye, friske bonus-polls og åbner som helt nye valg.</span></p>
         <div class="bc-page-actions">
             <a th:if="${currentUser == null}" class="bc-primary compact" href="/login">Log ind for at stemme</a>
         </div>
@@ -59,9 +60,11 @@
             </div>
             <h2 th:text="${pollView.poll.question}">Who will win?</h2>
             <p class="bc-poll-note" th:if="${!#strings.isEmpty(pollView.poll.availabilityNote)}" th:text="${pollView.poll.availabilityNote}">Bonus note</p>
-            <p class="bc-poll-note" th:if="${pollView.myVote == null}"><span class="bc-new-badge">NY</span> <span class="bc-new-copy">Vælg nu, eller skift dit valg fra kvartfinalen. Oprindeligt rigtigt valg giver 5 point; ændret rigtigt valg giver 2 point.</span></p>
-            <p class="bc-voted" th:if="${pollView.myVote != null and !pollView.myVote.changedAfterQuarterFinal}" th:text="'Dit oprindelige valg: ' + ${pollView.myVoteOptionLabel} + ' - rammer det, giver det 5 point.'">Dit oprindelige valg</p>
-            <p class="bc-voted" th:if="${pollView.myVote != null and pollView.myVote.changedAfterQuarterFinal}" th:text="'Ændret fra ' + ${pollView.originalVoteOptionLabel} + ' til ' + ${pollView.myVoteOptionLabel} + ' - nyt rigtigt valg giver 2 point, originalen giver 0 point.'">Ændret valg</p>
+            <p class="bc-poll-note" th:if="${pollView.poll.isLegacyAdjustableAwardPoll() and pollView.myVote == null}"><span class="bc-new-badge">NY</span> <span class="bc-new-copy">Dit gamle valg bliver liggende, og du kan skifte frem til semifinalen. Beholder du det oprindelige valg og rammer rigtigt, giver det 5 point. Skifter du før semifinalen og rammer det nye valg, giver det 2 point.</span></p>
+            <p class="bc-poll-note" th:if="${pollView.poll.isFreshAwardPoll()}"><span class="bc-new-badge">NY</span> <span class="bc-new-copy">Helt frisk valg. Vælg dit bud til turneringens pris her.</span></p>
+            <p class="bc-voted" th:if="${pollView.poll.isLegacyAdjustableAwardPoll() and pollView.myVote != null and !pollView.myVote.changedAfterQuarterFinal}" th:text="'Dit oprindelige valg: ' + ${pollView.myVoteOptionLabel} + ' - rammer det, giver det 5 point.'">Dit oprindelige valg</p>
+            <p class="bc-voted" th:if="${pollView.poll.isLegacyAdjustableAwardPoll() and pollView.myVote != null and pollView.myVote.changedAfterQuarterFinal}" th:text="'Ændret fra ' + ${pollView.originalVoteOptionLabel} + ' til ' + ${pollView.myVoteOptionLabel} + ' - nyt rigtigt valg giver 2 point, originalen giver 0 point.'">Ændret valg</p>
+            <p class="bc-voted" th:if="${pollView.poll.isFreshAwardPoll() and pollView.myVote != null}" th:text="'Dit valg: ' + ${pollView.myVoteOptionLabel} + ' - rammer det, giver det 5 point.'">Dit valg</p>
 
             <form class="bc-poll-options" method="post" action="/polls/vote" data-preserve-scroll th:if="${currentUser != null}">
                 <input type="hidden" name="pollId" th:value="${pollView.poll.id}">

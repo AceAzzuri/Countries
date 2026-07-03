@@ -43,4 +43,12 @@ public class Poll {
     public List<PollOption> getOptions() {
         return options;
     }
+
+    public boolean isLegacyAdjustableAwardPoll() {
+        return id != null && (id == 1L || id == 2L || id == 4L);
+    }
+
+    public boolean isFreshAwardPoll() {
+        return id != null && (id == 7L || id == 10L);
+    }
 }
