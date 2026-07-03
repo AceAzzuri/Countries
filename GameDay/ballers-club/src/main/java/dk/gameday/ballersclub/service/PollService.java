@@ -59,7 +59,7 @@ public class PollService {
 
         PollVote existingVote = findVoteByUsernameSafely(pollId, normalizedUsername);
         if (existingVote != null) {
-            if (poll.isFixedPointPoll()) {
+            if (!poll.isLegacyAdjustableAwardPoll()) {
                 throw new IllegalArgumentException("Du har allerede stemt på denne poll.");
             }
             existingVote.updateOption(optionId, LocalDateTime.now());

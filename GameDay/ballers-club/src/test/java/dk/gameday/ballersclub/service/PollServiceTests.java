@@ -51,15 +51,30 @@ class PollServiceTests {
     }
 
     @Test
-    void freshPollCanBeUpdatedWithoutThrowing() {
+    void freshPollCannotBeChangedAfterVote() {
         PollVoteRepository voteRepository = mock(PollVoteRepository.class);
         PollService pollService = new PollService(voteRepository);
 
         when(voteRepository.findByPollIdAndUsernameIgnoreCase(7L, "Azzuri"))
                 .thenReturn(Optional.of(new dk.gameday.ballersclub.model.PollVote(7L, 701L, "Azzuri", LocalDateTime.now())));
 
-        pollService.vote(7L, 702L, "Azzuri");
+        assertThatThrownBy(() -> pollService.vote(7L, 702L, "Azzuri"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Du har allerede stemt");
 
-        verify(voteRepository).save(any(dk.gameday.ballersclub.model.PollVote.class));
+        verify(voteRepository, never()).save(any(dk.gameday.ballersclub.model.PollVote.class));
+    }
+
+    @Test
+    void legacyAwardPollCanBeChangedAfterVote() {
+        PollVoteRepository voteRepository = mock(PollVoteRepository.class);
+        PollService pollService = new PollService(voteRepository);
+
+        when(voteRepository.findByPollIdAndUsernameIgnoreCase(1L, "Azzuri"))
+                .thenReturn(Optional.of(new dk.gameday.ballersclub.model.PollVote(1L, 101L, "Azzuri", LocalDateTime.now())));
+
+        pollService.vote(1L, 102L, "Azzuri");
+
+        verify(voteRepository).save(org.mockito.Mockito.argThat(vote -> vote.getPollId().equals(1L) && vote.getOptionId().equals(102L)));
     }
 }
