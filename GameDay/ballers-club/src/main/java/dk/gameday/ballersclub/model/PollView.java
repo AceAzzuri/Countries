@@ -8,6 +8,7 @@ public class PollView {
     private final int totalVotes;
     private final PollVote myVote;
     private final String myVoteOptionLabel;
+    private final String originalVoteOptionLabel;
     private final List<PollOptionResult> optionResults;
     private final List<PollVote> recentVotes;
 
@@ -16,6 +17,7 @@ public class PollView {
             int totalVotes,
             PollVote myVote,
             String myVoteOptionLabel,
+            String originalVoteOptionLabel,
             List<PollOptionResult> optionResults,
             List<PollVote> recentVotes
     ) {
@@ -23,6 +25,7 @@ public class PollView {
         this.totalVotes = totalVotes;
         this.myVote = myVote;
         this.myVoteOptionLabel = myVoteOptionLabel;
+        this.originalVoteOptionLabel = originalVoteOptionLabel;
         this.optionResults = optionResults;
         this.recentVotes = recentVotes;
     }
@@ -41,6 +44,10 @@ public class PollView {
 
     public String getMyVoteOptionLabel() {
         return myVoteOptionLabel;
+    }
+
+    public String getOriginalVoteOptionLabel() {
+        return originalVoteOptionLabel;
     }
 
     public List<PollOptionResult> getOptionResults() {

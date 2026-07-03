@@ -37,6 +37,7 @@ public class PollService {
     public List<Poll> getUpcomingPolls() {
         return polls.stream()
                 .filter(poll -> !poll.isActive())
+                .filter(this::isPointPoll)
                 .toList();
     }
 
@@ -51,14 +52,20 @@ public class PollService {
         if (normalizedUsername.isBlank()) {
             throw new IllegalArgumentException("Log ind før du stemmer.");
         }
-        if (findVoteByUsername(pollId, normalizedUsername) != null) {
-            throw new IllegalArgumentException("Du har allerede stemt på denne poll.");
-        }
-
         boolean optionExists = poll.getOptions().stream()
                 .anyMatch(option -> option.getId().equals(optionId));
         if (!optionExists) {
             throw new IllegalArgumentException("Ukendt valgmulighed.");
+        }
+
+        PollVote existingVote = findVoteByUsername(pollId, normalizedUsername);
+        if (existingVote != null) {
+            if (!isPointPoll(poll)) {
+                throw new IllegalArgumentException("Du har allerede stemt på denne poll.");
+            }
+            existingVote.updateOption(optionId, LocalDateTime.now());
+            voteRepository.save(existingVote);
+            return;
         }
 
         voteRepository.save(new PollVote(pollId, optionId, normalizedUsername, LocalDateTime.now()));
@@ -70,12 +77,18 @@ public class PollService {
 
         PollVote myVote = username.isBlank() ? null : findVoteByUsername(poll.getId(), username);
         String myVoteOptionLabel = null;
+        String originalVoteOptionLabel = null;
         if (myVote != null) {
             myVoteOptionLabel = poll.getOptions().stream()
                     .filter(option -> option.getId().equals(myVote.getOptionId()))
                     .map(PollOption::getLabel)
                     .findFirst()
                     .orElse("");
+            originalVoteOptionLabel = poll.getOptions().stream()
+                    .filter(option -> option.getId().equals(myVote.getOriginalOptionId()))
+                    .map(PollOption::getLabel)
+                    .findFirst()
+                    .orElse(myVoteOptionLabel);
         }
 
         List<PollOptionResult> optionResults = poll.getOptions().stream()
@@ -87,7 +100,14 @@ public class PollService {
                 })
                 .toList();
 
-        return new PollView(poll, totalVotes, myVote, myVoteOptionLabel, optionResults, pollVotes.stream().limit(5).toList());
+        return new PollView(poll, totalVotes, myVote, myVoteOptionLabel, originalVoteOptionLabel, optionResults, pollVotes.stream().limit(5).toList());
+    }
+
+    private boolean isPointPoll(Poll poll) {
+        return switch (poll.getCategory()) {
+            case TOURNAMENT, PLAYER -> true;
+            case CULTURE, DAILY -> false;
+        };
     }
 
     private Poll findPoll(Long pollId) {
@@ -113,29 +133,29 @@ public class PollService {
     }
 
     private void seedPolls() {
+        polls.add(new Poll(7L, PollCategory.PLAYER, "Turneringens spiller: hvem tager den?", true, "Åben igen til knockout-fasen.",
+                List.of(new PollOption(701L, "Kylian Mbappe"), new PollOption(702L, "Lionel Messi"), new PollOption(703L, "Erling Haaland"), new PollOption(704L, "Vinicius Junior"), new PollOption(705L, "Lamine Yamal"), new PollOption(706L, "Ousmane Dembele"), new PollOption(707L, "Ismael Saibari"), new PollOption(708L, "Malik Tillman"), new PollOption(709L, "Gilberto Mora"), new PollOption(710L, "Julian Quinones"), new PollOption(711L, "Mikel Oyarzabal"), new PollOption(712L, "Rodri"))));
+        polls.add(new Poll(10L, PollCategory.PLAYER, "Turneringens unge spiller?", true, "FIFA Young Player-style bonus: spillere fra VM-feltet som medierne har peget på.",
+                List.of(new PollOption(1001L, "Lamine Yamal"), new PollOption(1002L, "Gilberto Mora"), new PollOption(1003L, "Pau Cubarsi"), new PollOption(1004L, "Desire Doue"), new PollOption(1005L, "Estevao"), new PollOption(1006L, "Kenan Yildiz"), new PollOption(1007L, "Joao Neves"), new PollOption(1008L, "Nico O'Reilly"), new PollOption(1009L, "Endrick"), new PollOption(1010L, "Claudio Echeverri"), new PollOption(1011L, "Kendry Paez"), new PollOption(1012L, "Ayyoub Bouaddi"), new PollOption(1013L, "Ibrahim Mbaye"), new PollOption(1014L, "Yan Diomande"), new PollOption(1015L, "Antonio Nusa"))));
         polls.add(new Poll(1L, PollCategory.TOURNAMENT, "Hvem vinder VM 2026?", true, "Tidlige picks kan give flere bonuspoint.",
                 List.of(new PollOption(101L, "Argentina"), new PollOption(102L, "France"), new PollOption(103L, "Spain"), new PollOption(104L, "Brazil"), new PollOption(105L, "England"), new PollOption(106L, "Portugal"), new PollOption(107L, "Germany"), new PollOption(108L, "Netherlands"), new PollOption(109L, "Morocco"), new PollOption(110L, "Uruguay"), new PollOption(111L, "Belgium"), new PollOption(112L, "Croatia"), new PollOption(113L, "Colombia"), new PollOption(114L, "Senegal"), new PollOption(115L, "Japan"), new PollOption(116L, "United States"))));
         polls.add(new Poll(2L, PollCategory.PLAYER, "Golden Boot: hvem ender som topscorer?", true, "Officiel award-pick til bonus efter turneringen.",
-                List.of(new PollOption(201L, "Kylian Mbappe"), new PollOption(202L, "Harry Kane"), new PollOption(203L, "Lionel Messi"), new PollOption(204L, "Erling Haaland"), new PollOption(205L, "Vinicius Junior"), new PollOption(206L, "Cristiano Ronaldo"), new PollOption(207L, "Lautaro Martinez"), new PollOption(208L, "Jude Bellingham"), new PollOption(209L, "Alexander Isak"), new PollOption(210L, "Santiago Gimenez"), new PollOption(211L, "Julian Alvarez"), new PollOption(212L, "Rodrygo"), new PollOption(213L, "Bukayo Saka"), new PollOption(214L, "Lamine Yamal"), new PollOption(215L, "Darwin Nunez"), new PollOption(216L, "Jonathan David"), new PollOption(217L, "Mikel Oyarzabal"))));
+                List.of(new PollOption(201L, "Kylian Mbappe"), new PollOption(202L, "Lionel Messi"), new PollOption(203L, "Erling Haaland"), new PollOption(204L, "Vinicius Junior"), new PollOption(205L, "Harry Kane"), new PollOption(206L, "Ousmane Dembele"), new PollOption(207L, "Ismael Saibari"), new PollOption(208L, "Matheus Cunha"), new PollOption(209L, "Cristiano Ronaldo"), new PollOption(210L, "Mikel Oyarzabal"), new PollOption(211L, "Julian Quinones"), new PollOption(212L, "Raul Jimenez"), new PollOption(213L, "Malik Tillman"), new PollOption(214L, "Rodrygo"))));
         polls.add(new Poll(3L, PollCategory.TOURNAMENT, "Hvilken lille nation eller outsider når længst?", true, "Underdog pick. Lavere rangering kan senere give ekstra bonus.",
                 List.of(new PollOption(301L, "Cabo Verde"), new PollOption(302L, "Curacao"), new PollOption(303L, "Jordan"), new PollOption(304L, "Uzbekistan"), new PollOption(305L, "Iraq"), new PollOption(306L, "New Zealand"), new PollOption(307L, "Haiti"), new PollOption(308L, "Congo DR"), new PollOption(309L, "Panama"), new PollOption(310L, "Qatar"), new PollOption(311L, "Saudi Arabia"), new PollOption(312L, "South Africa"), new PollOption(313L, "Iran"))));
         polls.add(new Poll(4L, PollCategory.PLAYER, "Golden Glove: hvem bliver turneringens keeper?", true, "Officiel award-pick til bonus efter turneringen.",
-                List.of(new PollOption(401L, "Emiliano Martinez"), new PollOption(402L, "Mike Maignan"), new PollOption(403L, "Alisson"), new PollOption(404L, "Jordan Pickford"), new PollOption(405L, "Diogo Costa"), new PollOption(406L, "Unai Simon"), new PollOption(407L, "Thibaut Courtois"), new PollOption(408L, "Yassine Bounou"), new PollOption(409L, "Marc-Andre ter Stegen"), new PollOption(410L, "Edouard Mendy"), new PollOption(412L, "Gregor Kobel"), new PollOption(413L, "Matt Turner"), new PollOption(414L, "Ronwen Williams"))));
-        polls.add(new Poll(10L, PollCategory.PLAYER, "Turneringens unge spiller?", true, "Ung spiller-bonus til slut i turneringen.",
-                List.of(new PollOption(1001L, "Lamine Yamal"), new PollOption(1002L, "Endrick"), new PollOption(1003L, "Jamal Musiala"), new PollOption(1004L, "Arda Guler"), new PollOption(1005L, "Kendry Paez"), new PollOption(1006L, "Warren Zaire-Emery"), new PollOption(1007L, "Claudio Echeverri"), new PollOption(1008L, "Antonio Nusa"), new PollOption(1009L, "Alejandro Garnacho"), new PollOption(1010L, "Benjamin Sesko"), new PollOption(1011L, "Xavi Simons"), new PollOption(1012L, "Gavi"))));
+                List.of(new PollOption(401L, "Luis Malagon"), new PollOption(402L, "Matt Freese"), new PollOption(403L, "Jordan Pickford"), new PollOption(404L, "Mike Maignan"), new PollOption(405L, "Diogo Costa"), new PollOption(406L, "Unai Simon"), new PollOption(407L, "Emiliano Martinez"), new PollOption(408L, "Alisson"), new PollOption(409L, "Yassine Bounou"), new PollOption(410L, "Gregor Kobel"), new PollOption(412L, "Dominik Livakovic"), new PollOption(413L, "Ronwen Williams"))));
         polls.add(new Poll(11L, PollCategory.TOURNAMENT, "Hvilket hold bliver den største dark horse?", true, "Bonus for at spotte turneringens overraskelse.",
                 List.of(new PollOption(1101L, "Morocco"), new PollOption(1102L, "Senegal"), new PollOption(1103L, "Colombia"), new PollOption(1104L, "Japan"), new PollOption(1105L, "Canada"), new PollOption(1106L, "Austria"), new PollOption(1107L, "Uruguay"), new PollOption(1108L, "United States"), new PollOption(1109L, "Mexico"), new PollOption(1110L, "Ecuador"), new PollOption(1111L, "Ghana"), new PollOption(1112L, "Türkiye"))));
-        polls.add(new Poll(5L, PollCategory.CULTURE, "Hvilket land kommer med stærkest fan-energi?", true, "",
+        polls.add(new Poll(5L, PollCategory.CULTURE, "Hvilket land kommer med stærkest fan-energi?", false, "",
                 List.of(new PollOption(501L, "Mexico"), new PollOption(502L, "Argentina"), new PollOption(503L, "Morocco"), new PollOption(504L, "Colombia"), new PollOption(505L, "Ghana"), new PollOption(506L, "Japan"), new PollOption(507L, "Brazil"), new PollOption(508L, "Senegal"), new PollOption(509L, "United States"), new PollOption(510L, "South Africa"))));
-        polls.add(new Poll(6L, PollCategory.CULTURE, "Hvilket land har den bedste VM-trøje?", true, "",
+        polls.add(new Poll(6L, PollCategory.CULTURE, "Hvilket land har den bedste VM-trøje?", false, "",
                 List.of(new PollOption(601L, "Mexico"), new PollOption(602L, "Japan"), new PollOption(603L, "Argentina"), new PollOption(604L, "France"), new PollOption(605L, "Brazil"), new PollOption(606L, "Nigeria"), new PollOption(607L, "Germany"), new PollOption(608L, "Netherlands"), new PollOption(609L, "Ghana"), new PollOption(610L, "Croatia"))));
-        polls.add(new Poll(8L, PollCategory.CULTURE, "Hvilket land har allerede vundet dit hjerte?", true, "",
+        polls.add(new Poll(8L, PollCategory.CULTURE, "Hvilket land har allerede vundet dit hjerte?", false, "",
                 List.of(new PollOption(801L, "Morocco"), new PollOption(802L, "Japan"), new PollOption(803L, "Senegal"), new PollOption(804L, "Canada"), new PollOption(805L, "Cabo Verde"), new PollOption(806L, "Jamaica"), new PollOption(807L, "South Africa"), new PollOption(808L, "Haiti"), new PollOption(809L, "Uzbekistan"), new PollOption(810L, "Jordan"))));
-        polls.add(new Poll(13L, PollCategory.CULTURE, "Hvad er dit mest mindeværdige VM-moment?", true, "",
+        polls.add(new Poll(13L, PollCategory.CULTURE, "Hvad er dit mest mindeværdige VM-moment?", false, "",
                 List.of(new PollOption(1301L, "Iniesta afgør finalen mod Holland"), new PollOption(1302L, "Götze afgør finalen mod Argentina"), new PollOption(1303L, "Tyskland 7-1 Brasilien"), new PollOption(1304L, "Mbappé vs Messi-finalen"), new PollOption(1305L, "Zidanes skalle mod Materazzi"), new PollOption(1306L, "Ghana brænder straffe efter Suárez' hånd"), new PollOption(1307L, "Ronaldo dominerer VM 2002"), new PollOption(1308L, "Marokko slår Portugal ud"))));
         polls.add(new Poll(9L, PollCategory.CULTURE, "Hvilke fans skaber den bedste atmosfære?", false, "Åbner tættere på kickoff.",
                 List.of(new PollOption(901L, "Mexico"), new PollOption(902L, "Argentina"), new PollOption(903L, "Morocco"), new PollOption(904L, "Colombia"), new PollOption(905L, "Ghana"), new PollOption(906L, "Brazil"), new PollOption(907L, "Japan"), new PollOption(908L, "United States"))));
-        polls.add(new Poll(7L, PollCategory.PLAYER, "Turneringens spiller: hvem tager den?", false, "Åbner når knockout-fasen er sat.",
-                List.of(new PollOption(701L, "Kylian Mbappe"), new PollOption(702L, "Jude Bellingham"), new PollOption(703L, "Lionel Messi"), new PollOption(704L, "Vinicius Junior"), new PollOption(705L, "Lamine Yamal"), new PollOption(706L, "Jamal Musiala"), new PollOption(707L, "Kevin De Bruyne"), new PollOption(708L, "Federico Valverde"))));
     }
 }

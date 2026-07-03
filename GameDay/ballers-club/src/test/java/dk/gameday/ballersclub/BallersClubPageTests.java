@@ -88,7 +88,7 @@ class BallersClubPageTests {
     }
 
     @Test
-    void pollVoteIsSavedAndRendered() throws Exception {
+    void pointPollVoteCanBeChangedAndRendered() throws Exception {
         MockHttpSession session = (MockHttpSession) mockMvc.perform(post("/signup")
                         .param("username", "poll tester")
                         .param("email", "poll@example.com"))
@@ -99,16 +99,30 @@ class BallersClubPageTests {
 
         mockMvc.perform(post("/polls/vote")
                         .session(session)
-                        .param("pollId", "6")
-                        .param("optionId", "602"))
+                        .param("pollId", "1")
+                        .param("optionId", "102"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/polls"));
 
         mockMvc.perform(get("/polls").session(session))
                 .andExpect(status().isOk())
                 .andExpect(view().name("polls"))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Du stemte: Japan")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("100%")));
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("France")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("5 point")));
+
+        mockMvc.perform(post("/polls/vote")
+                        .session(session)
+                        .param("pollId", "1")
+                        .param("optionId", "103"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/polls"));
+
+        mockMvc.perform(get("/polls").session(session))
+                .andExpect(status().isOk())
+                .andExpect(view().name("polls"))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("France")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Spain")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("2 point")));
     }
 
     @Test

@@ -30,7 +30,9 @@
 <main class="bc-shell">
     <section class="bc-pagehead">
         <h1>Bonus</h1>
-        <p>Bonusvalg kan give ekstra spænding i Copa Mundial Arena. Log ind, lås dine picks og følg kampen om præmier på leaderboardet.</p>
+        <p>Bonusvalg kan give ekstra spænding i Copa Mundial Arena. Fra kvartfinalen kan point-polls ændres igen.</p>
+        <p class="bc-poll-note">Beholder du dit oprindelige VM-vinder-, Golden Boot- eller award-pick og rammer rigtigt, giver det 5 point. Ændrer du dit valg fra kvartfinalen, giver det nye rigtige valg 2 point. Det oprindelige valg giver derefter 0 point, hvis du har skiftet væk fra det.</p>
+        <p class="bc-poll-note">Fra kvartfinalen tæller kamp-predictions også højere: korrekt udfald giver 3 point, og præcis score giver 5 point.</p>
         <div class="bc-page-actions">
             <a th:if="${currentUser == null}" class="bc-primary compact" href="/login">Log ind for at stemme</a>
         </div>
@@ -55,16 +57,18 @@
             </div>
             <h2 th:text="${pollView.poll.question}">Who will win?</h2>
             <p class="bc-poll-note" th:if="${!#strings.isEmpty(pollView.poll.availabilityNote)}" th:text="${pollView.poll.availabilityNote}">Bonus note</p>
+            <p class="bc-poll-note" th:if="${pollView.myVote == null}">Vælg nu, eller skift dit valg fra kvartfinalen. Oprindeligt rigtigt valg giver 5 point; ændret rigtigt valg giver 2 point.</p>
+            <p class="bc-voted" th:if="${pollView.myVote != null and !pollView.myVote.changedAfterQuarterFinal}" th:text="'Dit oprindelige valg: ' + ${pollView.myVoteOptionLabel} + ' - rammer det, giver det 5 point.'">Dit oprindelige valg</p>
+            <p class="bc-voted" th:if="${pollView.myVote != null and pollView.myVote.changedAfterQuarterFinal}" th:text="'Ændret fra ' + ${pollView.originalVoteOptionLabel} + ' til ' + ${pollView.myVoteOptionLabel} + ' - nyt rigtigt valg giver 2 point, originalen giver 0 point.'">Ændret valg</p>
 
-            <form class="bc-poll-options" method="post" action="/polls/vote" data-preserve-scroll th:if="${currentUser != null and pollView.myVote == null}">
+            <form class="bc-poll-options" method="post" action="/polls/vote" data-preserve-scroll th:if="${currentUser != null}">
                 <input type="hidden" name="pollId" th:value="${pollView.poll.id}">
                 <button type="submit" name="optionId" th:each="result : ${pollView.optionResults}" th:value="${result.option.id}">
                     <span th:text="${result.option.label}">Argentina</span>
                 </button>
             </form>
 
-            <div class="bc-poll-results" th:if="${currentUser == null or pollView.myVote != null}">
-                <p class="bc-voted" th:if="${pollView.myVote != null}" th:text="'Du stemte: ' + ${pollView.myVoteOptionLabel}">Du stemte</p>
+            <div class="bc-poll-results" th:if="${currentUser == null}">
                 <div class="bc-result-line" th:each="result : ${pollView.optionResults}">
                     <div>
                         <span th:text="${result.option.label}">Argentina</span>
@@ -79,48 +83,6 @@
     <section class="bc-empty" th:if="${pointBonusPolls.isEmpty()}">
         <h2>Bonus med point åbner snart</h2>
         <p>Turnerings- og spillerbonus bliver låst op, når de første spørgsmål er klar.</p>
-    </section>
-
-    <section class="bc-section-head bc-bonus-section-head">
-        <p class="bc-kicker">Community</p>
-        <h2>VM-moments og fan picks</h2>
-    </section>
-
-    <section class="bc-poll-list" th:if="${!communityBonusPolls.isEmpty()}">
-        <article class="bc-poll-card" th:each="pollView : ${communityBonusPolls}">
-            <div class="bc-match-meta">
-                <span th:text="${pollView.poll.category.label}">Culture poll</span>
-            </div>
-            <div class="bc-bonus-label bc-bonus-label-soft">
-                <span>Ingen point</span>
-                <small>Ekstra spilvalg</small>
-            </div>
-            <h2 th:text="${pollView.poll.question}">Who will win?</h2>
-            <p class="bc-poll-note" th:if="${!#strings.isEmpty(pollView.poll.availabilityNote)}" th:text="${pollView.poll.availabilityNote}">Bonus note</p>
-
-            <form class="bc-poll-options" method="post" action="/polls/vote" data-preserve-scroll th:if="${currentUser != null and pollView.myVote == null}">
-                <input type="hidden" name="pollId" th:value="${pollView.poll.id}">
-                <button type="submit" name="optionId" th:each="result : ${pollView.optionResults}" th:value="${result.option.id}">
-                    <span th:text="${result.option.label}">Argentina</span>
-                </button>
-            </form>
-
-            <div class="bc-poll-results" th:if="${currentUser == null or pollView.myVote != null}">
-                <p class="bc-voted" th:if="${pollView.myVote != null}" th:text="'Du stemte: ' + ${pollView.myVoteOptionLabel}">Du stemte</p>
-                <div class="bc-result-line" th:each="result : ${pollView.optionResults}">
-                    <div>
-                        <span th:text="${result.option.label}">Argentina</span>
-                        <strong th:text="${result.percentage} + '%'">0%</strong>
-                    </div>
-                    <progress max="100" th:value="${result.percentage}"></progress>
-                </div>
-            </div>
-        </article>
-    </section>
-
-    <section class="bc-empty" th:if="${communityBonusPolls.isEmpty()}">
-        <h2>Community åbner snart</h2>
-        <p>Fan picks og VM-moments kommer som separate stemmer uden leaderboard-point.</p>
     </section>
 
     <section class="bc-polls" th:if="${!upcomingPolls.isEmpty()}">

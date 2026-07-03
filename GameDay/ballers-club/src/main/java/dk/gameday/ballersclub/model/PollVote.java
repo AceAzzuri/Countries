@@ -33,6 +33,12 @@ public class PollVote {
     @Column(name = "option_id", nullable = false)
     private Long optionId;
 
+    @Column(name = "original_option_id")
+    private Long originalOptionId;
+
+    @Column(nullable = false)
+    private boolean changedAfterQuarterFinal;
+
     @Column(nullable = false, length = 80)
     private String username;
 
@@ -45,7 +51,19 @@ public class PollVote {
     public PollVote(Long pollId, Long optionId, String username, LocalDateTime submittedAt) {
         this.pollId = pollId;
         this.optionId = optionId;
+        this.originalOptionId = optionId;
         this.username = username;
+        this.submittedAt = submittedAt;
+    }
+
+    public void updateOption(Long optionId, LocalDateTime submittedAt) {
+        if (this.originalOptionId == null) {
+            this.originalOptionId = this.optionId;
+        }
+        if (!this.optionId.equals(optionId)) {
+            this.changedAfterQuarterFinal = true;
+        }
+        this.optionId = optionId;
         this.submittedAt = submittedAt;
     }
 
@@ -53,6 +71,9 @@ public class PollVote {
     void applyDefaults() {
         if (submittedAt == null) {
             submittedAt = LocalDateTime.now();
+        }
+        if (originalOptionId == null) {
+            originalOptionId = optionId;
         }
     }
 
@@ -62,6 +83,14 @@ public class PollVote {
 
     public Long getOptionId() {
         return optionId;
+    }
+
+    public Long getOriginalOptionId() {
+        return originalOptionId == null ? optionId : originalOptionId;
+    }
+
+    public boolean isChangedAfterQuarterFinal() {
+        return changedAfterQuarterFinal;
     }
 
     public String getUsername() {

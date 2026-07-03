@@ -97,7 +97,7 @@ public class DataCollectionService {
             int streak = 0;
             Prediction latestHit = null;
             for (Prediction prediction : userPredictions) {
-                if (scoringService.calculatePoints(prediction) <= 0) {
+                if (!scoringService.isExactScoreHit(prediction)) {
                     break;
                 }
                 streak++;
@@ -115,8 +115,8 @@ public class DataCollectionService {
                         .comparingInt(UserStreak::count).reversed()
                         .thenComparing(UserStreak::username, String.CASE_INSENSITIVE_ORDER))
                 .map(streak -> new PredictionFeedItem(
-                        streak.username() + " har ramt " + streak.count() + " i streg",
-                        "Seneste kald: " + matchLabel(streak.latestHit()) + " - pick " + predictedScore(streak.latestHit())
+                        streak.username() + " har ramt " + streak.count() + " præcise i streg",
+                        "Seneste præcise: " + matchLabel(streak.latestHit()) + " - pick " + predictedScore(streak.latestHit())
                 ))
                 .toList();
     }
@@ -136,10 +136,10 @@ public class DataCollectionService {
             }
             Prediction sample = matchPredictions.get(0);
             List<Prediction> exactPredictions = matchPredictions.stream()
-                    .filter(prediction -> scoringService.calculatePoints(prediction) == 3)
+                    .filter(scoringService::isExactScoreHit)
                     .toList();
             List<Prediction> outcomePredictions = matchPredictions.stream()
-                    .filter(prediction -> scoringService.calculatePoints(prediction) == 1)
+                    .filter(scoringService::isCorrectOutcomeHit)
                     .toList();
             long exact = exactPredictions.size();
             long outcome = outcomePredictions.size();

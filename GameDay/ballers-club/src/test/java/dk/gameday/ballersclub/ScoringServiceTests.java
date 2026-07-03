@@ -30,6 +30,20 @@ class ScoringServiceTests {
     }
 
     @Test
+    void exactScoreGetsFivePointsFromQuarterFinals() throws Exception {
+        Prediction prediction = prediction("Quarter-final", 2, 1, 2, 1);
+
+        assertThat(scoringService.calculatePoints(prediction)).isEqualTo(5);
+    }
+
+    @Test
+    void correctResultGetsThreePointsFromQuarterFinals() throws Exception {
+        Prediction prediction = prediction("Quarter-final", 2, 0, 1, 0);
+
+        assertThat(scoringService.calculatePoints(prediction)).isEqualTo(3);
+    }
+
+    @Test
     void wrongResultGetsZeroPoints() throws Exception {
         Prediction prediction = prediction(0, 2, 1, 0);
 
@@ -37,7 +51,11 @@ class ScoringServiceTests {
     }
 
     private Prediction prediction(int predictedHome, int predictedAway, int actualHome, int actualAway) throws Exception {
-        WorldCupMatch match = new WorldCupMatch("Group Stage", "Home", "Away", LocalDateTime.now().minusDays(1), "Arena");
+        return prediction("Group Stage", predictedHome, predictedAway, actualHome, actualAway);
+    }
+
+    private Prediction prediction(String roundLabel, int predictedHome, int predictedAway, int actualHome, int actualAway) throws Exception {
+        WorldCupMatch match = new WorldCupMatch(roundLabel, "Home", "Away", LocalDateTime.now().minusDays(1), "Arena");
         setField(match, "homeScore", actualHome);
         setField(match, "awayScore", actualAway);
         return new Prediction(new AppUser("tester"), match, predictedHome, predictedAway);

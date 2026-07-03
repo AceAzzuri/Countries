@@ -194,9 +194,9 @@ public class LeaderboardService {
             if (prediction.getMatch().hasResult()) {
                 played.merge(username, 1, Integer::sum);
             }
-            if (earned == 3) {
+            if (scoringService.isExactScoreHit(prediction)) {
                 exact.merge(username, 1, Integer::sum);
-            } else if (earned == 1) {
+            } else if (scoringService.isCorrectOutcomeHit(prediction)) {
                 result.merge(username, 1, Integer::sum);
             }
             points.merge(username, earned, Integer::sum);

@@ -12,12 +12,26 @@ public class ScoringService {
         if (!match.hasResult()) {
             return 0;
         }
-        if (prediction.getHomeGoals() == match.getHomeScore()
-                && prediction.getAwayGoals() == match.getAwayScore()) {
-            return 3;
+        if (isExactScoreHit(prediction)) {
+            return match.isQuarterFinalOrLater() ? 5 : 3;
+        }
+        return isCorrectOutcomeHit(prediction) ? (match.isQuarterFinalOrLater() ? 3 : 1) : 0;
+    }
+
+    public boolean isExactScoreHit(Prediction prediction) {
+        WorldCupMatch match = prediction.getMatch();
+        return match.hasResult()
+                && prediction.getHomeGoals() == match.getHomeScore()
+                && prediction.getAwayGoals() == match.getAwayScore();
+    }
+
+    public boolean isCorrectOutcomeHit(Prediction prediction) {
+        WorldCupMatch match = prediction.getMatch();
+        if (!match.hasResult() || isExactScoreHit(prediction)) {
+            return false;
         }
         int predictedOutcome = Integer.compare(prediction.getHomeGoals(), prediction.getAwayGoals());
         int actualOutcome = Integer.compare(match.getHomeScore(), match.getAwayScore());
-        return predictedOutcome == actualOutcome ? 1 : 0;
+        return predictedOutcome == actualOutcome;
     }
 }

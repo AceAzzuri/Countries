@@ -62,6 +62,15 @@ public class WorldCupMatch {
         return roundLabel != null && roundLabel.startsWith("Group ");
     }
 
+    public boolean isQuarterFinalOrLater() {
+        return roundLabel != null && (
+                roundLabel.equals("Quarter-final")
+                        || roundLabel.equals("Semi-final")
+                        || roundLabel.equals("Play-off for third place")
+                        || roundLabel.equals("Final")
+        );
+    }
+
     public boolean hasResult() {
         return homeScore != null && awayScore != null;
     }
