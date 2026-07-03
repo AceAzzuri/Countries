@@ -40,6 +40,7 @@
 
     <div class="bc-flash success" th:if="${success}" th:text="${success}"></div>
     <div class="bc-flash error" th:if="${error}" th:text="${error}"></div>
+    <div class="bc-flash error" th:if="${pollsLoadError}" th:text="${pollsLoadError}"></div>
 
     <section class="bc-section-head">
         <p class="bc-kicker">Bonus med point</p>

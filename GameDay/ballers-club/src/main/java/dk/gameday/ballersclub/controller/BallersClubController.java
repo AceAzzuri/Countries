@@ -265,21 +265,29 @@ public class BallersClubController {
     @GetMapping("/polls")
     public String polls(Model model, HttpSession session) {
         Optional<AppUser> currentUser = addCurrentUser(model, session);
-        List<PollView> polls = pollService.getActivePollViews(currentUser.map(AppUser::getUsername).orElse(""));
-        model.addAttribute("polls", polls);
-        model.addAttribute("pointBonusPolls", polls.stream()
-                .filter(pollView -> switch (pollView.getPoll().getCategory()) {
-                    case TOURNAMENT, PLAYER -> true;
-                    case CULTURE, DAILY -> false;
-                })
-                .toList());
-        model.addAttribute("communityBonusPolls", polls.stream()
-                .filter(pollView -> switch (pollView.getPoll().getCategory()) {
-                    case TOURNAMENT, PLAYER -> false;
-                    case CULTURE, DAILY -> true;
-                })
-                .toList());
-        model.addAttribute("upcomingPolls", pollService.getUpcomingPolls());
+        try {
+            List<PollView> polls = pollService.getActivePollViews(currentUser.map(AppUser::getUsername).orElse(""));
+            model.addAttribute("polls", polls);
+            model.addAttribute("pointBonusPolls", polls.stream()
+                    .filter(pollView -> switch (pollView.getPoll().getCategory()) {
+                        case TOURNAMENT, PLAYER -> true;
+                        case CULTURE, DAILY -> false;
+                    })
+                    .toList());
+            model.addAttribute("communityBonusPolls", polls.stream()
+                    .filter(pollView -> switch (pollView.getPoll().getCategory()) {
+                        case TOURNAMENT, PLAYER -> false;
+                        case CULTURE, DAILY -> true;
+                    })
+                    .toList());
+            model.addAttribute("upcomingPolls", pollService.getUpcomingPolls());
+        } catch (RuntimeException e) {
+            model.addAttribute("polls", List.of());
+            model.addAttribute("pointBonusPolls", List.of());
+            model.addAttribute("communityBonusPolls", List.of());
+            model.addAttribute("upcomingPolls", List.of());
+            model.addAttribute("pollsLoadError", "Bonus kunne ikke indlæses lige nu. Prøv igen om lidt.");
+        }
         return "polls";
     }
 
