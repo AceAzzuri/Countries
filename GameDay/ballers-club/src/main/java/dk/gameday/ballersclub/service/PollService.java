@@ -7,6 +7,7 @@ import dk.gameday.ballersclub.model.PollOptionResult;
 import dk.gameday.ballersclub.model.PollView;
 import dk.gameday.ballersclub.model.PollVote;
 import dk.gameday.ballersclub.repository.PollVoteRepository;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,7 +59,7 @@ public class PollService {
             throw new IllegalArgumentException("Ukendt valgmulighed.");
         }
 
-        PollVote existingVote = findVoteByUsername(pollId, normalizedUsername);
+        PollVote existingVote = findVoteByUsernameSafely(pollId, normalizedUsername);
         if (existingVote != null) {
             if (!isPointPoll(poll)) {
                 throw new IllegalArgumentException("Du har allerede stemt på denne poll.");
@@ -72,10 +73,10 @@ public class PollService {
     }
 
     private PollView buildPollView(Poll poll, String username) {
-        List<PollVote> pollVotes = voteRepository.findByPollIdOrderBySubmittedAtDesc(poll.getId());
+        List<PollVote> pollVotes = loadPollVotesSafely(poll.getId());
         int totalVotes = pollVotes.size();
 
-        PollVote myVote = username.isBlank() ? null : findVoteByUsername(poll.getId(), username);
+        PollVote myVote = username.isBlank() ? null : findVoteByUsernameSafely(poll.getId(), username);
         String myVoteOptionLabel = null;
         String originalVoteOptionLabel = null;
         if (myVote != null) {
@@ -103,6 +104,14 @@ public class PollService {
         return new PollView(poll, totalVotes, myVote, myVoteOptionLabel, originalVoteOptionLabel, optionResults, pollVotes.stream().limit(5).toList());
     }
 
+    private List<PollVote> loadPollVotesSafely(Long pollId) {
+        try {
+            return voteRepository.findByPollIdOrderBySubmittedAtDesc(pollId);
+        } catch (DataAccessException | IllegalStateException e) {
+            return List.of();
+        }
+    }
+
     private boolean isPointPoll(Poll poll) {
         return switch (poll.getCategory()) {
             case TOURNAMENT, PLAYER -> true;
@@ -117,8 +126,12 @@ public class PollService {
                 .orElseThrow(() -> new IllegalArgumentException("Poll blev ikke fundet."));
     }
 
-    private PollVote findVoteByUsername(Long pollId, String username) {
-        return voteRepository.findByPollIdAndUsernameIgnoreCase(pollId, username).orElse(null);
+    private PollVote findVoteByUsernameSafely(Long pollId, String username) {
+        try {
+            return voteRepository.findByPollIdAndUsernameIgnoreCase(pollId, username).orElse(null);
+        } catch (DataAccessException | IllegalStateException e) {
+            return null;
+        }
     }
 
     private int percentage(int count, int totalVotes) {
