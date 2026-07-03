@@ -31,7 +31,7 @@ public class PollService {
         String normalizedUsername = normalizeUsername(username);
         return polls.stream()
                 .filter(Poll::isActive)
-                .map(poll -> buildPollView(poll, normalizedUsername))
+                .map(poll -> buildPollViewSafely(poll, normalizedUsername))
                 .toList();
     }
 
@@ -102,6 +102,14 @@ public class PollService {
                 .toList();
 
         return new PollView(poll, totalVotes, myVote, myVoteOptionLabel, originalVoteOptionLabel, optionResults, pollVotes.stream().limit(5).toList());
+    }
+
+    private PollView buildPollViewSafely(Poll poll, String username) {
+        try {
+            return buildPollView(poll, username);
+        } catch (RuntimeException e) {
+            return new PollView(poll, 0, null, null, null, List.of(), List.of());
+        }
     }
 
     private List<PollVote> loadPollVotesSafely(Long pollId) {
