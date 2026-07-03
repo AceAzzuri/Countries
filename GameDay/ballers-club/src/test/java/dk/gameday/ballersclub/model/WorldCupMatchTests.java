@@ -65,4 +65,21 @@ class WorldCupMatchTests {
 
         assertThat(match.getAdvancingTeam()).isNull();
     }
+
+    @Test
+    void knockoutMatchCanBeMarkedAdvancedWithoutScore() {
+        WorldCupMatch match = new WorldCupMatch(
+                "Round of 32",
+                "Canada",
+                "Morocco",
+                LocalDateTime.now(ZoneId.of("Europe/Copenhagen")).plusDays(1),
+                "Houston Stadium"
+        );
+
+        match.updateResult(null, null, "Canada");
+
+        assertThat(match.hasResult()).isFalse();
+        assertThat(match.hasAdvancingTeam()).isTrue();
+        assertThat(match.getStatusLabel()).isEqualTo("Afgjort");
+    }
 }

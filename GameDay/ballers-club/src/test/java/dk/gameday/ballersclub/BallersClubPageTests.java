@@ -84,6 +84,8 @@ class BallersClubPageTests {
                 .andExpect(status().isOk())
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Mikel Oyarzabal")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Iran")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Fra kvartfinalen tæller kamp-predictions også højere: korrekt udfald giver 3 point, og præcis score giver 5 point.")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("NY")))
                 .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("Gianluigi Donnarumma"))));
     }
 
@@ -267,8 +269,9 @@ class BallersClubPageTests {
             mockMvc.perform(post("/admin/results")
                             .session(adminSession)
                             .param("matchId", "73")
-                            .param("homeScore", "0")
-                            .param("awayScore", "1"))
+                            .param("homeScore", "")
+                            .param("awayScore", "")
+                            .param("advancingTeam", "Canada"))
                     .andExpect(status().is3xxRedirection())
                     .andExpect(redirectedUrl("/admin/results"));
 
@@ -428,9 +431,9 @@ class BallersClubPageTests {
 
         mockMvc.perform(get("/admin/results").session(adminSession))
                 .andExpect(status().isOk())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Hvis ordinær tid ender uafgjort, skal du også vælge hvem der går videre")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Hvis ordinær tid ender uafgjort eller kampen voides, skal du vælge hvem der går videre")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Hold der går videre")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Ved uafgjort i ordinær tid skal du vælge holdet, der går videre")));
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Ved uafgjort eller void kan du vælge holdet, der går videre efter forlængelse, straffe eller uden resultat.")));
     }
 
     private void openPredictionMatch(Long matchId) {

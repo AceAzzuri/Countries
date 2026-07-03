@@ -26,10 +26,14 @@ public class MatchResultService {
     @Transactional
     public void updateResult(Long matchId, String homeScoreValue, String awayScoreValue, String advancingTeamValue) {
         WorldCupMatch match = findMatch(matchId);
-        int homeScore = parseScore(homeScoreValue);
-        int awayScore = parseScore(awayScoreValue);
-        String advancingTeam = resolveAdvancingTeam(match, homeScore, awayScore, advancingTeamValue);
-        match.updateResult(homeScore, awayScore, advancingTeam);
+        String advancingTeam = resolveAdvancingTeam(match, homeScoreValue, awayScoreValue, advancingTeamValue);
+        if (isBlank(homeScoreValue) && isBlank(awayScoreValue)) {
+            match.updateResult(null, null, advancingTeam);
+        } else {
+            int homeScore = parseScore(homeScoreValue);
+            int awayScore = parseScore(awayScoreValue);
+            match.updateResult(homeScore, awayScore, advancingTeam);
+        }
         matchRepository.save(match);
         dataInitializer.syncKnockoutFixtures();
     }
@@ -58,16 +62,17 @@ public class MatchResultService {
             String advancingTeam = advancingTeamValues.get(i);
             boolean homeBlank = home == null || home.isBlank();
             boolean awayBlank = away == null || away.isBlank();
-            if (homeBlank && awayBlank) {
+            boolean advancingBlank = advancingTeam == null || advancingTeam.isBlank();
+            if (homeBlank && awayBlank && advancingBlank) {
                 continue;
             }
-            if (homeBlank || awayBlank) {
+            if (homeBlank != awayBlank) {
                 throw new IllegalArgumentException("Indtast begge resultater for hver kamp, du vil gemme.");
             }
             WorldCupMatch match = findMatch(matchIds.get(i));
+            String resolvedAdvancingTeam = resolveAdvancingTeam(match, home, away, advancingTeam);
             int homeScore = parseScore(home);
             int awayScore = parseScore(away);
-            String resolvedAdvancingTeam = resolveAdvancingTeam(match, homeScore, awayScore, advancingTeam);
             match.updateResult(homeScore, awayScore, resolvedAdvancingTeam);
             matchRepository.save(match);
             saved++;
@@ -79,18 +84,28 @@ public class MatchResultService {
         return saved;
     }
 
-    private String resolveAdvancingTeam(WorldCupMatch match, int homeScore, int awayScore, String advancingTeamValue) {
+    private String resolveAdvancingTeam(WorldCupMatch match, String homeScoreValue, String awayScoreValue, String advancingTeamValue) {
         if (match.isGroupMatch()) {
             return null;
         }
 
-        if (homeScore != awayScore) {
-            return homeScore > awayScore ? match.getHomeTeam() : match.getAwayTeam();
+        boolean homeBlank = isBlank(homeScoreValue);
+        boolean awayBlank = isBlank(awayScoreValue);
+        if (homeBlank != awayBlank) {
+            throw new IllegalArgumentException("Indtast begge resultater eller lad begge stå tomme, når du kun vælger hvem der går videre.");
+        }
+
+        if (!homeBlank) {
+            int homeScore = parseScore(homeScoreValue);
+            int awayScore = parseScore(awayScoreValue);
+            if (homeScore != awayScore) {
+                return homeScore > awayScore ? match.getHomeTeam() : match.getAwayTeam();
+            }
         }
 
         String advancingTeam = advancingTeamValue == null ? null : advancingTeamValue.trim();
         if (advancingTeam == null || advancingTeam.isBlank()) {
-            throw new IllegalArgumentException("Vælg hvem der går videre, når kampen ender uafgjort.");
+            throw new IllegalArgumentException("Vælg hvem der går videre, når kampen ender uafgjort eller voides.");
         }
         if (!advancingTeam.equals(match.getHomeTeam()) && !advancingTeam.equals(match.getAwayTeam())) {
             throw new IllegalArgumentException("Vælg et af de to hold, der faktisk spiller kampen.");
@@ -116,5 +131,9 @@ public class MatchResultService {
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Resultater skal være hele tal.");
         }
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.isBlank();
     }
 }

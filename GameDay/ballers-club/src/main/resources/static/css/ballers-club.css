@@ -1964,6 +1964,38 @@
     font-weight: 900;
 }
 
+.bc-new-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 20px;
+    border-radius: 999px;
+    padding: 0 8px;
+    background: #8FD3FF;
+    color: #120A1F;
+    font-size: 10px;
+    font-weight: 950;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+.bc-new-badge + .bc-new-copy {
+    margin-left: 8px;
+}
+
+.bc-poll-note-highlight,
+.bc-feed-summary strong,
+.bc-point-system-card strong {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.bc-poll-note-highlight {
+    color: #8FD3FF;
+}
+
 .bc-result-line div {
     display: flex;
     justify-content: space-between;

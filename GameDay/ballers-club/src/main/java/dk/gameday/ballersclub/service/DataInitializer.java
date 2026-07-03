@@ -242,9 +242,14 @@ public class DataInitializer implements CommandLineRunner {
     private Optional<String> winnerOfMatch(Long matchId, List<WorldCupMatch> allMatches) {
         return allMatches.stream()
                 .filter(match -> matchId.equals(match.getId()))
-                .filter(WorldCupMatch::hasResult)
                 .findFirst()
                 .flatMap(match -> {
+                    if (match.hasAdvancingTeam()) {
+                        return Optional.of(match.getAdvancingTeam());
+                    }
+                    if (!match.hasResult()) {
+                        return Optional.empty();
+                    }
                     if (match.getHomeScore() > match.getAwayScore()) {
                         return Optional.of(match.getHomeTeam());
                     }
@@ -258,16 +263,18 @@ public class DataInitializer implements CommandLineRunner {
     private Optional<String> loserOfMatch(Long matchId, List<WorldCupMatch> allMatches) {
         return allMatches.stream()
                 .filter(match -> matchId.equals(match.getId()))
-                .filter(WorldCupMatch::hasResult)
                 .findFirst()
                 .flatMap(match -> {
+                    if (!match.hasResult()) {
+                        return Optional.empty();
+                    }
                     if (match.getHomeScore() > match.getAwayScore()) {
                         return Optional.of(match.getAwayTeam());
                     }
                     if (match.getAwayScore() > match.getHomeScore()) {
                         return Optional.of(match.getHomeTeam());
                     }
-                    if (match.getAdvancingTeam() == null) {
+                    if (!match.hasAdvancingTeam()) {
                         return Optional.empty();
                     }
                     return Optional.of(match.getAdvancingTeam().equals(match.getHomeTeam())

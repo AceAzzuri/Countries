@@ -92,6 +92,9 @@ public class WorldCupMatch {
         if (hasResult()) {
             return "Færdig";
         }
+        if (advancingTeam != null && !advancingTeam.isBlank()) {
+            return "Afgjort";
+        }
         return isPredictionOpen() ? "Åben" : "Låst";
     }
 
@@ -110,12 +113,17 @@ public class WorldCupMatch {
     public void updateResult(Integer homeScore, Integer awayScore, String advancingTeam) {
         this.homeScore = homeScore;
         this.awayScore = awayScore;
+        String trimmedAdvancingTeam = advancingTeam == null ? null : advancingTeam.trim();
         if (isGroupMatch()) {
             this.advancingTeam = null;
             return;
         }
+        if (homeScore == null && awayScore == null) {
+            this.advancingTeam = trimmedAdvancingTeam;
+            return;
+        }
         if (homeScore != null && awayScore != null && homeScore.equals(awayScore)) {
-            this.advancingTeam = advancingTeam;
+            this.advancingTeam = trimmedAdvancingTeam;
             return;
         }
         if (homeScore != null && awayScore != null) {
@@ -195,5 +203,9 @@ public class WorldCupMatch {
 
     public String getAdvancingTeam() {
         return advancingTeam;
+    }
+
+    public boolean hasAdvancingTeam() {
+        return advancingTeam != null && !advancingTeam.isBlank();
     }
 }
