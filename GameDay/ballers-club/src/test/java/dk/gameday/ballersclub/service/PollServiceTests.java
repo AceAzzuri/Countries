@@ -77,4 +77,40 @@ class PollServiceTests {
 
         verify(voteRepository).save(org.mockito.Mockito.argThat(vote -> vote.getPollId().equals(1L) && vote.getOptionId().equals(102L)));
     }
+
+    @Test
+    void legacyAwardVoteEnteredAfterReopenIsShownAsTwoPointLateVote() {
+        PollVoteRepository voteRepository = mock(PollVoteRepository.class);
+        PollService pollService = new PollService(voteRepository);
+        var lateVote = new dk.gameday.ballersclub.model.PollVote(4L, 406L, "Azzuri", LocalDateTime.of(2026, 7, 3, 12, 0));
+
+        when(voteRepository.findByPollIdOrderBySubmittedAtDesc(4L)).thenReturn(List.of(lateVote));
+        when(voteRepository.findByPollIdAndUsernameIgnoreCase(4L, "Azzuri")).thenReturn(Optional.of(lateVote));
+
+        var goldenGlove = pollService.getActivePollViews("Azzuri").stream()
+                .filter(view -> view.getPoll().getId().equals(4L))
+                .findFirst()
+                .orElseThrow();
+
+        assertThat(goldenGlove.isLegacyLateVote()).isTrue();
+        assertThat(goldenGlove.isLegacyOriginalVote()).isFalse();
+    }
+
+    @Test
+    void legacyAwardVoteEnteredBeforeReopenIsShownAsOriginalFivePointVote() {
+        PollVoteRepository voteRepository = mock(PollVoteRepository.class);
+        PollService pollService = new PollService(voteRepository);
+        var oldVote = new dk.gameday.ballersclub.model.PollVote(4L, 406L, "Azzuri", LocalDateTime.of(2026, 7, 2, 12, 0));
+
+        when(voteRepository.findByPollIdOrderBySubmittedAtDesc(4L)).thenReturn(List.of(oldVote));
+        when(voteRepository.findByPollIdAndUsernameIgnoreCase(4L, "Azzuri")).thenReturn(Optional.of(oldVote));
+
+        var goldenGlove = pollService.getActivePollViews("Azzuri").stream()
+                .filter(view -> view.getPoll().getId().equals(4L))
+                .findFirst()
+                .orElseThrow();
+
+        assertThat(goldenGlove.isLegacyOriginalVote()).isTrue();
+        assertThat(goldenGlove.isLegacyLateVote()).isFalse();
+    }
 }

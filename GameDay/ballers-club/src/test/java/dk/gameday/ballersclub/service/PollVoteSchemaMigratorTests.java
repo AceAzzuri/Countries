@@ -27,7 +27,10 @@ class PollVoteSchemaMigratorTests {
                 )
                 """);
         jdbcTemplate.update(
-                "insert into poll_votes (poll_id, option_id, username, submitted_at) values (1, 102, 'Azzuri', current_timestamp)"
+                "insert into poll_votes (poll_id, option_id, username, submitted_at) values (1, 102, 'Azzuri', timestamp '2026-07-02 12:00:00')"
+        );
+        jdbcTemplate.update(
+                "insert into poll_votes (poll_id, option_id, username, submitted_at) values (4, 406, 'Late', timestamp '2026-07-03 12:00:00')"
         );
 
         new PollVoteSchemaMigrator(jdbcTemplate).run(new DefaultApplicationArguments());
@@ -41,9 +44,19 @@ class PollVoteSchemaMigratorTests {
                 "select changed_after_quarter_final from poll_votes where username = 'Azzuri'",
                 Boolean.class
         );
+        Boolean oldVoteBeforeReopen = jdbcTemplate.queryForObject(
+                "select original_vote_before_reopen from poll_votes where username = 'Azzuri'",
+                Boolean.class
+        );
+        Boolean lateVoteBeforeReopen = jdbcTemplate.queryForObject(
+                "select original_vote_before_reopen from poll_votes where username = 'Late'",
+                Boolean.class
+        );
 
-        assertThat(votes).isEqualTo(1);
+        assertThat(votes).isEqualTo(2);
         assertThat(originalOptionId).isEqualTo(102L);
         assertThat(changed).isFalse();
+        assertThat(oldVoteBeforeReopen).isTrue();
+        assertThat(lateVoteBeforeReopen).isFalse();
     }
 }

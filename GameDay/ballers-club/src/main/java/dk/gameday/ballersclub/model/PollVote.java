@@ -22,6 +22,7 @@ public class PollVote {
 
     private static final DateTimeFormatter TIMESTAMP_FORMAT =
             DateTimeFormatter.ofPattern("d. MMM yyyy HH:mm", Locale.ENGLISH);
+    private static final LocalDateTime LEGACY_AWARD_REOPENED_AT = LocalDateTime.of(2026, 7, 3, 0, 0);
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,6 +40,9 @@ public class PollVote {
     @Column(nullable = false)
     private boolean changedAfterQuarterFinal;
 
+    @Column(name = "original_vote_before_reopen", nullable = false)
+    private boolean originalVoteBeforeReopen;
+
     @Column(nullable = false, length = 80)
     private String username;
 
@@ -54,6 +58,7 @@ public class PollVote {
         this.originalOptionId = optionId;
         this.username = username;
         this.submittedAt = submittedAt;
+        this.originalVoteBeforeReopen = submittedAt != null && submittedAt.isBefore(LEGACY_AWARD_REOPENED_AT);
     }
 
     public void updateOption(Long optionId, LocalDateTime submittedAt) {
@@ -91,6 +96,10 @@ public class PollVote {
 
     public boolean isChangedAfterQuarterFinal() {
         return changedAfterQuarterFinal;
+    }
+
+    public boolean isOriginalVoteBeforeReopen() {
+        return originalVoteBeforeReopen;
     }
 
     public String getUsername() {

@@ -9,6 +9,9 @@ public class PollView {
     private final PollVote myVote;
     private final String myVoteOptionLabel;
     private final String originalVoteOptionLabel;
+    private final boolean legacyOriginalVote;
+    private final boolean legacyChangedVote;
+    private final boolean legacyLateVote;
     private final List<PollOptionResult> optionResults;
     private final List<PollVote> recentVotes;
 
@@ -18,6 +21,9 @@ public class PollView {
             PollVote myVote,
             String myVoteOptionLabel,
             String originalVoteOptionLabel,
+            boolean legacyOriginalVote,
+            boolean legacyChangedVote,
+            boolean legacyLateVote,
             List<PollOptionResult> optionResults,
             List<PollVote> recentVotes
     ) {
@@ -26,6 +32,9 @@ public class PollView {
         this.myVote = myVote;
         this.myVoteOptionLabel = myVoteOptionLabel;
         this.originalVoteOptionLabel = originalVoteOptionLabel;
+        this.legacyOriginalVote = legacyOriginalVote;
+        this.legacyChangedVote = legacyChangedVote;
+        this.legacyLateVote = legacyLateVote;
         this.optionResults = optionResults;
         this.recentVotes = recentVotes;
     }
@@ -48,6 +57,18 @@ public class PollView {
 
     public String getOriginalVoteOptionLabel() {
         return originalVoteOptionLabel;
+    }
+
+    public boolean isLegacyOriginalVote() {
+        return legacyOriginalVote;
+    }
+
+    public boolean isLegacyChangedVote() {
+        return legacyChangedVote;
+    }
+
+    public boolean isLegacyLateVote() {
+        return legacyLateVote;
     }
 
     public List<PollOptionResult> getOptionResults() {

@@ -99,14 +99,20 @@ public class PollService {
                 })
                 .toList();
 
-        return new PollView(poll, totalVotes, myVote, myVoteOptionLabel, originalVoteOptionLabel, optionResults, pollVotes.stream().limit(5).toList());
+        boolean legacyAwardVote = poll.isLegacyAdjustableAwardPoll() && myVote != null;
+        boolean legacyChangedVote = legacyAwardVote && myVote.isChangedAfterQuarterFinal();
+        boolean legacyOriginalVote = legacyAwardVote && myVote.isOriginalVoteBeforeReopen() && !legacyChangedVote;
+        boolean legacyLateVote = legacyAwardVote && !myVote.isOriginalVoteBeforeReopen() && !legacyChangedVote;
+
+        return new PollView(poll, totalVotes, myVote, myVoteOptionLabel, originalVoteOptionLabel,
+                legacyOriginalVote, legacyChangedVote, legacyLateVote, optionResults, pollVotes.stream().limit(5).toList());
     }
 
     private PollView buildPollViewSafely(Poll poll, String username) {
         try {
             return buildPollView(poll, username);
         } catch (RuntimeException e) {
-            return new PollView(poll, 0, null, null, null, List.of(), List.of());
+            return new PollView(poll, 0, null, null, null, false, false, false, List.of(), List.of());
         }
     }
 

@@ -31,7 +31,7 @@
     <section class="bc-pagehead">
         <h1>Bonus</h1>
         <p>Bonusvalg kan give ekstra spænding i Copa Mundial Arena. De gamle svar bliver liggende.</p>
-        <p class="bc-poll-note"><span class="bc-new-badge">NY</span> <span class="bc-new-copy">Kun <strong>Hvem vinder VM 2026?</strong>, <strong>Golden Boot</strong> og <strong>Golden Glove</strong> bruger den nye regel: beholder du dit oprindelige valg og rammer rigtigt, giver det 5 point. Skifter du valg før semifinalen, giver det nye rigtige valg 2 point, og det gamle valg giver 0 point.</span></p>
+        <p class="bc-poll-note"><span class="bc-new-badge">NY</span> <span class="bc-new-copy">Kun <strong>Hvem vinder VM 2026?</strong>, <strong>Golden Boot</strong> og <strong>Golden Glove</strong> bruger den nye regel: havde du allerede et valg før 3. juli og beholder det, giver det 5 point hvis det rammer. Skifter du valg før semifinalen, giver det nye rigtige valg 2 point, og det gamle valg giver 0 point.</span></p>
         <p class="bc-poll-note bc-poll-note-highlight"><span class="bc-new-badge">NY</span> <span class="bc-new-copy">Fra kvartfinalen tæller kamp-predictions også højere: korrekt udfald giver 3 point, og præcis score giver 5 point.</span></p>
         <p class="bc-poll-note"><span class="bc-new-badge">NY</span> <span class="bc-new-copy">Turneringens spiller og Turneringens unge spiller er helt nye bonus-polls og låses efter første valg.</span></p>
         <div class="bc-page-actions">
@@ -60,11 +60,12 @@
             </div>
             <h2 th:text="${pollView.poll.question}">Who will win?</h2>
             <p class="bc-poll-note" th:if="${!#strings.isEmpty(pollView.poll.availabilityNote)}" th:text="${pollView.poll.availabilityNote}">Bonus note</p>
-            <p class="bc-poll-note" th:if="${pollView.poll.isLegacyAdjustableAwardPoll() and pollView.myVote == null}"><span class="bc-new-badge">NY</span> <span class="bc-new-copy">Dit gamle valg bliver liggende, og du kan skifte frem til semifinalen. Beholder du det oprindelige valg og rammer rigtigt, giver det 5 point. Skifter du før semifinalen og rammer det nye valg, giver det 2 point.</span></p>
+            <p class="bc-poll-note" th:if="${pollView.poll.isLegacyAdjustableAwardPoll() and pollView.myVote == null}"><span class="bc-new-badge">NY</span> <span class="bc-new-copy">Gamle valg fra før 3. juli bliver liggende og kan skiftes frem til semifinalen. Kun de gamle, beholdte valg kan give 5 point. Nye eller ændrede valg giver 2 point, hvis de rammer.</span></p>
             <p class="bc-poll-note" th:if="${pollView.poll.isFreshAwardPoll()}"><span class="bc-new-badge">NY</span> <span class="bc-new-copy">Helt frisk valg. Du kan stemme én gang her.</span></p>
             <p class="bc-poll-note" th:if="${pollView.poll.isFixedPointPoll()}"><span class="bc-new-copy">Fast valg. Når du har stemt her, kan det ikke ændres.</span></p>
-            <p class="bc-voted" th:if="${pollView.poll.isLegacyAdjustableAwardPoll() and pollView.myVote != null and !pollView.myVote.changedAfterQuarterFinal}" th:text="'Dit oprindelige valg: ' + ${pollView.myVoteOptionLabel} + ' - rammer det, giver det 5 point.'">Dit oprindelige valg</p>
-            <p class="bc-voted" th:if="${pollView.poll.isLegacyAdjustableAwardPoll() and pollView.myVote != null and pollView.myVote.changedAfterQuarterFinal}" th:text="'Ændret fra ' + ${pollView.originalVoteOptionLabel} + ' til ' + ${pollView.myVoteOptionLabel} + ' - nyt rigtigt valg giver 2 point, originalen giver 0 point.'">Ændret valg</p>
+            <p class="bc-voted" th:if="${pollView.legacyOriginalVote}" th:text="'Dit oprindelige valg fra turneringsstart: ' + ${pollView.myVoteOptionLabel} + ' - rammer det, giver det 5 point.'">Dit oprindelige valg</p>
+            <p class="bc-voted" th:if="${pollView.legacyChangedVote}" th:text="'Ændret fra ' + ${pollView.originalVoteOptionLabel} + ' til ' + ${pollView.myVoteOptionLabel} + ' - nyt rigtigt valg giver 2 point, originalen giver 0 point.'">Ændret valg</p>
+            <p class="bc-voted" th:if="${pollView.legacyLateVote}" th:text="'Nyt valg efter genåbningen: ' + ${pollView.myVoteOptionLabel} + ' - rammer det, giver det 2 point. Kun valg indtastet før 3. juli kan give 5 point.'">Nyt valg efter genåbningen</p>
             <p class="bc-voted" th:if="${pollView.poll.isFreshAwardPoll() and pollView.myVote != null}" th:text="'Dit valg: ' + ${pollView.myVoteOptionLabel} + ' - rammer det, giver det 5 point.'">Dit valg</p>
             <p class="bc-voted" th:if="${pollView.poll.isFixedPointPoll() and pollView.myVote != null}" th:text="'Dit valg: ' + ${pollView.myVoteOptionLabel}">Dit valg</p>
 
