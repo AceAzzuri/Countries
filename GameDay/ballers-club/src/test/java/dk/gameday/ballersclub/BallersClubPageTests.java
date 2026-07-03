@@ -85,7 +85,7 @@ class BallersClubPageTests {
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Mikel Oyarzabal")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Iran")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Kun <strong>Hvem vinder VM 2026?</strong>, <strong>Golden Boot</strong> og <strong>Golden Glove</strong> bruger den nye regel")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Turneringens spiller og Turneringens unge spiller er nye, friske bonus-polls")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Turneringens spiller og Turneringens unge spiller er helt nye bonus-polls")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("NY")))
                 .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("Gianluigi Donnarumma"))));
     }

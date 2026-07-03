@@ -5,9 +5,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.dao.DataAccessResourceFailureException;
 
 import java.util.List;
+import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class PollServiceTests {
@@ -28,5 +32,20 @@ class PollServiceTests {
         assertThat(views.stream().map(view -> view.getTotalVotes())).allMatch(total -> total == 0);
         assertThat(views.stream().map(view -> view.getOptionResults()))
                 .allMatch(results -> results.stream().allMatch(result -> result.getPercentage() == 0));
+    }
+
+    @Test
+    void fixedPointPollCannotBeChangedAfterVote() {
+        PollVoteRepository voteRepository = mock(PollVoteRepository.class);
+        PollService pollService = new PollService(voteRepository);
+
+        pollService.vote(3L, 301L, "Azzuri");
+        when(voteRepository.findByPollIdAndUsernameIgnoreCase(3L, "Azzuri"))
+                .thenReturn(java.util.Optional.of(new dk.gameday.ballersclub.model.PollVote(3L, 301L, "Azzuri", LocalDateTime.now())));
+
+        assertThatThrownBy(() -> pollService.vote(3L, 302L, "Azzuri"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Du har allerede stemt");
+        verify(voteRepository, never()).save(org.mockito.Mockito.argThat(vote -> vote.getPollId().equals(3L) && vote.getOptionId().equals(302L)));
     }
 }

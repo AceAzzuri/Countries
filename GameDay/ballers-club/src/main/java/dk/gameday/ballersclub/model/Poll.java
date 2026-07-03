@@ -51,4 +51,8 @@ public class Poll {
     public boolean isFreshAwardPoll() {
         return id != null && (id == 7L || id == 10L);
     }
+
+    public boolean isFixedPointPoll() {
+        return id != null && (id == 3L || id == 11L);
+    }
 }
