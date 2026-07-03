@@ -32,31 +32,54 @@ class PollVoteSchemaMigratorTests {
         jdbcTemplate.update(
                 "insert into poll_votes (poll_id, option_id, username, submitted_at) values (4, 406, 'Late', timestamp '2026-07-03 12:00:00')"
         );
+        jdbcTemplate.update(
+                "insert into poll_votes (poll_id, option_id, username, submitted_at) values (4, 406, 'Azzuri', timestamp '2026-07-02 12:00:00')"
+        );
 
         new PollVoteSchemaMigrator(jdbcTemplate).run(new DefaultApplicationArguments());
 
         Integer votes = jdbcTemplate.queryForObject("select count(*) from poll_votes", Integer.class);
         Long originalOptionId = jdbcTemplate.queryForObject(
-                "select original_option_id from poll_votes where username = 'Azzuri'",
+                "select original_option_id from poll_votes where username = 'Azzuri' and poll_id = 1",
                 Long.class
         );
         Boolean changed = jdbcTemplate.queryForObject(
-                "select changed_after_quarter_final from poll_votes where username = 'Azzuri'",
+                "select changed_after_quarter_final from poll_votes where username = 'Azzuri' and poll_id = 1",
                 Boolean.class
         );
         Boolean oldVoteBeforeReopen = jdbcTemplate.queryForObject(
-                "select original_vote_before_reopen from poll_votes where username = 'Azzuri'",
+                "select original_vote_before_reopen from poll_votes where username = 'Azzuri' and poll_id = 1",
                 Boolean.class
         );
         Boolean lateVoteBeforeReopen = jdbcTemplate.queryForObject(
                 "select original_vote_before_reopen from poll_votes where username = 'Late'",
                 Boolean.class
         );
+        Long azzuriGoldenGloveOption = jdbcTemplate.queryForObject(
+                "select option_id from poll_votes where username = 'Azzuri' and poll_id = 4",
+                Long.class
+        );
+        Long azzuriGoldenGloveOriginalOption = jdbcTemplate.queryForObject(
+                "select original_option_id from poll_votes where username = 'Azzuri' and poll_id = 4",
+                Long.class
+        );
+        Boolean azzuriGoldenGloveChanged = jdbcTemplate.queryForObject(
+                "select changed_after_quarter_final from poll_votes where username = 'Azzuri' and poll_id = 4",
+                Boolean.class
+        );
+        Integer appliedFixes = jdbcTemplate.queryForObject(
+                "select count(*) from data_fixes where id = 'restore-azzuri-golden-glove-emiliano-martinez'",
+                Integer.class
+        );
 
-        assertThat(votes).isEqualTo(2);
+        assertThat(votes).isEqualTo(3);
         assertThat(originalOptionId).isEqualTo(102L);
         assertThat(changed).isFalse();
         assertThat(oldVoteBeforeReopen).isTrue();
         assertThat(lateVoteBeforeReopen).isFalse();
+        assertThat(azzuriGoldenGloveOption).isEqualTo(407L);
+        assertThat(azzuriGoldenGloveOriginalOption).isEqualTo(407L);
+        assertThat(azzuriGoldenGloveChanged).isFalse();
+        assertThat(appliedFixes).isEqualTo(1);
     }
 }

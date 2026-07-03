@@ -26,5 +26,38 @@ public class PollVoteSchemaMigrator implements ApplicationRunner {
                 where poll_id in (1, 2, 4)
                   and submitted_at < timestamp '2026-07-03 00:00:00'
                 """);
+        restoreAzzuriGoldenGloveOriginalPick();
+    }
+
+    private void restoreAzzuriGoldenGloveOriginalPick() {
+        String fixId = "restore-azzuri-golden-glove-emiliano-martinez";
+        jdbcTemplate.execute("""
+                create table if not exists data_fixes (
+                    id varchar(120) primary key,
+                    applied_at timestamp not null
+                )
+                """);
+
+        Integer alreadyApplied = jdbcTemplate.queryForObject(
+                "select count(*) from data_fixes where id = ?",
+                Integer.class,
+                fixId
+        );
+        if (alreadyApplied != null && alreadyApplied > 0) {
+            return;
+        }
+
+        int updated = jdbcTemplate.update("""
+                update poll_votes
+                set option_id = 407,
+                    original_option_id = 407,
+                    changed_after_quarter_final = false,
+                    original_vote_before_reopen = true
+                where poll_id = 4
+                  and lower(username) = lower('Azzuri')
+                """);
+        if (updated > 0) {
+            jdbcTemplate.update("insert into data_fixes (id, applied_at) values (?, current_timestamp)", fixId);
+        }
     }
 }
