@@ -1983,6 +1983,27 @@
     margin-left: 8px;
 }
 
+.bc-bonus-update {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    width: 100%;
+    margin: 4px 0 6px;
+    padding: 10px 12px;
+    border: 1px solid rgba(143, 211, 255, 0.42);
+    border-radius: 8px;
+    background: rgba(143, 211, 255, 0.12);
+}
+
+.bc-bonus-update p {
+    margin: 0;
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: 900;
+    line-height: 1.35;
+}
+
 .bc-poll-note-highlight,
 .bc-feed-summary strong,
 .bc-point-system-card strong {

@@ -79,6 +79,21 @@ class PollServiceTests {
     }
 
     @Test
+    void clickingSameLegacyAwardOptionDoesNotMarkVoteAsChanged() {
+        PollVoteRepository voteRepository = mock(PollVoteRepository.class);
+        PollService pollService = new PollService(voteRepository);
+        var franceVote = new dk.gameday.ballersclub.model.PollVote(1L, 102L, "Azzuri", LocalDateTime.of(2026, 7, 2, 12, 0));
+
+        when(voteRepository.findByPollIdAndUsernameIgnoreCase(1L, "Azzuri")).thenReturn(Optional.of(franceVote));
+
+        pollService.vote(1L, 102L, "Azzuri");
+
+        assertThat(franceVote.isChangedAfterQuarterFinal()).isFalse();
+        assertThat(franceVote.getOptionId()).isEqualTo(102L);
+        verify(voteRepository, never()).save(franceVote);
+    }
+
+    @Test
     void legacyAwardVoteEnteredAfterReopenIsShownAsTwoPointLateVote() {
         PollVoteRepository voteRepository = mock(PollVoteRepository.class);
         PollService pollService = new PollService(voteRepository);

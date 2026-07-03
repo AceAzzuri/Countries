@@ -62,6 +62,9 @@ public class PollService {
             if (!poll.isLegacyAdjustableAwardPoll()) {
                 throw new IllegalArgumentException("Du har allerede stemt på denne poll.");
             }
+            if (existingVote.getOptionId().equals(optionId)) {
+                return;
+            }
             existingVote.updateOption(optionId, LocalDateTime.now());
             voteRepository.save(existingVote);
             return;

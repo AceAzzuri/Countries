@@ -65,6 +65,9 @@ public class PollVote {
         if (this.originalOptionId == null) {
             this.originalOptionId = this.optionId;
         }
+        if (this.optionId.equals(optionId)) {
+            return;
+        }
         if (!this.optionId.equals(optionId)) {
             this.changedAfterQuarterFinal = true;
         }

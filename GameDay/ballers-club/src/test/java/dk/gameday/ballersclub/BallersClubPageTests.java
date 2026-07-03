@@ -39,7 +39,15 @@ class BallersClubPageTests {
     @Test
     void publicPagesRender() throws Exception {
         mockMvc.perform(get("/")).andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/arena"));
-        mockMvc.perform(get("/arena")).andExpect(status().isOk()).andExpect(view().name("worldcup"));
+        mockMvc.perform(get("/arena"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("worldcup"))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("<strong>3 point</strong><span>Præcis score</span>")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("<strong>1 point</strong><span>Korrekt udfald</span>")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("<span class=\"bc-new-badge\">NY</span><span>Fra kvartfinalen</span>")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("<span>Korrekt udfald 3 point - præcis score 5 point</span>")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("<strong>0 point</strong><span>Forkert gæt</span>")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("<strong>Kickoff</strong><span>Predictions låser</span>")));
         mockMvc.perform(get("/polls")).andExpect(status().isOk()).andExpect(view().name("polls"));
         mockMvc.perform(get("/leaderboard")).andExpect(status().isOk()).andExpect(view().name("leaderboard"));
         mockMvc.perform(get("/info")).andExpect(status().isOk()).andExpect(view().name("info"));
@@ -84,7 +92,10 @@ class BallersClubPageTests {
                 .andExpect(status().isOk())
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Mikel Oyarzabal")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Iran")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("OPDATERING")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Gamle bonusvalg fra før 3. juli kan beholdes for 6 point")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Kun <strong>Hvem vinder VM 2026?</strong>, <strong>Golden Boot</strong> og <strong>Golden Glove</strong> bruger den nye regel")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("giver det 6 point hvis det rammer")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Turneringens spiller og Turneringens unge spiller er helt nye bonus-polls")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("NY")))
                 .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("Gianluigi Donnarumma"))));
@@ -111,7 +122,7 @@ class BallersClubPageTests {
                 .andExpect(status().isOk())
                 .andExpect(view().name("polls"))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("France")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("5 point")));
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("2 point")));
 
         mockMvc.perform(post("/polls/vote")
                         .session(session)
@@ -126,6 +137,30 @@ class BallersClubPageTests {
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("France")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Spain")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("2 point")));
+    }
+
+    @Test
+    void fixedBonusPollShowsStatsAfterVote() throws Exception {
+        MockHttpSession session = (MockHttpSession) mockMvc.perform(post("/signup")
+                        .param("username", "fixed poll tester")
+                        .param("email", "fixed-poll@example.com"))
+                .andExpect(status().is3xxRedirection())
+                .andReturn()
+                .getRequest()
+                .getSession(false);
+
+        mockMvc.perform(post("/polls/vote")
+                        .session(session)
+                        .param("pollId", "3")
+                        .param("optionId", "305"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/polls"));
+
+        mockMvc.perform(get("/polls").session(session))
+                .andExpect(status().isOk())
+                .andExpect(view().name("polls"))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Dit valg: Iraq")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("100%")));
     }
 
     @Test
