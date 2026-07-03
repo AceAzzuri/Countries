@@ -27,23 +27,12 @@ public class PollVoteSchemaMigrator implements ApplicationRunner {
                   and submitted_at < timestamp '2026-07-03 00:00:00'
                 """);
         restoreAzzuriGoldenGloveOriginalPick();
+        reopenHyzzPlayerOfTournamentPick();
     }
 
     private void restoreAzzuriGoldenGloveOriginalPick() {
         String fixId = "restore-azzuri-golden-glove-emiliano-martinez";
-        jdbcTemplate.execute("""
-                create table if not exists data_fixes (
-                    id varchar(120) primary key,
-                    applied_at timestamp not null
-                )
-                """);
-
-        Integer alreadyApplied = jdbcTemplate.queryForObject(
-                "select count(*) from data_fixes where id = ?",
-                Integer.class,
-                fixId
-        );
-        if (alreadyApplied != null && alreadyApplied > 0) {
+        if (isFixApplied(fixId)) {
             return;
         }
 
@@ -59,5 +48,36 @@ public class PollVoteSchemaMigrator implements ApplicationRunner {
         if (updated > 0) {
             jdbcTemplate.update("insert into data_fixes (id, applied_at) values (?, current_timestamp)", fixId);
         }
+    }
+
+    private void reopenHyzzPlayerOfTournamentPick() {
+        String fixId = "reopen-hyzz-player-of-tournament";
+        if (isFixApplied(fixId)) {
+            return;
+        }
+
+        int deleted = jdbcTemplate.update("""
+                delete from poll_votes
+                where poll_id = 7
+                  and lower(username) = lower('Hyzz')
+                """);
+        if (deleted > 0) {
+            jdbcTemplate.update("insert into data_fixes (id, applied_at) values (?, current_timestamp)", fixId);
+        }
+    }
+
+    private boolean isFixApplied(String fixId) {
+        jdbcTemplate.execute("""
+                create table if not exists data_fixes (
+                    id varchar(120) primary key,
+                    applied_at timestamp not null
+                )
+                """);
+        Integer alreadyApplied = jdbcTemplate.queryForObject(
+                "select count(*) from data_fixes where id = ?",
+                Integer.class,
+                fixId
+        );
+        return alreadyApplied != null && alreadyApplied > 0;
     }
 }

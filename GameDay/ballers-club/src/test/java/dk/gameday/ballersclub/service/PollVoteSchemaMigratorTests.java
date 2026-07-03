@@ -35,6 +35,9 @@ class PollVoteSchemaMigratorTests {
         jdbcTemplate.update(
                 "insert into poll_votes (poll_id, option_id, username, submitted_at) values (4, 406, 'Azzuri', timestamp '2026-07-02 12:00:00')"
         );
+        jdbcTemplate.update(
+                "insert into poll_votes (poll_id, option_id, username, submitted_at) values (7, 701, 'Hyzz', timestamp '2026-07-03 12:00:00')"
+        );
 
         new PollVoteSchemaMigrator(jdbcTemplate).run(new DefaultApplicationArguments());
 
@@ -71,6 +74,14 @@ class PollVoteSchemaMigratorTests {
                 "select count(*) from data_fixes where id = 'restore-azzuri-golden-glove-emiliano-martinez'",
                 Integer.class
         );
+        Integer hyzzPlayerOfTournamentVotes = jdbcTemplate.queryForObject(
+                "select count(*) from poll_votes where username = 'Hyzz' and poll_id = 7",
+                Integer.class
+        );
+        Integer hyzzFixes = jdbcTemplate.queryForObject(
+                "select count(*) from data_fixes where id = 'reopen-hyzz-player-of-tournament'",
+                Integer.class
+        );
 
         assertThat(votes).isEqualTo(3);
         assertThat(originalOptionId).isEqualTo(102L);
@@ -81,5 +92,7 @@ class PollVoteSchemaMigratorTests {
         assertThat(azzuriGoldenGloveOriginalOption).isEqualTo(407L);
         assertThat(azzuriGoldenGloveChanged).isFalse();
         assertThat(appliedFixes).isEqualTo(1);
+        assertThat(hyzzPlayerOfTournamentVotes).isZero();
+        assertThat(hyzzFixes).isEqualTo(1);
     }
 }
