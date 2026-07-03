@@ -25,7 +25,6 @@ public class PollService {
         seedPolls();
     }
 
-    @Transactional(readOnly = true)
     public List<PollView> getActivePollViews(String username) {
         String normalizedUsername = normalizeUsername(username);
         return polls.stream()
