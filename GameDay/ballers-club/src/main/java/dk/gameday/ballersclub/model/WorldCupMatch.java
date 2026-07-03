@@ -42,6 +42,7 @@ public class WorldCupMatch {
     private String venue;
     private Integer homeScore;
     private Integer awayScore;
+    private String advancingTeam;
 
     protected WorldCupMatch() {
     }
@@ -62,6 +63,10 @@ public class WorldCupMatch {
         return roundLabel != null && roundLabel.startsWith("Group ");
     }
 
+    public boolean isKnockoutMatch() {
+        return !isGroupMatch();
+    }
+
     public boolean isQuarterFinalOrLater() {
         return roundLabel != null && (
                 roundLabel.equals("Quarter-final")
@@ -73,6 +78,10 @@ public class WorldCupMatch {
 
     public boolean hasResult() {
         return homeScore != null && awayScore != null;
+    }
+
+    public boolean isDraw() {
+        return hasResult() && homeScore.equals(awayScore);
     }
 
     public String getKickoffLabel() {
@@ -95,13 +104,31 @@ public class WorldCupMatch {
     }
 
     public void updateResult(Integer homeScore, Integer awayScore) {
+        updateResult(homeScore, awayScore, null);
+    }
+
+    public void updateResult(Integer homeScore, Integer awayScore, String advancingTeam) {
         this.homeScore = homeScore;
         this.awayScore = awayScore;
+        if (isGroupMatch()) {
+            this.advancingTeam = null;
+            return;
+        }
+        if (homeScore != null && awayScore != null && homeScore.equals(awayScore)) {
+            this.advancingTeam = advancingTeam;
+            return;
+        }
+        if (homeScore != null && awayScore != null) {
+            this.advancingTeam = homeScore > awayScore ? homeTeam : awayTeam;
+            return;
+        }
+        this.advancingTeam = null;
     }
 
     public void clearResult() {
         this.homeScore = null;
         this.awayScore = null;
+        this.advancingTeam = null;
     }
 
     public String getHomeBadge() {
@@ -164,5 +191,9 @@ public class WorldCupMatch {
 
     public Integer getAwayScore() {
         return awayScore;
+    }
+
+    public String getAdvancingTeam() {
+        return advancingTeam;
     }
 }

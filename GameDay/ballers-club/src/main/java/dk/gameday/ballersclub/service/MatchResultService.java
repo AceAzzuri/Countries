@@ -18,10 +18,16 @@ public class MatchResultService {
 
     @Transactional
     public void updateResult(Long matchId, String homeScoreValue, String awayScoreValue) {
+        updateResult(matchId, homeScoreValue, awayScoreValue, null);
+    }
+
+    @Transactional
+    public void updateResult(Long matchId, String homeScoreValue, String awayScoreValue, String advancingTeamValue) {
         WorldCupMatch match = findMatch(matchId);
         int homeScore = parseScore(homeScoreValue);
         int awayScore = parseScore(awayScoreValue);
-        match.updateResult(homeScore, awayScore);
+        String advancingTeam = resolveAdvancingTeam(match, homeScore, awayScore, advancingTeamValue);
+        match.updateResult(homeScore, awayScore, advancingTeam);
         matchRepository.save(match);
     }
 
@@ -33,9 +39,11 @@ public class MatchResultService {
     }
 
     @Transactional
-    public int updateResults(List<Long> matchIds, List<String> homeScoreValues, List<String> awayScoreValues) {
-        if (matchIds == null || homeScoreValues == null || awayScoreValues == null
-                || matchIds.size() != homeScoreValues.size() || matchIds.size() != awayScoreValues.size()) {
+    public int updateResults(List<Long> matchIds, List<String> homeScoreValues, List<String> awayScoreValues, List<String> advancingTeamValues) {
+        if (matchIds == null || homeScoreValues == null || awayScoreValues == null || advancingTeamValues == null
+                || matchIds.size() != homeScoreValues.size()
+                || matchIds.size() != awayScoreValues.size()
+                || matchIds.size() != advancingTeamValues.size()) {
             throw new IllegalArgumentException("Kunne ikke læse kampene. Prøv at gemme igen.");
         }
 
@@ -43,6 +51,7 @@ public class MatchResultService {
         for (int i = 0; i < matchIds.size(); i++) {
             String home = homeScoreValues.get(i);
             String away = awayScoreValues.get(i);
+            String advancingTeam = advancingTeamValues.get(i);
             boolean homeBlank = home == null || home.isBlank();
             boolean awayBlank = away == null || away.isBlank();
             if (homeBlank && awayBlank) {
@@ -51,13 +60,32 @@ public class MatchResultService {
             if (homeBlank || awayBlank) {
                 throw new IllegalArgumentException("Indtast begge resultater for hver kamp, du vil gemme.");
             }
-            updateResult(matchIds.get(i), home, away);
+            updateResult(matchIds.get(i), home, away, advancingTeam);
             saved++;
         }
         if (saved == 0) {
             throw new IllegalArgumentException("Der var ingen udfyldte resultater at gemme.");
         }
         return saved;
+    }
+
+    private String resolveAdvancingTeam(WorldCupMatch match, int homeScore, int awayScore, String advancingTeamValue) {
+        if (match.isGroupMatch()) {
+            return null;
+        }
+
+        if (homeScore != awayScore) {
+            return homeScore > awayScore ? match.getHomeTeam() : match.getAwayTeam();
+        }
+
+        String advancingTeam = advancingTeamValue == null ? null : advancingTeamValue.trim();
+        if (advancingTeam == null || advancingTeam.isBlank()) {
+            throw new IllegalArgumentException("Vælg hvem der går videre, når kampen ender uafgjort.");
+        }
+        if (!advancingTeam.equals(match.getHomeTeam()) && !advancingTeam.equals(match.getAwayTeam())) {
+            throw new IllegalArgumentException("Vælg et af de to hold, der faktisk spiller kampen.");
+        }
+        return advancingTeam;
     }
 
     private WorldCupMatch findMatch(Long matchId) {

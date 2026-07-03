@@ -2300,6 +2300,7 @@
 .bc-result-form {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 8px;
 }
 
@@ -2313,6 +2314,26 @@
     font-size: 18px;
     font-weight: 900;
     text-align: center;
+}
+
+.bc-result-form select {
+    min-width: 190px;
+    height: 44px;
+    padding: 0 12px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.bc-admin-note {
+    margin: -8px 0 0;
+    color: #FFFFFF;
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.45;
 }
 
 .bc-result-form span {

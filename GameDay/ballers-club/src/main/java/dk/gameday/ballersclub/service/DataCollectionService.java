@@ -192,7 +192,8 @@ public class DataCollectionService {
         if (awayScore > homeScore) {
             return prediction.getMatch().getAwayTeam();
         }
-        return "det uafgjorte resultat";
+        String advancingTeam = prediction.getMatch().getAdvancingTeam();
+        return advancingTeam != null ? advancingTeam : "det uafgjorte resultat";
     }
 
     private int percentage(int count, int total) {

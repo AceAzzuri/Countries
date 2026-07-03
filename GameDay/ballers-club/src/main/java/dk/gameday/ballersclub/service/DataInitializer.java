@@ -244,9 +244,15 @@ public class DataInitializer implements CommandLineRunner {
                 .filter(match -> matchId.equals(match.getId()))
                 .filter(WorldCupMatch::hasResult)
                 .findFirst()
-                .map(match -> match.getHomeScore() > match.getAwayScore()
-                        ? match.getHomeTeam()
-                        : match.getAwayTeam());
+                .flatMap(match -> {
+                    if (match.getHomeScore() > match.getAwayScore()) {
+                        return Optional.of(match.getHomeTeam());
+                    }
+                    if (match.getAwayScore() > match.getHomeScore()) {
+                        return Optional.of(match.getAwayTeam());
+                    }
+                    return Optional.ofNullable(match.getAdvancingTeam());
+                });
     }
 
     private Optional<String> loserOfMatch(Long matchId, List<WorldCupMatch> allMatches) {
@@ -254,9 +260,20 @@ public class DataInitializer implements CommandLineRunner {
                 .filter(match -> matchId.equals(match.getId()))
                 .filter(WorldCupMatch::hasResult)
                 .findFirst()
-                .map(match -> match.getHomeScore() > match.getAwayScore()
-                        ? match.getAwayTeam()
-                        : match.getHomeTeam());
+                .flatMap(match -> {
+                    if (match.getHomeScore() > match.getAwayScore()) {
+                        return Optional.of(match.getAwayTeam());
+                    }
+                    if (match.getAwayScore() > match.getHomeScore()) {
+                        return Optional.of(match.getHomeTeam());
+                    }
+                    if (match.getAdvancingTeam() == null) {
+                        return Optional.empty();
+                    }
+                    return Optional.of(match.getAdvancingTeam().equals(match.getHomeTeam())
+                            ? match.getAwayTeam()
+                            : match.getHomeTeam());
+                });
     }
 
     private Long parseMatchId(String slot) {

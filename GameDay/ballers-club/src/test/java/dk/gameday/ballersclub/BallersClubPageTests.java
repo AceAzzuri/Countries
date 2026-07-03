@@ -3,6 +3,7 @@ package dk.gameday.ballersclub;
 import dk.gameday.ballersclub.repository.PoolRepository;
 import dk.gameday.ballersclub.repository.ArenaChatMessageRepository;
 import dk.gameday.ballersclub.repository.WorldCupMatchRepository;
+import dk.gameday.ballersclub.service.DataInitializer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,6 +36,9 @@ class BallersClubPageTests {
 
     @Autowired
     private WorldCupMatchRepository worldCupMatchRepository;
+
+    @Autowired
+    private DataInitializer dataInitializer;
 
     @Test
     void publicPagesRender() throws Exception {
@@ -237,10 +241,11 @@ class BallersClubPageTests {
                 .getSession(false);
 
         mockMvc.perform(post("/admin/results/all")
-                        .session(adminSession)
-                        .param("matchIds", "13", "14")
-                        .param("homeScores", "2", "1")
-                        .param("awayScores", "1", "0"))
+                .session(adminSession)
+                .param("matchIds", "13", "14")
+                .param("homeScores", "2", "1")
+                .param("awayScores", "1", "0")
+                .param("advancingTeams", "", ""))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/admin/results"));
 
@@ -250,6 +255,50 @@ class BallersClubPageTests {
         org.junit.jupiter.api.Assertions.assertEquals(1, match13.getAwayScore());
         org.junit.jupiter.api.Assertions.assertEquals(1, match14.getHomeScore());
         org.junit.jupiter.api.Assertions.assertEquals(0, match14.getAwayScore());
+    }
+
+    @Test
+    void adminCanMarkAdvancingTeamForDrawnKnockoutMatch() throws Exception {
+        MockHttpSession adminSession = (MockHttpSession) mockMvc.perform(post("/signup")
+                        .param("username", "Azzuri")
+                        .param("email", "azzuri@example.com"))
+                .andExpect(status().is3xxRedirection())
+                .andReturn()
+                .getRequest()
+                .getSession(false);
+
+        var match81 = worldCupMatchRepository.findById(81L).orElseThrow();
+        match81.updateResult(1, 0);
+        worldCupMatchRepository.save(match81);
+
+        try {
+            mockMvc.perform(post("/admin/results")
+                            .session(adminSession)
+                            .param("matchId", "82")
+                            .param("homeScore", "2")
+                            .param("awayScore", "2")
+                            .param("advancingTeam", "Belgium"))
+                    .andExpect(status().is3xxRedirection())
+                    .andExpect(redirectedUrl("/admin/results"));
+
+            var match82 = worldCupMatchRepository.findById(82L).orElseThrow();
+            org.junit.jupiter.api.Assertions.assertEquals("Belgium", match82.getAdvancingTeam());
+            org.junit.jupiter.api.Assertions.assertEquals(2, match82.getHomeScore());
+            org.junit.jupiter.api.Assertions.assertEquals(2, match82.getAwayScore());
+
+            dataInitializer.run();
+
+            var match94 = worldCupMatchRepository.findById(94L).orElseThrow();
+            org.junit.jupiter.api.Assertions.assertEquals("USA", match94.getHomeTeam());
+            org.junit.jupiter.api.Assertions.assertEquals("Belgium", match94.getAwayTeam());
+        } finally {
+            match81.clearResult();
+            worldCupMatchRepository.save(match81);
+            var match82 = worldCupMatchRepository.findById(82L).orElseThrow();
+            match82.clearResult();
+            worldCupMatchRepository.save(match82);
+            dataInitializer.run();
+        }
     }
 
     @Test
@@ -353,6 +402,23 @@ class BallersClubPageTests {
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("2 ramte")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Præcis: Azzuri")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Udfald: Outcome User")));
+    }
+
+    @Test
+    void adminResultsPageShowsAdvancingTeamInstruction() throws Exception {
+        MockHttpSession adminSession = (MockHttpSession) mockMvc.perform(post("/signup")
+                        .param("username", "Azzuri")
+                        .param("email", "azzuri@example.com"))
+                .andExpect(status().is3xxRedirection())
+                .andReturn()
+                .getRequest()
+                .getSession(false);
+
+        mockMvc.perform(get("/admin/results").session(adminSession))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Hvis ordinær tid ender uafgjort, skal du også vælge hvem der går videre")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Hold der går videre")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Ved uafgjort i ordinær tid skal du vælge holdet, der går videre")));
     }
 
     private void openPredictionMatch(Long matchId) {

@@ -32,6 +32,7 @@
         <p class="bc-kicker">Admin</p>
         <h1>Kampresultater</h1>
         <p>Indtast resultater her. Leaderboard, point og community feed opdateres automatisk.</p>
+        <p><strong>Knockout-kampe:</strong> Hvis ordinær tid ender uafgjort, skal du også vælge hvem der går videre. Det er det valg, spillet bruger til næste runde.</p>
         <a class="bc-primary compact" href="/admin/consent-export.csv">Download samtykke-emails</a>
     </section>
 
@@ -94,8 +95,20 @@
                 <span>:</span>
                 <input inputmode="numeric" pattern="[0-9]*" name="awayScore" aria-label="Udeholdets mål"
                        th:value="${match.awayScore != null ? match.awayScore : ''}">
+                <select name="advancingTeam" aria-label="Hold der går videre"
+                        th:if="${!match.groupMatch}">
+                    <option value="">Går videre</option>
+                    <option th:value="${match.homeTeam}" th:text="${match.homeTeam}"
+                            th:selected="${match.advancingTeam == match.homeTeam}">Hjemmehold</option>
+                    <option th:value="${match.awayTeam}" th:text="${match.awayTeam}"
+                            th:selected="${match.advancingTeam == match.awayTeam}">Udehold</option>
+                </select>
                 <button class="bc-primary compact" type="submit">Gem</button>
             </form>
+
+            <p class="bc-admin-note" th:if="${!match.groupMatch}">
+                Ved uafgjort i ordinær tid skal du vælge holdet, der går videre efter forlængelse eller straffe.
+            </p>
 
             <form method="post" action="/admin/results/clear" th:if="${match.hasResult()}" data-preserve-scroll>
                 <input type="hidden" name="matchId" th:value="${match.id}">

@@ -402,6 +402,7 @@ public class BallersClubController {
             @RequestParam Long matchId,
             @RequestParam String homeScore,
             @RequestParam String awayScore,
+            @RequestParam(required = false) String advancingTeam,
             HttpSession session,
             RedirectAttributes redirectAttributes
     ) {
@@ -411,7 +412,7 @@ public class BallersClubController {
             return "redirect:/login";
         }
         try {
-            matchResultService.updateResult(matchId, homeScore, awayScore);
+            matchResultService.updateResult(matchId, homeScore, awayScore, advancingTeam);
             redirectAttributes.addFlashAttribute("success", "Resultat gemt.");
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
@@ -424,6 +425,7 @@ public class BallersClubController {
             @RequestParam List<Long> matchIds,
             @RequestParam List<String> homeScores,
             @RequestParam List<String> awayScores,
+            @RequestParam(required = false) List<String> advancingTeams,
             HttpSession session,
             RedirectAttributes redirectAttributes
     ) {
@@ -433,7 +435,10 @@ public class BallersClubController {
             return "redirect:/login";
         }
         try {
-            int saved = matchResultService.updateResults(matchIds, homeScores, awayScores);
+            List<String> safeAdvancingTeams = advancingTeams == null
+                    ? java.util.Collections.nCopies(matchIds.size(), "")
+                    : advancingTeams;
+            int saved = matchResultService.updateResults(matchIds, homeScores, awayScores, safeAdvancingTeams);
             redirectAttributes.addFlashAttribute("success", saved + " resultater gemt.");
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());

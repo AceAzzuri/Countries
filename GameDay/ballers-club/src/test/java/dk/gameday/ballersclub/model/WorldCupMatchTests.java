@@ -44,4 +44,25 @@ class WorldCupMatchTests {
         assertThat(match.isPredictionOpen()).isTrue();
         assertThat(match.getStatusLabel()).isEqualTo("Åben");
     }
+
+    @Test
+    void knockoutMatchCanStoreAdvancingTeamOnDraw() {
+        WorldCupMatch match = new WorldCupMatch(
+                "Round of 32",
+                "Senegal",
+                "Belgium",
+                LocalDateTime.now(ZoneId.of("Europe/Copenhagen")).plusDays(1),
+                "Seattle Stadium"
+        );
+
+        match.updateResult(2, 2, "Belgium");
+
+        assertThat(match.hasResult()).isTrue();
+        assertThat(match.isDraw()).isTrue();
+        assertThat(match.getAdvancingTeam()).isEqualTo("Belgium");
+
+        match.clearResult();
+
+        assertThat(match.getAdvancingTeam()).isNull();
+    }
 }

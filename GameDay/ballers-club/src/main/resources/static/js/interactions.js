@@ -286,7 +286,7 @@
             form.dataset.preserveScroll = "";
 
             resultForms.forEach(function (resultForm) {
-                ["matchId", "homeScore", "awayScore"].forEach(function (name) {
+                ["matchId", "homeScore", "awayScore", "advancingTeam"].forEach(function (name) {
                     const source = resultForm.querySelector("[name='" + name + "']");
                     if (!source) {
                         return;
