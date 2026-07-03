@@ -111,7 +111,7 @@ public class DataInitializer implements CommandLineRunner {
         matchRepository.saveAll(fixtures);
     }
 
-    private void syncKnockoutFixtures() {
+    public void syncKnockoutFixtures() {
         List<WorldCupMatch> allMatches = matchRepository.findAll();
         Set<String> usedThirdPlaceTeams = new java.util.HashSet<>();
 

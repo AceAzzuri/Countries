@@ -11,9 +11,11 @@ import java.util.List;
 public class MatchResultService {
 
     private final WorldCupMatchRepository matchRepository;
+    private final DataInitializer dataInitializer;
 
-    public MatchResultService(WorldCupMatchRepository matchRepository) {
+    public MatchResultService(WorldCupMatchRepository matchRepository, DataInitializer dataInitializer) {
         this.matchRepository = matchRepository;
+        this.dataInitializer = dataInitializer;
     }
 
     @Transactional
@@ -29,6 +31,7 @@ public class MatchResultService {
         String advancingTeam = resolveAdvancingTeam(match, homeScore, awayScore, advancingTeamValue);
         match.updateResult(homeScore, awayScore, advancingTeam);
         matchRepository.save(match);
+        dataInitializer.syncKnockoutFixtures();
     }
 
     @Transactional
@@ -36,6 +39,7 @@ public class MatchResultService {
         WorldCupMatch match = findMatch(matchId);
         match.clearResult();
         matchRepository.save(match);
+        dataInitializer.syncKnockoutFixtures();
     }
 
     @Transactional
@@ -60,12 +64,18 @@ public class MatchResultService {
             if (homeBlank || awayBlank) {
                 throw new IllegalArgumentException("Indtast begge resultater for hver kamp, du vil gemme.");
             }
-            updateResult(matchIds.get(i), home, away, advancingTeam);
+            WorldCupMatch match = findMatch(matchIds.get(i));
+            int homeScore = parseScore(home);
+            int awayScore = parseScore(away);
+            String resolvedAdvancingTeam = resolveAdvancingTeam(match, homeScore, awayScore, advancingTeam);
+            match.updateResult(homeScore, awayScore, resolvedAdvancingTeam);
+            matchRepository.save(match);
             saved++;
         }
         if (saved == 0) {
             throw new IllegalArgumentException("Der var ingen udfyldte resultater at gemme.");
         }
+        dataInitializer.syncKnockoutFixtures();
         return saved;
     }
 

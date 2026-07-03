@@ -3,7 +3,6 @@ package dk.gameday.ballersclub;
 import dk.gameday.ballersclub.repository.PoolRepository;
 import dk.gameday.ballersclub.repository.ArenaChatMessageRepository;
 import dk.gameday.ballersclub.repository.WorldCupMatchRepository;
-import dk.gameday.ballersclub.service.DataInitializer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,9 +35,6 @@ class BallersClubPageTests {
 
     @Autowired
     private WorldCupMatchRepository worldCupMatchRepository;
-
-    @Autowired
-    private DataInitializer dataInitializer;
 
     @Test
     void publicPagesRender() throws Exception {
@@ -258,7 +254,7 @@ class BallersClubPageTests {
     }
 
     @Test
-    void adminCanMarkAdvancingTeamForDrawnKnockoutMatch() throws Exception {
+    void adminCanSaveKnockoutResultsAndUpdateNextRound() throws Exception {
         MockHttpSession adminSession = (MockHttpSession) mockMvc.perform(post("/signup")
                         .param("username", "Azzuri")
                         .param("email", "azzuri@example.com"))
@@ -267,11 +263,27 @@ class BallersClubPageTests {
                 .getRequest()
                 .getSession(false);
 
-        var match81 = worldCupMatchRepository.findById(81L).orElseThrow();
-        match81.updateResult(1, 0);
-        worldCupMatchRepository.save(match81);
-
         try {
+            mockMvc.perform(post("/admin/results")
+                            .session(adminSession)
+                            .param("matchId", "73")
+                            .param("homeScore", "0")
+                            .param("awayScore", "1"))
+                    .andExpect(status().is3xxRedirection())
+                    .andExpect(redirectedUrl("/admin/results"));
+
+            mockMvc.perform(post("/admin/results")
+                            .session(adminSession)
+                            .param("matchId", "75")
+                            .param("homeScore", "0")
+                            .param("awayScore", "1"))
+                    .andExpect(status().is3xxRedirection())
+                    .andExpect(redirectedUrl("/admin/results"));
+
+            var match89 = worldCupMatchRepository.findById(89L).orElseThrow();
+            org.junit.jupiter.api.Assertions.assertEquals("Canada", match89.getHomeTeam());
+            org.junit.jupiter.api.Assertions.assertEquals("Morocco", match89.getAwayTeam());
+
             mockMvc.perform(post("/admin/results")
                             .session(adminSession)
                             .param("matchId", "82")
@@ -285,19 +297,19 @@ class BallersClubPageTests {
             org.junit.jupiter.api.Assertions.assertEquals("Belgium", match82.getAdvancingTeam());
             org.junit.jupiter.api.Assertions.assertEquals(2, match82.getHomeScore());
             org.junit.jupiter.api.Assertions.assertEquals(2, match82.getAwayScore());
-
-            dataInitializer.run();
-
-            var match94 = worldCupMatchRepository.findById(94L).orElseThrow();
-            org.junit.jupiter.api.Assertions.assertEquals("USA", match94.getHomeTeam());
-            org.junit.jupiter.api.Assertions.assertEquals("Belgium", match94.getAwayTeam());
         } finally {
-            match81.clearResult();
-            worldCupMatchRepository.save(match81);
-            var match82 = worldCupMatchRepository.findById(82L).orElseThrow();
-            match82.clearResult();
-            worldCupMatchRepository.save(match82);
-            dataInitializer.run();
+            worldCupMatchRepository.findById(73L).ifPresent(match -> {
+                match.clearResult();
+                worldCupMatchRepository.save(match);
+            });
+            worldCupMatchRepository.findById(75L).ifPresent(match -> {
+                match.clearResult();
+                worldCupMatchRepository.save(match);
+            });
+            worldCupMatchRepository.findById(82L).ifPresent(match -> {
+                match.clearResult();
+                worldCupMatchRepository.save(match);
+            });
         }
     }
 
