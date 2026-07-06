@@ -96,7 +96,8 @@ class BallersClubPageTests {
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Gamle bonusvalg fra før 3. juli kan beholdes for 6 point")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Kun <strong>Hvem vinder VM 2026?</strong>, <strong>Golden Boot</strong> og <strong>Golden Glove</strong> bruger den nye regel")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("giver det 6 point hvis det rammer")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Turneringens spiller og Turneringens unge spiller er helt nye bonus-polls")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Turneringens spiller og Turneringens unge spiller er helt nye bonus-polls, låses efter første valg og giver 3 point ved rigtigt valg")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Point afventer bekræftelse")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("NY")))
                 .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("Gianluigi Donnarumma"))));
     }
@@ -160,6 +161,7 @@ class BallersClubPageTests {
                 .andExpect(status().isOk())
                 .andExpect(view().name("polls"))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Dit valg: Iraq")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Point afventer bekræftelse")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("100%")));
     }
 
