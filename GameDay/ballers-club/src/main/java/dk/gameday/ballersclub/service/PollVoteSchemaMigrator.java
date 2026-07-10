@@ -28,6 +28,7 @@ public class PollVoteSchemaMigrator implements ApplicationRunner {
                 """);
         restoreAzzuriGoldenGloveOriginalPick();
         reopenHyzzPlayerOfTournamentPick();
+        backfillAzzuriFranceMoroccoPrediction();
     }
 
     private void restoreAzzuriGoldenGloveOriginalPick() {
@@ -64,6 +65,72 @@ public class PollVoteSchemaMigrator implements ApplicationRunner {
         if (deleted > 0) {
             jdbcTemplate.update("insert into data_fixes (id, applied_at) values (?, current_timestamp)", fixId);
         }
+    }
+
+    private void backfillAzzuriFranceMoroccoPrediction() {
+        String fixId = "backfill-azzuri-morocco-france-quarter-final-1-2";
+        if (isFixApplied(fixId)) {
+            return;
+        }
+        if (!tableExists("predictions") || !tableExists("users") || !tableExists("matches")) {
+            return;
+        }
+
+        int updated = jdbcTemplate.update("""
+                update predictions
+                set home_goals = 1,
+                    away_goals = 2,
+                    updated_at = current_timestamp
+                where user_id = (
+                        select id
+                        from users
+                        where lower(username) = lower('Azzuri')
+                    )
+                  and match_id = (
+                        select id
+                        from matches
+                        where id = 97
+                          and lower(home_team) = lower('Morocco')
+                          and lower(away_team) = lower('France')
+                          and home_score is null
+                          and away_score is null
+                    )
+                """);
+
+        int inserted = 0;
+        if (updated == 0) {
+            inserted = jdbcTemplate.update("""
+                    insert into predictions (user_id, match_id, home_goals, away_goals, updated_at)
+                    select users.id, matches.id, 1, 2, current_timestamp
+                    from users
+                    cross join matches
+                    where lower(users.username) = lower('Azzuri')
+                      and matches.id = 97
+                      and lower(matches.home_team) = lower('Morocco')
+                      and lower(matches.away_team) = lower('France')
+                      and matches.home_score is null
+                      and matches.away_score is null
+                      and not exists (
+                          select 1
+                          from predictions existing
+                          where existing.user_id = users.id
+                            and existing.match_id = matches.id
+                      )
+                    """);
+        }
+
+        if (updated + inserted > 0) {
+            jdbcTemplate.update("insert into data_fixes (id, applied_at) values (?, current_timestamp)", fixId);
+        }
+    }
+
+    private boolean tableExists(String tableName) {
+        Integer count = jdbcTemplate.queryForObject(
+                "select count(*) from information_schema.tables where lower(table_name) = lower(?)",
+                Integer.class,
+                tableName
+        );
+        return count != null && count > 0;
     }
 
     private boolean isFixApplied(String fixId) {
