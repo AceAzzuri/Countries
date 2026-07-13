@@ -29,6 +29,7 @@ public class PollVoteSchemaMigrator implements ApplicationRunner {
         restoreAzzuriGoldenGloveOriginalPick();
         reopenHyzzPlayerOfTournamentPick();
         backfillAzzuriFranceMoroccoPrediction();
+        backfillLateQuarterFinalPredictions();
     }
 
     private void restoreAzzuriGoldenGloveOriginalPick() {
@@ -117,6 +118,70 @@ public class PollVoteSchemaMigrator implements ApplicationRunner {
                             and existing.match_id = matches.id
                       )
                     """);
+        }
+
+        if (updated + inserted > 0) {
+            jdbcTemplate.update("insert into data_fixes (id, applied_at) values (?, current_timestamp)", fixId);
+        }
+    }
+
+    private void backfillLateQuarterFinalPredictions() {
+        backfillPredictionByMatchId("backfill-halim-france-morocco-quarter-final-2-1", "Halim", 97, 1, 2);
+        backfillPredictionByMatchId("backfill-azzuri-france-morocco-quarter-final-2-1", "Azzuri", 97, 1, 2);
+        backfillPredictionByMatchId("backfill-azzuri-argentina-switzerland-quarter-final-1-1", "Azzuri", 100, 1, 1);
+        backfillPredictionByMatchId("backfill-azzuri-england-norway-quarter-final-2-1", "Azzuri", 99, 1, 2);
+        backfillPredictionByMatchId("backfill-azzuri-spain-belgium-quarter-final-2-0", "Azzuri", 98, 2, 0);
+    }
+
+    private void backfillPredictionByMatchId(String fixId, String username, long matchId, int homeGoals, int awayGoals) {
+        if (isFixApplied(fixId)) {
+            return;
+        }
+        if (!tableExists("predictions") || !tableExists("users") || !tableExists("matches")) {
+            return;
+        }
+
+        int updated = jdbcTemplate.update("""
+                update predictions
+                set home_goals = ?,
+                    away_goals = ?,
+                    updated_at = current_timestamp
+                where user_id = (
+                        select id
+                        from users
+                        where lower(username) = lower(?)
+                    )
+                  and match_id = (
+                        select id
+                        from matches
+                        where id = ?
+                          and lower(round_label) = lower('Quarter-final')
+                    )
+                """,
+                homeGoals, awayGoals, username, matchId);
+
+        int inserted = 0;
+        if (updated == 0) {
+            inserted = jdbcTemplate.update("""
+                    insert into predictions (user_id, match_id, home_goals, away_goals, updated_at)
+                    select users.id,
+                           matches.id,
+                           ?,
+                           ?,
+                           current_timestamp
+                    from users
+                    cross join matches
+                    where lower(users.username) = lower(?)
+                      and matches.id = ?
+                      and lower(matches.round_label) = lower('Quarter-final')
+                      and not exists (
+                          select 1
+                          from predictions existing
+                          where existing.user_id = users.id
+                            and existing.match_id = matches.id
+                      )
+                    """,
+                    homeGoals, awayGoals, username, matchId);
         }
 
         if (updated + inserted > 0) {
