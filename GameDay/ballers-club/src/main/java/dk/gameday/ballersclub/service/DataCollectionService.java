@@ -3,7 +3,10 @@ package dk.gameday.ballersclub.service;
 import dk.gameday.ballersclub.model.DataCollectionSummary;
 import dk.gameday.ballersclub.model.Prediction;
 import dk.gameday.ballersclub.model.PredictionFeedItem;
+import dk.gameday.ballersclub.model.WorldCupMatch;
+import dk.gameday.ballersclub.repository.PollVoteRepository;
 import dk.gameday.ballersclub.repository.PredictionRepository;
+import dk.gameday.ballersclub.repository.WorldCupMatchRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,16 +16,34 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class DataCollectionService {
 
+    private static final long WORLD_CUP_WINNER_POLL_ID = 1L;
+    private static final long ARGENTINA_WINNER_OPTION_ID = 101L;
+    private static final long SPAIN_WINNER_OPTION_ID = 103L;
+    private static final long ENGLAND_WINNER_OPTION_ID = 105L;
+    private static final long SPAIN_SEMI_FINAL_MATCH_ID = 101L;
+    private static final long ENGLAND_ARGENTINA_SEMI_FINAL_MATCH_ID = 102L;
+    private static final long FINAL_MATCH_ID = 104L;
+
     private final PredictionRepository predictionRepository;
+    private final PollVoteRepository pollVoteRepository;
+    private final WorldCupMatchRepository matchRepository;
     private final ScoringService scoringService;
 
-    public DataCollectionService(PredictionRepository predictionRepository, ScoringService scoringService) {
+    public DataCollectionService(
+            PredictionRepository predictionRepository,
+            PollVoteRepository pollVoteRepository,
+            WorldCupMatchRepository matchRepository,
+            ScoringService scoringService
+    ) {
         this.predictionRepository = predictionRepository;
+        this.pollVoteRepository = pollVoteRepository;
+        this.matchRepository = matchRepository;
         this.scoringService = scoringService;
     }
 
@@ -73,11 +94,85 @@ public class DataCollectionService {
                 .toList();
 
         List<PredictionFeedItem> items = new ArrayList<>();
+        items.addAll(finalistBonusItems());
         items.addAll(streakItems(resultedPredictions));
         items.addAll(matchInsightItems(resultedPredictions));
         return items.stream()
                 .limit(10)
                 .toList();
+    }
+
+    private List<PredictionFeedItem> finalistBonusItems() {
+        List<PredictionFeedItem> items = new ArrayList<>();
+        Optional<WorldCupMatch> finalMatch = matchRepository.findById(FINAL_MATCH_ID);
+
+        if (teamHasReachedFinal("Spain", SPAIN_SEMI_FINAL_MATCH_ID, finalMatch)) {
+            items.add(new PredictionFeedItem(
+                    "Spain er i finalen",
+                    finalistPickDetail("Spain", SPAIN_WINNER_OPTION_ID)
+            ));
+        }
+
+        matchRepository.findById(ENGLAND_ARGENTINA_SEMI_FINAL_MATCH_ID)
+                .flatMap(this::winnerOf)
+                .filter(winner -> winner.equals("England") || winner.equals("Argentina"))
+                .ifPresent(winner -> items.add(new PredictionFeedItem(
+                        winner + " er i finalen",
+                        finalistPickDetail(winner, winnerOptionId(winner))
+                )));
+
+        return items;
+    }
+
+    private boolean teamHasReachedFinal(String team, long semiFinalMatchId, Optional<WorldCupMatch> finalMatch) {
+        boolean listedInFinal = finalMatch
+                .map(match -> team.equals(match.getHomeTeam()) || team.equals(match.getAwayTeam()))
+                .orElse(false);
+        if (listedInFinal) {
+            return true;
+        }
+        return matchRepository.findById(semiFinalMatchId)
+                .flatMap(this::winnerOf)
+                .map(team::equals)
+                .orElse(false);
+    }
+
+    private Optional<String> winnerOf(WorldCupMatch match) {
+        if (match.hasAdvancingTeam()) {
+            return Optional.of(match.getAdvancingTeam());
+        }
+        if (!match.hasResult()) {
+            return Optional.empty();
+        }
+        if (match.getHomeScore() > match.getAwayScore()) {
+            return Optional.of(match.getHomeTeam());
+        }
+        if (match.getAwayScore() > match.getHomeScore()) {
+            return Optional.of(match.getAwayTeam());
+        }
+        return Optional.empty();
+    }
+
+    private String finalistPickDetail(String team, long optionId) {
+        List<String> usernames = pollVoteRepository
+                .findByPollIdAndOptionIdOrderByUsernameAsc(WORLD_CUP_WINNER_POLL_ID, optionId)
+                .stream()
+                .map(vote -> vote.getUsername() == null ? "" : vote.getUsername().trim())
+                .filter(username -> !username.isBlank())
+                .distinct()
+                .toList();
+        if (usernames.isEmpty()) {
+            return "Ingen havde " + team + " som VM-vinder.";
+        }
+        return "VM-vinder-picks på " + team + ": " + String.join(", ", usernames);
+    }
+
+    private long winnerOptionId(String team) {
+        return switch (team) {
+            case "Argentina" -> ARGENTINA_WINNER_OPTION_ID;
+            case "England" -> ENGLAND_WINNER_OPTION_ID;
+            default -> throw new IllegalArgumentException("Ukendt finalehold: " + team);
+        };
     }
 
     private List<PredictionFeedItem> streakItems(List<Prediction> predictions) {
