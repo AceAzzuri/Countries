@@ -144,6 +144,7 @@ class PollVoteSchemaMigratorTests {
         jdbcTemplate.update("insert into matches (id, round_label, home_team, away_team) values (98, 'Quarter-final', 'Winner Match 93', 'Winner Match 94')");
         jdbcTemplate.update("insert into matches (id, round_label, home_team, away_team) values (99, 'Quarter-final', 'Winner Match 91', 'Winner Match 92')");
         jdbcTemplate.update("insert into matches (id, round_label, home_team, away_team) values (100, 'Quarter-final', 'Winner Match 95', 'Winner Match 96')");
+        jdbcTemplate.update("insert into matches (id, round_label, home_team, away_team) values (101, 'Semi-final', 'Winner Match 97', 'Winner Match 98')");
 
         new PollVoteSchemaMigrator(jdbcTemplate).run(new DefaultApplicationArguments());
 
@@ -152,17 +153,35 @@ class PollVoteSchemaMigratorTests {
         assertThat(score(jdbcTemplate, "Azzuri", 100)).isEqualTo("1-1");
         assertThat(score(jdbcTemplate, "Azzuri", 99)).isEqualTo("1-2");
         assertThat(score(jdbcTemplate, "Azzuri", 98)).isEqualTo("2-0");
+        assertThat(score(jdbcTemplate, "Azzuri", 101)).isEqualTo("1-2");
+        assertThat(updatedAt(jdbcTemplate, "Azzuri", 101)).isEqualTo("2026-07-13 12:00:00");
 
         Integer fixes = jdbcTemplate.queryForObject(
                 "select count(*) from data_fixes where id like 'backfill-%quarter-final%'",
                 Integer.class
         );
         assertThat(fixes).isEqualTo(5);
+        Integer semiFinalFixes = jdbcTemplate.queryForObject(
+                "select count(*) from data_fixes where id = 'backfill-azzuri-spain-semi-final-2-1-before-2026-07-14'",
+                Integer.class
+        );
+        assertThat(semiFinalFixes).isEqualTo(1);
     }
 
     private String score(JdbcTemplate jdbcTemplate, String username, long matchId) {
         return jdbcTemplate.queryForObject("""
                 select concat(predictions.home_goals, '-', predictions.away_goals)
+                from predictions
+                join users on users.id = predictions.user_id
+                join matches on matches.id = predictions.match_id
+                where users.username = ?
+                  and matches.id = ?
+                """, String.class, username, matchId);
+    }
+
+    private String updatedAt(JdbcTemplate jdbcTemplate, String username, long matchId) {
+        return jdbcTemplate.queryForObject("""
+                select formatdatetime(predictions.updated_at, 'yyyy-MM-dd HH:mm:ss')
                 from predictions
                 join users on users.id = predictions.user_id
                 join matches on matches.id = predictions.match_id

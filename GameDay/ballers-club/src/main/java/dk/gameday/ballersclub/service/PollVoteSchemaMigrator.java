@@ -30,6 +30,7 @@ public class PollVoteSchemaMigrator implements ApplicationRunner {
         reopenHyzzPlayerOfTournamentPick();
         backfillAzzuriFranceMoroccoPrediction();
         backfillLateQuarterFinalPredictions();
+        backfillAzzuriSpainSemiFinalPrediction();
     }
 
     private void restoreAzzuriGoldenGloveOriginalPick() {
@@ -133,7 +134,31 @@ public class PollVoteSchemaMigrator implements ApplicationRunner {
         backfillPredictionByMatchId("backfill-azzuri-spain-belgium-quarter-final-2-0", "Azzuri", 98, 2, 0);
     }
 
+    private void backfillAzzuriSpainSemiFinalPrediction() {
+        backfillPredictionByMatchId(
+                "backfill-azzuri-spain-semi-final-2-1-before-2026-07-14",
+                "Azzuri",
+                101,
+                1,
+                2,
+                "Semi-final",
+                "timestamp '2026-07-13 12:00:00'"
+        );
+    }
+
     private void backfillPredictionByMatchId(String fixId, String username, long matchId, int homeGoals, int awayGoals) {
+        backfillPredictionByMatchId(fixId, username, matchId, homeGoals, awayGoals, "Quarter-final", "current_timestamp");
+    }
+
+    private void backfillPredictionByMatchId(
+            String fixId,
+            String username,
+            long matchId,
+            int homeGoals,
+            int awayGoals,
+            String roundLabel,
+            String updatedAtExpression
+    ) {
         if (isFixApplied(fixId)) {
             return;
         }
@@ -145,7 +170,7 @@ public class PollVoteSchemaMigrator implements ApplicationRunner {
                 update predictions
                 set home_goals = ?,
                     away_goals = ?,
-                    updated_at = current_timestamp
+                    updated_at = %s
                 where user_id = (
                         select id
                         from users
@@ -155,10 +180,10 @@ public class PollVoteSchemaMigrator implements ApplicationRunner {
                         select id
                         from matches
                         where id = ?
-                          and lower(round_label) = lower('Quarter-final')
+                          and lower(round_label) = lower(?)
                     )
-                """,
-                homeGoals, awayGoals, username, matchId);
+                """.formatted(updatedAtExpression),
+                homeGoals, awayGoals, username, matchId, roundLabel);
 
         int inserted = 0;
         if (updated == 0) {
@@ -168,20 +193,20 @@ public class PollVoteSchemaMigrator implements ApplicationRunner {
                            matches.id,
                            ?,
                            ?,
-                           current_timestamp
+                           %s
                     from users
                     cross join matches
                     where lower(users.username) = lower(?)
                       and matches.id = ?
-                      and lower(matches.round_label) = lower('Quarter-final')
+                      and lower(matches.round_label) = lower(?)
                       and not exists (
                           select 1
                           from predictions existing
                           where existing.user_id = users.id
                             and existing.match_id = matches.id
                       )
-                    """,
-                    homeGoals, awayGoals, username, matchId);
+                    """.formatted(updatedAtExpression),
+                    homeGoals, awayGoals, username, matchId, roundLabel);
         }
 
         if (updated + inserted > 0) {
