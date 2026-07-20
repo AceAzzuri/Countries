@@ -96,12 +96,15 @@ class BallersClubPageTests {
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Hvem vinder VM 2026, Golden Boot og Golden Glove giver 6 point")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Turneringens spiller og Turneringens unge spiller låses efter første valg og giver 3 point ved rigtigt valg")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Point afventer bekræftelse")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Award-indtastning er lukket")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Rodri")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Pau Cubarsi")))
                 .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("bc-new-badge\">NY"))))
                 .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("Gianluigi Donnarumma"))));
     }
 
     @Test
-    void pointPollVoteCanBeChangedAndRendered() throws Exception {
+    void pointPollVoteIsClosedAfterAwardsAreDecided() throws Exception {
         MockHttpSession session = (MockHttpSession) mockMvc.perform(post("/signup")
                         .param("username", "poll tester")
                         .param("email", "poll@example.com"))
@@ -120,26 +123,14 @@ class BallersClubPageTests {
         mockMvc.perform(get("/polls").session(session))
                 .andExpect(status().isOk())
                 .andExpect(view().name("polls"))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("France")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("2 point")));
-
-        mockMvc.perform(post("/polls/vote")
-                        .session(session)
-                        .param("pollId", "1")
-                        .param("optionId", "103"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/polls"));
-
-        mockMvc.perform(get("/polls").session(session))
-                .andExpect(status().isOk())
-                .andExpect(view().name("polls"))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Award-indtastning er lukket")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("France")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Spain")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("2 point")));
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("<form class=\"bc-poll-options\""))));
     }
 
     @Test
-    void fixedBonusPollShowsStatsAfterVote() throws Exception {
+    void fixedBonusPollShowsStatsAfterAwardsClose() throws Exception {
         MockHttpSession session = (MockHttpSession) mockMvc.perform(post("/signup")
                         .param("username", "fixed poll tester")
                         .param("email", "fixed-poll@example.com"))
@@ -158,9 +149,9 @@ class BallersClubPageTests {
         mockMvc.perform(get("/polls").session(session))
                 .andExpect(status().isOk())
                 .andExpect(view().name("polls"))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Dit valg: Iraq")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Award-indtastning er lukket")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Point afventer bekræftelse")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("100%")));
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Iraq")));
     }
 
     @Test

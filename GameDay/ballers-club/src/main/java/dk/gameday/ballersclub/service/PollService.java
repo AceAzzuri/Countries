@@ -46,6 +46,9 @@ public class PollService {
         if (!poll.isActive()) {
             throw new IllegalArgumentException("Denne poll er ikke åben endnu.");
         }
+        if (poll.isVotingClosed()) {
+            throw new IllegalArgumentException("Award-indtastning er lukket.");
+        }
 
         String normalizedUsername = normalizeUsername(username);
         if (normalizedUsername.isBlank()) {

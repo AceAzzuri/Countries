@@ -41,12 +41,9 @@ class PollServiceTests {
         PollVoteRepository voteRepository = mock(PollVoteRepository.class);
         PollService pollService = new PollService(voteRepository);
 
-        when(voteRepository.findByPollIdAndUsernameIgnoreCase(3L, "Azzuri"))
-                .thenReturn(Optional.of(new dk.gameday.ballersclub.model.PollVote(3L, 301L, "Azzuri", LocalDateTime.now())));
-
         assertThatThrownBy(() -> pollService.vote(3L, 302L, "Azzuri"))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Du har allerede stemt");
+                .hasMessageContaining("Award-indtastning er lukket");
         verify(voteRepository, never()).save(org.mockito.Mockito.argThat(vote -> vote.getPollId().equals(3L) && vote.getOptionId().equals(302L)));
     }
 
@@ -55,39 +52,34 @@ class PollServiceTests {
         PollVoteRepository voteRepository = mock(PollVoteRepository.class);
         PollService pollService = new PollService(voteRepository);
 
-        when(voteRepository.findByPollIdAndUsernameIgnoreCase(7L, "Azzuri"))
-                .thenReturn(Optional.of(new dk.gameday.ballersclub.model.PollVote(7L, 701L, "Azzuri", LocalDateTime.now())));
-
         assertThatThrownBy(() -> pollService.vote(7L, 702L, "Azzuri"))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Du har allerede stemt");
+                .hasMessageContaining("Award-indtastning er lukket");
 
         verify(voteRepository, never()).save(any(dk.gameday.ballersclub.model.PollVote.class));
     }
 
     @Test
-    void legacyAwardPollCanBeChangedAfterVote() {
+    void legacyAwardPollCannotBeChangedAfterAwardsClose() {
         PollVoteRepository voteRepository = mock(PollVoteRepository.class);
         PollService pollService = new PollService(voteRepository);
 
-        when(voteRepository.findByPollIdAndUsernameIgnoreCase(1L, "Azzuri"))
-                .thenReturn(Optional.of(new dk.gameday.ballersclub.model.PollVote(1L, 101L, "Azzuri", LocalDateTime.now())));
+        assertThatThrownBy(() -> pollService.vote(1L, 102L, "Azzuri"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Award-indtastning er lukket");
 
-        pollService.vote(1L, 102L, "Azzuri");
-
-        verify(voteRepository).save(org.mockito.Mockito.argThat(vote -> vote.getPollId().equals(1L) && vote.getOptionId().equals(102L)));
+        verify(voteRepository, never()).save(any(dk.gameday.ballersclub.model.PollVote.class));
     }
 
     @Test
-    void clickingSameLegacyAwardOptionDoesNotMarkVoteAsChanged() {
+    void clickingSameLegacyAwardOptionIsBlockedAfterAwardsClose() {
         PollVoteRepository voteRepository = mock(PollVoteRepository.class);
         PollService pollService = new PollService(voteRepository);
         var franceVote = new dk.gameday.ballersclub.model.PollVote(1L, 102L, "Azzuri", LocalDateTime.of(2026, 7, 2, 12, 0));
 
-        when(voteRepository.findByPollIdAndUsernameIgnoreCase(1L, "Azzuri")).thenReturn(Optional.of(franceVote));
-
-        pollService.vote(1L, 102L, "Azzuri");
-
+        assertThatThrownBy(() -> pollService.vote(1L, 102L, "Azzuri"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Award-indtastning er lukket");
         assertThat(franceVote.isChangedAfterQuarterFinal()).isFalse();
         assertThat(franceVote.getOptionId()).isEqualTo(102L);
         verify(voteRepository, never()).save(franceVote);

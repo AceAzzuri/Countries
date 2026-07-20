@@ -55,4 +55,12 @@ public class Poll {
     public boolean isFixedPointPoll() {
         return id != null && (id == 3L || id == 11L);
     }
+
+    public boolean isPointBonusPoll() {
+        return category == PollCategory.TOURNAMENT || category == PollCategory.PLAYER;
+    }
+
+    public boolean isVotingClosed() {
+        return isPointBonusPoll();
+    }
 }

@@ -61,20 +61,21 @@
             <p class="bc-poll-note" th:if="${pollView.poll.isLegacyAdjustableAwardPoll() and pollView.myVote == null}">Oprindelige valg fra før 3. juli kan give 6 point. Ændrede eller nye rigtige valg giver 2 point.</p>
             <p class="bc-poll-note" th:if="${pollView.poll.isFreshAwardPoll()}">Du kan stemme én gang her. Rigtigt valg giver 3 point.</p>
             <p class="bc-poll-note" th:if="${pollView.poll.isFixedPointPoll()}">Fast valg. Når du har stemt her, kan det ikke ændres. Point afventer bekræftelse.</p>
+            <p class="bc-voted" th:if="${pollView.poll.isVotingClosed()}">Award-indtastning er lukket. Bonuspoint er regnet med på leaderboardet.</p>
             <p class="bc-voted" th:if="${pollView.legacyOriginalVote}" th:text="'Dit oprindelige valg: ' + ${pollView.myVoteOptionLabel} + ' - rammer det, giver det 6 point. Ændrer du fra nu, går det ned til 2 point.'">Dit oprindelige valg</p>
             <p class="bc-voted" th:if="${pollView.legacyChangedVote}" th:text="'Ændret fra ' + ${pollView.originalVoteOptionLabel} + ' til ' + ${pollView.myVoteOptionLabel} + ' - nyt rigtigt valg giver 2 point, originalen giver 0 point.'">Ændret valg</p>
             <p class="bc-voted" th:if="${pollView.legacyLateVote}" th:text="'Nyt valg efter genåbningen: ' + ${pollView.myVoteOptionLabel} + ' - rammer det, giver det 2 point. Kun valg indtastet før 3. juli kan give 6 point.'">Nyt valg efter genåbningen</p>
             <p class="bc-voted" th:if="${pollView.poll.isFreshAwardPoll() and pollView.myVote != null}" th:text="'Dit valg: ' + ${pollView.myVoteOptionLabel} + ' - rammer det, giver det 3 point.'">Dit valg</p>
             <p class="bc-voted" th:if="${pollView.poll.isFixedPointPoll() and pollView.myVote != null}" th:text="'Dit valg: ' + ${pollView.myVoteOptionLabel}">Dit valg</p>
 
-            <form class="bc-poll-options" method="post" action="/polls/vote" data-preserve-scroll th:if="${currentUser != null and !pollView.poll.isFixedPointPoll() and (!pollView.poll.isFreshAwardPoll() or pollView.myVote == null)}">
+            <form class="bc-poll-options" method="post" action="/polls/vote" data-preserve-scroll th:if="${currentUser != null and !pollView.poll.isVotingClosed() and !pollView.poll.isFixedPointPoll() and (!pollView.poll.isFreshAwardPoll() or pollView.myVote == null)}">
                 <input type="hidden" name="pollId" th:value="${pollView.poll.id}">
                 <button type="submit" name="optionId" th:each="result : ${pollView.optionResults}" th:value="${result.option.id}">
                     <span th:text="${result.option.label}">Argentina</span>
                 </button>
             </form>
 
-            <div class="bc-poll-results" th:if="${currentUser == null or pollView.poll.isFixedPointPoll()}">
+            <div class="bc-poll-results" th:if="${currentUser == null or pollView.poll.isVotingClosed() or pollView.poll.isFixedPointPoll()}">
                 <div class="bc-result-line" th:each="result : ${pollView.optionResults}">
                     <div>
                         <span th:text="${result.option.label}">Argentina</span>
