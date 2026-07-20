@@ -6,7 +6,8 @@ public record LeaderboardRow(
         int gamesPlayed,
         int exactScores,
         int correctResults,
-        int totalPoints
+        int totalPoints,
+        int bonusPoints
 ) {
 
     public int hitPercentage() {
@@ -14,5 +15,9 @@ public record LeaderboardRow(
             return 0;
         }
         return Math.round(((exactScores + correctResults) * 100f) / gamesPlayed);
+    }
+
+    public int totalWithBonus() {
+        return totalPoints + bonusPoints;
     }
 }

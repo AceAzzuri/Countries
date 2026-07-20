@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class LeaderboardServiceTests {
 
-    private final LeaderboardService leaderboardService = new LeaderboardService(null, new ScoringService());
+    private final LeaderboardService leaderboardService = new LeaderboardService(null, new ScoringService(), null);
 
     @Test
     void ticketCategoriesRequireAtLeastFifteenPlayedMatches() {
@@ -58,6 +58,6 @@ class LeaderboardServiceTests {
     }
 
     private LeaderboardRow row(String username, int gamesPlayed, int exactScores, int correctResults) {
-        return new LeaderboardRow(0, username, gamesPlayed, exactScores, correctResults, exactScores * 3 + correctResults);
+        return new LeaderboardRow(0, username, gamesPlayed, exactScores, correctResults, exactScores * 3 + correctResults, 0);
     }
 }

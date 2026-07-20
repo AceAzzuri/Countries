@@ -60,7 +60,7 @@
                 <li>
                     <span class="bc-rule-icon target" aria-hidden="true"></span>
                     <div>
-                        <strong><span class="bc-new-badge">NY</span><span>Fra kvartfinalen</span></strong>
+                        <strong>Fra kvartfinalen</strong>
                         <span>Korrekt udfald 3 point - præcis score 5 point</span>
                     </div>
                 </li>
@@ -86,7 +86,7 @@
                 <article th:each="row, rowStat : ${topPointRows}" th:if="${rowStat.index < 4}">
                     <strong th:text="${row.rank()}">1</strong>
                     <span th:text="${row.username()}">TheSpecialOne</span>
-                    <em th:text="${row.totalPoints()}">2430</em>
+                    <em th:text="${row.totalWithBonus()}">2430</em>
                 </article>
             </div>
             <p class="bc-muted" th:if="${topPointRows.isEmpty()}">Leaderboard åbner, når de første point er landet.</p>
@@ -101,7 +101,7 @@
             <summary class="bc-chat-summary">
                 <span class="bc-chat-summary-copy">
                     <span class="bc-kicker">Chatrum</span>
-                    <strong>Arena chat <span class="bc-chat-new">NY</span></strong>
+                    <strong>Arena chat</strong>
                     <small th:if="${chatMessages.isEmpty()}">Rul ned og start samtalen.</small>
                     <small th:if="${!chatMessages.isEmpty()}" th:text="${#lists.size(chatMessages)} + ' kommentarer i feedet'">3 kommentarer i feedet</small>
                 </span>
@@ -169,7 +169,7 @@
             <summary class="bc-feed-summary">
                 <span>
                     <span class="bc-kicker">Community feed</span>
-                    <strong><span>Rigtige kald fra tabellen</span> <span class="bc-new-badge">NY</span></strong>
+                    <strong>Rigtige kald fra tabellen</strong>
                 </span>
                 <span class="bc-feed-summary-action" aria-hidden="true">
                     <span class="bc-feed-open-label">Rul ned</span>

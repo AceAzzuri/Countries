@@ -31,6 +31,7 @@ public class PollVoteSchemaMigrator implements ApplicationRunner {
         backfillAzzuriFranceMoroccoPrediction();
         backfillLateQuarterFinalPredictions();
         backfillAzzuriSpainSemiFinalPrediction();
+        backfillAzzuriSemiFinalPredictions();
     }
 
     private void restoreAzzuriGoldenGloveOriginalPick() {
@@ -143,6 +144,27 @@ public class PollVoteSchemaMigrator implements ApplicationRunner {
                 2,
                 "Semi-final",
                 "timestamp '2026-07-13 12:00:00'"
+        );
+    }
+
+    private void backfillAzzuriSemiFinalPredictions() {
+        backfillPredictionByMatchId(
+                "backfill-azzuri-france-england-semi-final-3-2",
+                "Azzuri",
+                101,
+                3,
+                2,
+                "Semi-final",
+                "timestamp '2026-07-14 12:00:00'"
+        );
+        backfillPredictionByMatchId(
+                "backfill-azzuri-spain-argentina-semi-final-1-0",
+                "Azzuri",
+                102,
+                1,
+                0,
+                "Semi-final",
+                "timestamp '2026-07-14 12:00:00'"
         );
     }
 

@@ -20,10 +20,12 @@ public class LeaderboardService {
 
     private final PredictionRepository predictionRepository;
     private final ScoringService scoringService;
+    private final BonusService bonusService;
 
-    public LeaderboardService(PredictionRepository predictionRepository, ScoringService scoringService) {
+    public LeaderboardService(PredictionRepository predictionRepository, ScoringService scoringService, BonusService bonusService) {
         this.predictionRepository = predictionRepository;
         this.scoringService = scoringService;
+        this.bonusService = bonusService;
     }
 
     public List<LeaderboardRow> getLeaderboard() {
@@ -95,7 +97,7 @@ public class LeaderboardService {
     public List<LeaderboardRow> getTopPoints() {
         return pointRanking(getLeaderboard()).stream()
                 .filter(this::isTicketEligible)
-                .filter(row -> row.totalPoints() > 0)
+                .filter(row -> row.totalWithBonus() > 0)
                 .limit(3)
                 .toList();
     }
@@ -123,7 +125,7 @@ public class LeaderboardService {
                         .comparing(this::isTicketEligible).reversed()
                         .thenComparing(Comparator.comparingInt(LeaderboardRow::hitPercentage).reversed())
                         .thenComparing(Comparator.comparingInt(LeaderboardRow::exactScores).reversed())
-                        .thenComparing(Comparator.comparingInt(LeaderboardRow::totalPoints).reversed())
+                        .thenComparing(Comparator.comparingInt(LeaderboardRow::totalWithBonus).reversed())
                         .thenComparing(LeaderboardRow::username, String.CASE_INSENSITIVE_ORDER))
                 .toList();
     }
@@ -134,7 +136,7 @@ public class LeaderboardService {
                 .sorted(Comparator
                         .comparing(this::isTicketEligible).reversed()
                         .thenComparing(Comparator.comparingInt(LeaderboardRow::exactScores).reversed())
-                        .thenComparing(Comparator.comparingInt(LeaderboardRow::totalPoints).reversed())
+                        .thenComparing(Comparator.comparingInt(LeaderboardRow::totalWithBonus).reversed())
                         .thenComparing(LeaderboardRow::username, String.CASE_INSENSITIVE_ORDER))
                 .toList();
     }
@@ -152,17 +154,17 @@ public class LeaderboardService {
                 .sorted(Comparator
                         .comparing(this::isTicketEligible).reversed()
                         .thenComparing(Comparator.comparingInt(LeaderboardRow::correctResults).reversed())
-                        .thenComparing(Comparator.comparingInt(LeaderboardRow::totalPoints).reversed())
+                        .thenComparing(Comparator.comparingInt(LeaderboardRow::totalWithBonus).reversed())
                         .thenComparing(LeaderboardRow::username, String.CASE_INSENSITIVE_ORDER))
                 .toList();
     }
 
     private List<LeaderboardRow> pointRanking(List<LeaderboardRow> rows) {
         return rows.stream()
-                .filter(row -> row.totalPoints() > 0)
+                .filter(row -> row.totalWithBonus() > 0)
                 .sorted(Comparator
                         .comparing(this::isTicketEligible).reversed()
-                        .thenComparing(Comparator.comparingInt(LeaderboardRow::totalPoints).reversed())
+                        .thenComparing(Comparator.comparingInt(LeaderboardRow::totalWithBonus).reversed())
                         .thenComparing(Comparator.comparingInt(LeaderboardRow::exactScores).reversed())
                         .thenComparing(Comparator.comparingInt(LeaderboardRow::correctResults).reversed())
                         .thenComparing(LeaderboardRow::username, String.CASE_INSENSITIVE_ORDER))
@@ -187,6 +189,7 @@ public class LeaderboardService {
         Map<String, Integer> result = new HashMap<>();
         Map<String, Integer> played = new HashMap<>();
         Map<String, Integer> points = new HashMap<>();
+        Map<String, Integer> bonusPoints = bonusService.getBonusPointsByUsername();
 
         for (Prediction prediction : predictions) {
             String username = leaderboardUsername(prediction.getUser().getUsername());
@@ -210,12 +213,13 @@ public class LeaderboardService {
                     played.getOrDefault(username, 0),
                     exact.getOrDefault(username, 0),
                     result.getOrDefault(username, 0),
-                    points.getOrDefault(username, 0)
+                    points.getOrDefault(username, 0),
+                    bonusPoints.getOrDefault(username, 0)
             ));
         }
 
         rows.sort(Comparator
-                .comparingInt(LeaderboardRow::totalPoints).reversed()
+                .comparingInt(LeaderboardRow::totalWithBonus).reversed()
                 .thenComparing(Comparator.comparingInt(LeaderboardRow::exactScores).reversed())
                 .thenComparing(Comparator.comparingInt(LeaderboardRow::correctResults).reversed())
                 .thenComparing(LeaderboardRow::username, String.CASE_INSENSITIVE_ORDER));
@@ -223,7 +227,7 @@ public class LeaderboardService {
         List<LeaderboardRow> ranked = new ArrayList<>();
         for (int i = 0; i < rows.size(); i++) {
             LeaderboardRow row = rows.get(i);
-            ranked.add(new LeaderboardRow(i + 1, row.username(), row.gamesPlayed(), row.exactScores(), row.correctResults(), row.totalPoints()));
+            ranked.add(new LeaderboardRow(i + 1, row.username(), row.gamesPlayed(), row.exactScores(), row.correctResults(), row.totalPoints(), row.bonusPoints()));
         }
         return ranked;
     }

@@ -145,6 +145,7 @@ class PollVoteSchemaMigratorTests {
         jdbcTemplate.update("insert into matches (id, round_label, home_team, away_team) values (99, 'Quarter-final', 'Winner Match 91', 'Winner Match 92')");
         jdbcTemplate.update("insert into matches (id, round_label, home_team, away_team) values (100, 'Quarter-final', 'Winner Match 95', 'Winner Match 96')");
         jdbcTemplate.update("insert into matches (id, round_label, home_team, away_team) values (101, 'Semi-final', 'Winner Match 97', 'Winner Match 98')");
+        jdbcTemplate.update("insert into matches (id, round_label, home_team, away_team) values (102, 'Semi-final', 'Winner Match 99', 'Winner Match 100')");
 
         new PollVoteSchemaMigrator(jdbcTemplate).run(new DefaultApplicationArguments());
 
@@ -153,8 +154,10 @@ class PollVoteSchemaMigratorTests {
         assertThat(score(jdbcTemplate, "Azzuri", 100)).isEqualTo("1-1");
         assertThat(score(jdbcTemplate, "Azzuri", 99)).isEqualTo("1-2");
         assertThat(score(jdbcTemplate, "Azzuri", 98)).isEqualTo("2-0");
-        assertThat(score(jdbcTemplate, "Azzuri", 101)).isEqualTo("1-2");
-        assertThat(updatedAt(jdbcTemplate, "Azzuri", 101)).isEqualTo("2026-07-13 12:00:00");
+        assertThat(score(jdbcTemplate, "Azzuri", 101)).isEqualTo("3-2");
+        assertThat(score(jdbcTemplate, "Azzuri", 102)).isEqualTo("1-0");
+        assertThat(updatedAt(jdbcTemplate, "Azzuri", 101)).isEqualTo("2026-07-14 12:00:00");
+        assertThat(updatedAt(jdbcTemplate, "Azzuri", 102)).isEqualTo("2026-07-14 12:00:00");
 
         Integer fixes = jdbcTemplate.queryForObject(
                 "select count(*) from data_fixes where id like 'backfill-%quarter-final%'",
@@ -162,10 +165,10 @@ class PollVoteSchemaMigratorTests {
         );
         assertThat(fixes).isEqualTo(5);
         Integer semiFinalFixes = jdbcTemplate.queryForObject(
-                "select count(*) from data_fixes where id = 'backfill-azzuri-spain-semi-final-2-1-before-2026-07-14'",
+                "select count(*) from data_fixes where id like 'backfill-azzuri-%semi-final%'",
                 Integer.class
         );
-        assertThat(semiFinalFixes).isEqualTo(1);
+        assertThat(semiFinalFixes).isEqualTo(3);
     }
 
     private String score(JdbcTemplate jdbcTemplate, String username, long matchId) {

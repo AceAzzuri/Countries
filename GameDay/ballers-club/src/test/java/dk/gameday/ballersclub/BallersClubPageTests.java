@@ -44,7 +44,7 @@ class BallersClubPageTests {
                 .andExpect(view().name("worldcup"))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("<strong>3 point</strong><span>Præcis score</span>")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("<strong>1 point</strong><span>Korrekt udfald</span>")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("<span class=\"bc-new-badge\">NY</span><span>Fra kvartfinalen</span>")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("<strong>Fra kvartfinalen</strong>")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("<span>Korrekt udfald 3 point - præcis score 5 point</span>")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("<strong>0 point</strong><span>Forkert gæt</span>")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("<strong>Kickoff</strong><span>Predictions låser</span>")));
@@ -92,13 +92,11 @@ class BallersClubPageTests {
                 .andExpect(status().isOk())
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Mikel Oyarzabal")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Iran")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("OPDATERING")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Gamle bonusvalg fra før 3. juli kan beholdes for 6 point")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Kun <strong>Hvem vinder VM 2026?</strong>, <strong>Golden Boot</strong> og <strong>Golden Glove</strong> bruger den nye regel")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("giver det 6 point hvis det rammer")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Turneringens spiller og Turneringens unge spiller er helt nye bonus-polls, låses efter første valg og giver 3 point ved rigtigt valg")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Rigtige bonusvalg gennemgås nedenfor")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Hvem vinder VM 2026, Golden Boot og Golden Glove giver 6 point")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Turneringens spiller og Turneringens unge spiller låses efter første valg og giver 3 point ved rigtigt valg")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Point afventer bekræftelse")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("NY")))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("bc-new-badge\">NY"))))
                 .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("Gianluigi Donnarumma"))));
     }
 
@@ -240,7 +238,7 @@ class BallersClubPageTests {
                 .andExpect(status().isOk())
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Chatrum")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Arena chat")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("bc-chat-new")))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("bc-chat-new"))))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("@alle")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("@Mention Alpha")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("@Mention Beta")))

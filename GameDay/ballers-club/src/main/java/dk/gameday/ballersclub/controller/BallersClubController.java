@@ -7,6 +7,7 @@ import dk.gameday.ballersclub.service.AdminAccessService;
 import dk.gameday.ballersclub.service.ArenaChatService;
 import dk.gameday.ballersclub.service.ArenaUpdateService;
 import dk.gameday.ballersclub.service.ArenaFeedbackService;
+import dk.gameday.ballersclub.service.BonusService;
 import dk.gameday.ballersclub.service.CurrentUserService;
 import dk.gameday.ballersclub.service.DataCollectionService;
 import dk.gameday.ballersclub.service.LeaderboardService;
@@ -47,6 +48,7 @@ public class BallersClubController {
     private final ArenaChatService arenaChatService;
     private final ArenaUpdateService arenaUpdateService;
     private final PoolService poolService;
+    private final BonusService bonusService;
 
     public BallersClubController(
             CurrentUserService currentUserService,
@@ -61,7 +63,8 @@ public class BallersClubController {
             ArenaFeedbackService arenaFeedbackService,
             ArenaChatService arenaChatService,
             ArenaUpdateService arenaUpdateService,
-            PoolService poolService
+            PoolService poolService,
+            BonusService bonusService
     ) {
         this.currentUserService = currentUserService;
         this.userService = userService;
@@ -76,6 +79,7 @@ public class BallersClubController {
         this.arenaChatService = arenaChatService;
         this.arenaUpdateService = arenaUpdateService;
         this.poolService = poolService;
+        this.bonusService = bonusService;
     }
 
     @GetMapping("/")
@@ -219,6 +223,7 @@ public class BallersClubController {
         model.addAttribute("dataSummary", dataCollectionService.getSummary());
         model.addAttribute("predictionFeed", dataCollectionService.getPredictionFeed());
         model.addAttribute("poolLeaderboards", currentUser.map(poolService::findPoolLeaderboards).orElseGet(java.util.List::of));
+        model.addAttribute("bonusReviewRows", bonusService.getBonusReviewRows());
         return "leaderboard";
     }
 
@@ -281,11 +286,13 @@ public class BallersClubController {
                     })
                     .toList());
             model.addAttribute("upcomingPolls", pollService.getUpcomingPolls());
+            model.addAttribute("bonusReviewRows", bonusService.getBonusReviewRows());
         } catch (RuntimeException e) {
             model.addAttribute("polls", List.of());
             model.addAttribute("pointBonusPolls", List.of());
             model.addAttribute("communityBonusPolls", List.of());
             model.addAttribute("upcomingPolls", List.of());
+            model.addAttribute("bonusReviewRows", List.of());
             model.addAttribute("pollsLoadError", "Bonus kunne ikke indlæses lige nu. Prøv igen om lidt.");
         }
         return "polls";
