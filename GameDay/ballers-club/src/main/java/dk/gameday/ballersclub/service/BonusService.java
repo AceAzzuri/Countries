@@ -13,13 +13,13 @@ import java.util.Map;
 public class BonusService {
 
     private static final List<BonusDefinition> BONUS_DEFINITIONS = List.of(
-            legacy(1L, "Hvem vinder VM 2026?", null, null),
-            legacy(2L, "Golden Boot: hvem ender som topscorer?", null, null),
-            fixed(3L, "Hvilken lille nation eller outsider når længst?", null, null, 3),
-            legacy(4L, "Golden Glove: hvem bliver turneringens keeper?", null, null),
-            fixed(7L, "Turneringens spiller: hvem tager den?", null, null, 3),
-            fixed(10L, "Turneringens unge spiller?", null, null, 3),
-            fixed(11L, "Hvilket hold bliver den største dark horse?", null, null, 3)
+            legacy(1L, "Hvem vinder VM 2026?", "Spain", 103L),
+            legacy(2L, "Golden Boot: hvem ender som topscorer?", "Kylian Mbappe", 201L),
+            fixed(3L, "Hvilken lille nation eller outsider når længst?", "Ikke officiel FIFA-award", null, 3),
+            legacy(4L, "Golden Glove: hvem bliver turneringens keeper?", "Unai Simon", 406L),
+            fixed(7L, "Turneringens spiller: hvem tager den?", "Rodri", 712L, 3),
+            fixed(10L, "Turneringens unge spiller?", "Pau Cubarsi", 1003L, 3),
+            fixed(11L, "Hvilket hold bliver den største dark horse?", "Ikke officiel FIFA-award", null, 3)
     );
 
     private final PollVoteRepository voteRepository;
@@ -50,9 +50,10 @@ public class BonusService {
         return BONUS_DEFINITIONS.stream()
                 .map(definition -> new BonusReviewRow(
                         definition.question(),
-                        definition.correctAnswer() == null ? "Afventer facit" : definition.correctAnswer(),
+                        definition.correctAnswer() == null ? "Ikke sat" : definition.correctAnswer(),
                         definition.reviewPoints(),
                         definition.decided(),
+                        definition.pointScored(),
                         correctUsernames(definition)
                 ))
                 .toList();
@@ -119,6 +120,10 @@ public class BonusService {
             int basePoints
     ) {
         private boolean decided() {
+            return correctAnswer != null;
+        }
+
+        private boolean pointScored() {
             return correctOptionId != null;
         }
 

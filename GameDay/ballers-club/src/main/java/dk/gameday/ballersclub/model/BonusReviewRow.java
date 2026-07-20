@@ -7,11 +7,15 @@ public record BonusReviewRow(
         String correctAnswer,
         int points,
         boolean decided,
+        boolean pointScored,
         List<String> correctUsernames
 ) {
     public String correctUsernamesLabel() {
         if (!decided) {
-            return "Afventer facit";
+            return "Ikke sat";
+        }
+        if (!pointScored) {
+            return "Ikke pointgivet";
         }
         if (correctUsernames.isEmpty()) {
             return "Ingen ramte rigtigt";
