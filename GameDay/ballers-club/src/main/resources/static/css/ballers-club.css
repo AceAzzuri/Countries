@@ -2171,6 +2171,39 @@
     text-align: right;
 }
 
+.bc-bonus-answers {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: 6px;
+    margin: 4px 0 0;
+}
+
+.bc-bonus-answers div {
+    display: grid;
+    grid-template-columns: minmax(120px, 0.28fr) minmax(0, 1fr);
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.bc-bonus-answers dt,
+.bc-bonus-answers dd {
+    margin: 0;
+    min-width: 0;
+    font-size: 12px;
+    line-height: 1.35;
+}
+
+.bc-bonus-answers dt {
+    color: #FFFFFF;
+    font-weight: 900;
+}
+
+.bc-bonus-answers dd {
+    color: rgba(255, 255, 255, 0.72);
+}
+
 .bc-auth {
     display: grid;
     align-content: center;
@@ -2824,6 +2857,11 @@
 
     .bc-bonus-review article > p {
         text-align: left;
+    }
+
+    .bc-bonus-answers div {
+        grid-template-columns: 1fr;
+        gap: 3px;
     }
 
     .bc-ticket-strip article {

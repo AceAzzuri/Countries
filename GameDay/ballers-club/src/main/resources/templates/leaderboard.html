@@ -150,6 +150,12 @@
                 <p th:text="${bonus.correctAnswer()}">Ikke sat</p>
             </div>
             <p th:text="${'Ramt af: ' + bonus.correctUsernamesLabel()}">Ramt af: Azzuri</p>
+            <dl class="bc-bonus-answers" th:if="${!bonus.answerGroups().isEmpty()}">
+                <div th:each="answerGroup : ${bonus.answerGroups()}">
+                    <dt th:text="${answerGroup.answer()}">Spain</dt>
+                    <dd th:text="${answerGroup.usernamesLabel()}">Azzuri</dd>
+                </div>
+            </dl>
         </article>
     </section>
 

@@ -8,7 +8,8 @@ public record BonusReviewRow(
         int points,
         boolean decided,
         boolean pointScored,
-        List<String> correctUsernames
+        List<String> correctUsernames,
+        List<AnswerGroup> answerGroups
 ) {
     public String correctUsernamesLabel() {
         if (!decided) {
@@ -21,5 +22,14 @@ public record BonusReviewRow(
             return "Ingen ramte rigtigt";
         }
         return String.join(", ", correctUsernames);
+    }
+
+    public record AnswerGroup(String answer, List<String> usernames) {
+        public String usernamesLabel() {
+            if (usernames.isEmpty()) {
+                return "Ingen";
+            }
+            return String.join(", ", usernames);
+        }
     }
 }
