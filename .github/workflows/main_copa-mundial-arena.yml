@@ -26,12 +26,12 @@ jobs:
 
 
       - name: Build with Maven
-        run: mvn -B -f GameDay/ballers-club/pom.xml clean test package
+        run: mvn -B clean test package
 
       - name: Prepare deployment artifact
         run: |
           mkdir -p deployment
-          cp GameDay/ballers-club/target/ballers-club-0.0.1-SNAPSHOT.jar deployment/app.jar
+          cp target/ballers-club-0.0.1-SNAPSHOT.jar deployment/app.jar
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4

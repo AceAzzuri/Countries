@@ -1,0 +1,10 @@
+.idea/
+target/
+data/
+*.mv.db
+*.lock.db
+*.trace.db
+.DS_Store
+*.swp
+.env
+*.log
