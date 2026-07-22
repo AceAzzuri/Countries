@@ -25,6 +25,7 @@ Standalone Spring Boot MVP for Copa Mundial 2026 Arena score predictions.
 - [Security](#security)
 - [Scope](#scope)
 - [Screenshots](#screenshots)
+- [Azure App Service Monitoring](#azure-app-service-monitoring)
 - [Deployment Checklist](#deployment-checklist)
 
 ## Overview
@@ -282,21 +283,32 @@ Excluded by design:
 Add current screenshots before sharing this as a portfolio project:
 
 ```text
-docs/screenshots/
-├── 01-home.png
-├── 02-arena.png
-├── 03-leaderboard.png
-├── 04-login.png
-└── 05-admin-results.png
+assets/screenshots/
+├── home.png
+├── feed.png
+├── stats.png
+├── leaderboard.png
+├── leaderboardtop.png
+├── info.png
+└── azure-monitoring.png
 ```
 
 Suggested README placements:
 
 ```markdown
-![Home screen](docs/screenshots/01-home.png)
-![Arena predictions](docs/screenshots/02-arena.png)
-![Leaderboard](docs/screenshots/03-leaderboard.png)
+![Home screen](assets/screenshots/home.png)
+![Arena feed](assets/screenshots/feed.png)
+![Arena stats](assets/screenshots/stats.png)
+![Leaderboard](assets/screenshots/leaderboard.png)
+![Leaderboard top](assets/screenshots/leaderboardtop.png)
+![Info page](assets/screenshots/info.png)
 ```
+
+## Azure App Service Monitoring
+
+The application is deployed to Azure App Service and monitored using Azure Monitor. The dashboard tracks memory consumption, CPU usage, request volume, and response times to verify runtime stability and performance.
+
+![Azure App Service monitoring](assets/screenshots/azure-monitoring.png)
 
 ## Deployment Checklist
 
