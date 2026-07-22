@@ -89,6 +89,7 @@
             </div>
 
             <form class="bc-result-form" method="post" action="/admin/results" data-preserve-scroll>
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                 <input type="hidden" name="matchId" th:value="${match.id}">
                 <input inputmode="numeric" pattern="[0-9]*" name="homeScore" aria-label="Hjemmeholdets mål"
                        th:value="${match.homeScore != null ? match.homeScore : ''}">
@@ -111,6 +112,7 @@
             </p>
 
             <form method="post" action="/admin/results/clear" th:if="${match.hasResult()}" data-preserve-scroll>
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                 <input type="hidden" name="matchId" th:value="${match.id}">
                 <button class="bc-link-button" type="submit">Ryd resultat</button>
             </form>

@@ -212,10 +212,12 @@
             <p>Opret en liga og del koden. Pointene er de samme, men private ligaer tæller ikke ekstra til lodder.</p>
         </div>
         <form method="post" action="/pools" th:if="${currentUser != null}">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             <input name="name" maxlength="60" placeholder="Liga-navn" required>
             <button class="bc-primary compact" type="submit">Opret liga</button>
         </form>
         <form method="post" action="/pools/join" th:if="${currentUser != null}">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             <input name="code" maxlength="12" placeholder="Kode" required>
             <button class="bc-link-button" type="submit">Join med kode</button>
         </form>
@@ -247,6 +249,7 @@
 
     <section class="bc-feedback-strip bc-feedback-bottom" aria-label="Feedback">
         <form method="post" action="/arena/feedback">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             <input type="hidden" name="returnTo" value="/leaderboard">
             <label for="leaderboard-feedback">Feedback</label>
             <textarea id="leaderboard-feedback" name="message" rows="1" maxlength="600"

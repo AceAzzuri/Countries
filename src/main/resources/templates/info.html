@@ -29,6 +29,7 @@
 
 <section class="bc-shell bc-feedback-strip" aria-label="Feedback">
     <form method="post" action="/arena/feedback">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
         <input type="hidden" name="returnTo" value="/info">
         <label for="info-feedback">Feedback</label>
         <textarea id="info-feedback" name="message" rows="1" maxlength="600"
@@ -91,6 +92,7 @@
         </article>
     </section>
     <form class="bc-settings" method="post" action="/settings/reminders" th:if="${currentUser != null}">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
         <label>
             <span>
                 <strong>Kampdags-reminder</strong>

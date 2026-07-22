@@ -13,7 +13,7 @@ public class AdminAccessService {
 
     private final Set<String> adminUsernames;
 
-    public AdminAccessService(@Value("${ballers-club.admin-usernames:Azzuri}") String adminUsernames) {
+    public AdminAccessService(@Value("${ballers-club.admin-usernames:}") String adminUsernames) {
         this.adminUsernames = Arrays.stream(adminUsernames.split(","))
                 .map(String::trim)
                 .filter(username -> !username.isBlank())

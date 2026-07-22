@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -63,7 +64,7 @@ class BallersClubPageTests {
 
     @Test
     void signUpRedirectsToArena() throws Exception {
-        mockMvc.perform(post("/signup")
+        mockMvc.perform(post("/signup").with(csrf())
                         .param("username", "culture captain")
                         .param("email", "culture@example.com")
                 .param("communicationConsent", "on"))
@@ -72,14 +73,22 @@ class BallersClubPageTests {
     }
 
     @Test
-    void existingEmailCanLoginEvenIfUsernameIsTypedDifferently() throws Exception {
+    void postWithoutCsrfIsForbidden() throws Exception {
         mockMvc.perform(post("/signup")
+                        .param("username", "csrf tester")
+                        .param("email", "csrf@example.com"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void existingEmailCanLoginEvenIfUsernameIsTypedDifferently() throws Exception {
+        mockMvc.perform(post("/signup").with(csrf())
                         .param("username", "culture captain")
                 .param("email", "same-profile@example.com"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/arena"));
 
-        mockMvc.perform(post("/login")
+        mockMvc.perform(post("/login").with(csrf())
                         .param("username", "different display name")
                 .param("email", "same-profile@example.com"))
                 .andExpect(status().is3xxRedirection())
@@ -105,7 +114,7 @@ class BallersClubPageTests {
 
     @Test
     void pointPollVoteIsClosedAfterAwardsAreDecided() throws Exception {
-        MockHttpSession session = (MockHttpSession) mockMvc.perform(post("/signup")
+        MockHttpSession session = (MockHttpSession) mockMvc.perform(post("/signup").with(csrf())
                         .param("username", "poll tester")
                         .param("email", "poll@example.com"))
                 .andExpect(status().is3xxRedirection())
@@ -113,7 +122,7 @@ class BallersClubPageTests {
                 .getRequest()
                 .getSession(false);
 
-        mockMvc.perform(post("/polls/vote")
+        mockMvc.perform(post("/polls/vote").with(csrf())
                         .session(session)
                         .param("pollId", "1")
                         .param("optionId", "102"))
@@ -131,7 +140,7 @@ class BallersClubPageTests {
 
     @Test
     void fixedBonusPollShowsStatsAfterAwardsClose() throws Exception {
-        MockHttpSession session = (MockHttpSession) mockMvc.perform(post("/signup")
+        MockHttpSession session = (MockHttpSession) mockMvc.perform(post("/signup").with(csrf())
                         .param("username", "fixed poll tester")
                         .param("email", "fixed-poll@example.com"))
                 .andExpect(status().is3xxRedirection())
@@ -139,7 +148,7 @@ class BallersClubPageTests {
                 .getRequest()
                 .getSession(false);
 
-        mockMvc.perform(post("/polls/vote")
+        mockMvc.perform(post("/polls/vote").with(csrf())
                         .session(session)
                         .param("pollId", "3")
                         .param("optionId", "305"))
@@ -158,7 +167,7 @@ class BallersClubPageTests {
     void leaderboardRendersAfterPrediction() throws Exception {
         openPredictionMatch(65L);
 
-        MockHttpSession session = (MockHttpSession) mockMvc.perform(post("/signup")
+        MockHttpSession session = (MockHttpSession) mockMvc.perform(post("/signup").with(csrf())
                         .param("username", "table tester")
                         .param("email", "table@example.com"))
                 .andExpect(status().is3xxRedirection())
@@ -166,7 +175,7 @@ class BallersClubPageTests {
                 .getRequest()
                 .getSession(false);
 
-        mockMvc.perform(post("/arena/predictions")
+        mockMvc.perform(post("/arena/predictions").with(csrf())
                         .session(session)
                         .param("matchId", "65")
                         .param("homeGoals", "2")
@@ -184,7 +193,7 @@ class BallersClubPageTests {
 
     @Test
     void arenaChatCanStoreMessagesAndReactions() throws Exception {
-        MockHttpSession session = (MockHttpSession) mockMvc.perform(post("/signup")
+        MockHttpSession session = (MockHttpSession) mockMvc.perform(post("/signup").with(csrf())
                         .param("username", "Chat User")
                         .param("email", "chat-user@example.com"))
                 .andExpect(status().is3xxRedirection())
@@ -192,14 +201,14 @@ class BallersClubPageTests {
                 .getRequest()
                 .getSession(false);
 
-        mockMvc.perform(post("/arena/chat")
+        mockMvc.perform(post("/arena/chat").with(csrf())
                         .session(session)
                         .param("message", "Arena er varm"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/arena"));
 
         var message = arenaChatMessageRepository.findTop10ByOrderByCreatedAtDesc().get(0);
-        mockMvc.perform(post("/arena/chat/react")
+        mockMvc.perform(post("/arena/chat/react").with(csrf())
                         .param("messageId", message.getId().toString())
                         .param("reaction", "fire"))
                 .andExpect(status().is3xxRedirection())
@@ -213,14 +222,14 @@ class BallersClubPageTests {
 
     @Test
     void arenaPageShowsChatRoomWhileFutureFeaturesStayHidden() throws Exception {
-        MockHttpSession session = (MockHttpSession) mockMvc.perform(post("/signup")
+        MockHttpSession session = (MockHttpSession) mockMvc.perform(post("/signup").with(csrf())
                         .param("username", "Mention Alpha")
                         .param("email", "mention-alpha@example.com"))
                 .andExpect(status().is3xxRedirection())
                 .andReturn()
                 .getRequest()
                 .getSession(false);
-        mockMvc.perform(post("/signup")
+        mockMvc.perform(post("/signup").with(csrf())
                         .param("username", "Mention Beta")
                         .param("email", "mention-beta@example.com"))
                 .andExpect(status().is3xxRedirection());
@@ -257,7 +266,7 @@ class BallersClubPageTests {
 
     @Test
     void adminCanSaveMultipleResultsAtOnce() throws Exception {
-        MockHttpSession adminSession = (MockHttpSession) mockMvc.perform(post("/signup")
+        MockHttpSession adminSession = (MockHttpSession) mockMvc.perform(post("/signup").with(csrf())
                         .param("username", "Azzuri")
                         .param("email", "azzuri@example.com"))
                 .andExpect(status().is3xxRedirection())
@@ -265,7 +274,7 @@ class BallersClubPageTests {
                 .getRequest()
                 .getSession(false);
 
-        mockMvc.perform(post("/admin/results/all")
+        mockMvc.perform(post("/admin/results/all").with(csrf())
                 .session(adminSession)
                 .param("matchIds", "13", "14")
                 .param("homeScores", "2", "1")
@@ -284,7 +293,7 @@ class BallersClubPageTests {
 
     @Test
     void adminCanSaveKnockoutResultsAndUpdateNextRound() throws Exception {
-        MockHttpSession adminSession = (MockHttpSession) mockMvc.perform(post("/signup")
+        MockHttpSession adminSession = (MockHttpSession) mockMvc.perform(post("/signup").with(csrf())
                         .param("username", "Azzuri")
                         .param("email", "azzuri@example.com"))
                 .andExpect(status().is3xxRedirection())
@@ -293,7 +302,7 @@ class BallersClubPageTests {
                 .getSession(false);
 
         try {
-            mockMvc.perform(post("/admin/results")
+            mockMvc.perform(post("/admin/results").with(csrf())
                             .session(adminSession)
                             .param("matchId", "73")
                             .param("homeScore", "")
@@ -302,7 +311,7 @@ class BallersClubPageTests {
                     .andExpect(status().is3xxRedirection())
                     .andExpect(redirectedUrl("/admin/results"));
 
-            mockMvc.perform(post("/admin/results")
+            mockMvc.perform(post("/admin/results").with(csrf())
                             .session(adminSession)
                             .param("matchId", "75")
                             .param("homeScore", "0")
@@ -314,7 +323,7 @@ class BallersClubPageTests {
             org.junit.jupiter.api.Assertions.assertEquals("Canada", match89.getHomeTeam());
             org.junit.jupiter.api.Assertions.assertEquals("Morocco", match89.getAwayTeam());
 
-            mockMvc.perform(post("/admin/results")
+            mockMvc.perform(post("/admin/results").with(csrf())
                             .session(adminSession)
                             .param("matchId", "82")
                             .param("homeScore", "2")
@@ -348,7 +357,7 @@ class BallersClubPageTests {
         openPredictionMatch(65L);
         openPredictionMatch(67L);
 
-        MockHttpSession session = (MockHttpSession) mockMvc.perform(post("/signup")
+        MockHttpSession session = (MockHttpSession) mockMvc.perform(post("/signup").with(csrf())
                         .param("username", "bulk tester")
                         .param("email", "bulk@example.com"))
                 .andExpect(status().is3xxRedirection())
@@ -356,7 +365,7 @@ class BallersClubPageTests {
                 .getRequest()
                 .getSession(false);
 
-        mockMvc.perform(post("/arena/predictions/all")
+        mockMvc.perform(post("/arena/predictions/all").with(csrf())
                         .session(session)
                         .param("matchIds", "65", "66", "67")
                         .param("homeGoals", "2", "", "1")
@@ -375,7 +384,7 @@ class BallersClubPageTests {
     void knockoutPredictionCanBeSavedBeforeKickoff() throws Exception {
         openPredictionMatch(73L);
 
-        MockHttpSession session = (MockHttpSession) mockMvc.perform(post("/signup")
+        MockHttpSession session = (MockHttpSession) mockMvc.perform(post("/signup").with(csrf())
                         .param("username", "knockout tester")
                         .param("email", "knockout@example.com"))
                 .andExpect(status().is3xxRedirection())
@@ -383,7 +392,7 @@ class BallersClubPageTests {
                 .getRequest()
                 .getSession(false);
 
-        mockMvc.perform(post("/arena/predictions")
+        mockMvc.perform(post("/arena/predictions").with(csrf())
                         .session(session)
                         .param("matchId", "73")
                         .param("homeGoals", "2")
@@ -401,14 +410,14 @@ class BallersClubPageTests {
     void adminCanSaveResultAndTriggerScoringFeed() throws Exception {
         openPredictionMatch(64L);
 
-        MockHttpSession session = (MockHttpSession) mockMvc.perform(post("/signup")
+        MockHttpSession session = (MockHttpSession) mockMvc.perform(post("/signup").with(csrf())
                         .param("username", "Azzuri")
                         .param("email", "azzuri@example.com"))
                 .andExpect(status().is3xxRedirection())
                 .andReturn()
                 .getRequest()
                 .getSession(false);
-        MockHttpSession outcomeSession = (MockHttpSession) mockMvc.perform(post("/signup")
+        MockHttpSession outcomeSession = (MockHttpSession) mockMvc.perform(post("/signup").with(csrf())
                         .param("username", "Outcome User")
                         .param("email", "outcome-user@example.com"))
                 .andExpect(status().is3xxRedirection())
@@ -416,20 +425,20 @@ class BallersClubPageTests {
                 .getRequest()
                 .getSession(false);
 
-        mockMvc.perform(post("/arena/predictions")
+        mockMvc.perform(post("/arena/predictions").with(csrf())
                         .session(session)
                         .param("matchId", "64")
                         .param("homeGoals", "2")
                         .param("awayGoals", "1"))
                 .andExpect(status().is3xxRedirection());
-        mockMvc.perform(post("/arena/predictions")
+        mockMvc.perform(post("/arena/predictions").with(csrf())
                         .session(outcomeSession)
                         .param("matchId", "64")
                         .param("homeGoals", "3")
                         .param("awayGoals", "1"))
                 .andExpect(status().is3xxRedirection());
 
-        mockMvc.perform(post("/admin/results")
+        mockMvc.perform(post("/admin/results").with(csrf())
                         .session(session)
                         .param("matchId", "64")
                         .param("homeScore", "2")
@@ -448,7 +457,7 @@ class BallersClubPageTests {
 
     @Test
     void adminResultsPageShowsAdvancingTeamInstruction() throws Exception {
-        MockHttpSession adminSession = (MockHttpSession) mockMvc.perform(post("/signup")
+        MockHttpSession adminSession = (MockHttpSession) mockMvc.perform(post("/signup").with(csrf())
                         .param("username", "Azzuri")
                         .param("email", "azzuri@example.com"))
                 .andExpect(status().is3xxRedirection())
@@ -472,13 +481,13 @@ class BallersClubPageTests {
 
     @Test
     void adminCanExportConsentEmails() throws Exception {
-        mockMvc.perform(post("/signup")
+        mockMvc.perform(post("/signup").with(csrf())
                         .param("username", "consent user")
                         .param("email", "consent@example.com")
                         .param("communicationConsent", "on"))
                 .andExpect(status().is3xxRedirection());
 
-        MockHttpSession adminSession = (MockHttpSession) mockMvc.perform(post("/signup")
+        MockHttpSession adminSession = (MockHttpSession) mockMvc.perform(post("/signup").with(csrf())
                         .param("username", "Azzuri")
                         .param("email", "azzuri@example.com"))
                 .andExpect(status().is3xxRedirection())
@@ -494,7 +503,7 @@ class BallersClubPageTests {
 
     @Test
     void feedbackCanBeSavedAndSeenByAdmin() throws Exception {
-        MockHttpSession playerSession = (MockHttpSession) mockMvc.perform(post("/signup")
+        MockHttpSession playerSession = (MockHttpSession) mockMvc.perform(post("/signup").with(csrf())
                         .param("username", "feedback user")
                         .param("email", "feedback@example.com"))
                 .andExpect(status().is3xxRedirection())
@@ -502,13 +511,13 @@ class BallersClubPageTests {
                 .getRequest()
                 .getSession(false);
 
-        mockMvc.perform(post("/arena/feedback")
+        mockMvc.perform(post("/arena/feedback").with(csrf())
                         .session(playerSession)
                         .param("message", "Leaderboard skal være endnu tydeligere"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/arena"));
 
-        MockHttpSession adminSession = (MockHttpSession) mockMvc.perform(post("/signup")
+        MockHttpSession adminSession = (MockHttpSession) mockMvc.perform(post("/signup").with(csrf())
                         .param("username", "Azzuri")
                         .param("email", "azzuri@example.com"))
                 .andExpect(status().is3xxRedirection())
@@ -525,7 +534,7 @@ class BallersClubPageTests {
 
     @Test
     void privatePoolCanBeCreatedAndJoined() throws Exception {
-        MockHttpSession ownerSession = (MockHttpSession) mockMvc.perform(post("/signup")
+        MockHttpSession ownerSession = (MockHttpSession) mockMvc.perform(post("/signup").with(csrf())
                         .param("username", "pool owner")
                         .param("email", "pool-owner@example.com"))
                 .andExpect(status().is3xxRedirection())
@@ -533,7 +542,7 @@ class BallersClubPageTests {
                 .getRequest()
                 .getSession(false);
 
-        mockMvc.perform(post("/pools")
+        mockMvc.perform(post("/pools").with(csrf())
                         .session(ownerSession)
                         .param("name", "Kongen af kontoret"))
                 .andExpect(status().is3xxRedirection())
@@ -545,7 +554,7 @@ class BallersClubPageTests {
                 .orElseThrow()
                 .getCode();
 
-        MockHttpSession challengerSession = (MockHttpSession) mockMvc.perform(post("/signup")
+        MockHttpSession challengerSession = (MockHttpSession) mockMvc.perform(post("/signup").with(csrf())
                         .param("username", "pool challenger")
                         .param("email", "pool-challenger@example.com"))
                 .andExpect(status().is3xxRedirection())
@@ -553,7 +562,7 @@ class BallersClubPageTests {
                 .getRequest()
                 .getSession(false);
 
-        mockMvc.perform(post("/pools/join")
+        mockMvc.perform(post("/pools/join").with(csrf())
                         .session(challengerSession)
                         .param("code", code))
                 .andExpect(status().is3xxRedirection())

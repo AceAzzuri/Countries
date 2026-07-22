@@ -69,6 +69,7 @@
             <p class="bc-voted" th:if="${pollView.poll.isFixedPointPoll() and pollView.myVote != null}" th:text="'Dit valg: ' + ${pollView.myVoteOptionLabel}">Dit valg</p>
 
             <form class="bc-poll-options" method="post" action="/polls/vote" data-preserve-scroll th:if="${currentUser != null and !pollView.poll.isVotingClosed() and !pollView.poll.isFixedPointPoll() and (!pollView.poll.isFreshAwardPoll() or pollView.myVote == null)}">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                 <input type="hidden" name="pollId" th:value="${pollView.poll.id}">
                 <button type="submit" name="optionId" th:each="result : ${pollView.optionResults}" th:value="${result.option.id}">
                     <span th:text="${result.option.label}">Argentina</span>
@@ -122,6 +123,7 @@
 
     <section class="bc-feedback-strip bc-feedback-bottom" aria-label="Feedback">
         <form method="post" action="/arena/feedback">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             <input type="hidden" name="returnTo" value="/polls">
             <label for="polls-feedback">Feedback</label>
             <textarea id="polls-feedback" name="message" rows="1" maxlength="600"

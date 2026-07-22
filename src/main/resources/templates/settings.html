@@ -38,6 +38,7 @@
     <div class="bc-flash success" th:if="${success}" th:text="${success}"></div>
 
     <form class="bc-settings" method="post" action="/settings/reminders">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
         <label>
             <span>
                 <strong>Kampdags-reminder</strong>

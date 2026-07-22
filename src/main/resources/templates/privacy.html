@@ -60,6 +60,7 @@
 
     <section class="bc-feedback-strip bc-feedback-bottom" aria-label="Feedback">
         <form method="post" action="/arena/feedback">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             <input type="hidden" name="returnTo" value="/privacy">
             <label for="privacy-feedback">Feedback</label>
             <textarea id="privacy-feedback" name="message" rows="1" maxlength="600"

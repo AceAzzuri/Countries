@@ -18,11 +18,13 @@ DATABASE_USERNAME=<database-user>
 DATABASE_PASSWORD=<database-password>
 PORT=8080
 COOKIE_SECURE=true
-BALLERS_CLUB_ADMIN_USERNAMES=Azzuri
+BALLERS_CLUB_ADMIN_USERNAMES=<admin-usernames>
 DDL_AUTO=update
 ```
 
 `DDL_AUTO=update` is acceptable for the short MVP period. Move to database migrations before heavier public traffic.
+
+Use a non-guessable admin username for public demos. Move to real authentication before sustained public traffic.
 
 ## Build
 

@@ -1,10 +1,26 @@
-.idea/
+# Maven / Java
 target/
+*.class
+
+# Local databases
 data/
 *.mv.db
 *.lock.db
 *.trace.db
-.DS_Store
-*.swp
+
+# Environment and secrets
 .env
+.env.*
+!.env.example
 *.log
+
+# IDE / editor
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db

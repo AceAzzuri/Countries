@@ -42,6 +42,7 @@
                 <a th:if="${currentUser == null}" class="bc-primary compact" href="/login">Log ind for at spille</a>
             </div>
             <form th:if="${currentUser != null}" method="post" action="/logout">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                 <span class="bc-user" th:text="${currentUser.username}">user</span>
                 <button class="bc-link-button" type="submit">Log ud</button>
             </form>
@@ -120,6 +121,7 @@
                 </div>
                 <div class="bc-chat-layout">
                     <form class="bc-chat-composer" method="post" action="/arena/chat" data-preserve-scroll th:if="${currentUser != null}">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                         <label for="arena-chat-message">Skriv i chatten</label>
                         <textarea id="arena-chat-message" name="message" rows="3" maxlength="240"
                                   placeholder="Skriv en kommentar, et take eller et kald. Brug @alle eller @brugernavn."
@@ -143,6 +145,7 @@
                                     <span th:text="${#temporals.format(chat.createdAt, 'dd. MMM yyyy HH:mm')}">05. Jun 2026 21:00</span>
                                 </div>
                                 <form class="bc-chat-reactions" method="post" action="/arena/chat/react" data-preserve-scroll>
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                                     <input type="hidden" name="messageId" th:value="${chat.id}">
                                     <button class="bc-chat-reaction" type="submit" name="reaction" value="like" aria-label="Like">
                                         <span>👍</span><strong th:text="${chat.likes}">0</strong>
@@ -226,6 +229,7 @@
                     </div>
 
                     <form class="bc-score-form" method="post" action="/arena/predictions" data-preserve-scroll th:if="${currentUser != null and match.predictionOpen}">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                         <input type="hidden" name="matchId" th:value="${match.id}">
                         <input inputmode="numeric" pattern="[0-9]*" name="homeGoals" aria-label="Home goals"
                                th:value="${predictions[match.id] != null ? predictions[match.id].homeGoals : ''}">
@@ -292,6 +296,7 @@
 
     <section class="bc-feedback-strip bc-feedback-bottom" aria-label="Feedback">
         <form method="post" action="/arena/feedback">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             <input type="hidden" name="returnTo" value="/arena">
             <label for="arena-feedback">Feedback</label>
             <textarea id="arena-feedback" name="message" rows="1" maxlength="600"
